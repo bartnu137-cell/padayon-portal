@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Padayon Portal | Engr. HUD v7.0</title>
+
+    <!-- ✅ FAVICON / TAB ICON -->
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9772284960841420"
+            crossorigin="anonymous"></script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Tailwind CDN (kept for existing layouts) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Rajdhani:wght@500;700;900&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="min-h-screen">
+
+    <!-- ========================= LOGIN ========================= -->
+    <div id="login-page">
+        <div class="modern-card">
+            <div class="card-left">
+                <div class="content-left">
+
+                    <!-- ✅ LOGO + TITLE -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <svg class="site-logo" width="44" height="44" viewBox="0 0 64 64" role="img" aria-label="Padayon Portal logo" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="4" opacity="0.9"/>
+                            <circle cx="32" cy="32" r="14" fill="none" stroke="currentColor" stroke-width="2" opacity="0.35"/>
+                            <path d="M35 10 L18 36 H30 L27 54 L46 28 H34 Z" fill="currentColor" opacity="0.95"/>
+                            <path d="M32 6 v6 M32 52 v6 M6 32 h6 M52 32 h6"
+                                  stroke="currentColor" stroke-width="2" opacity="0.35" stroke-linecap="round"/>
+                        </svg>
+
+                        <div class="leading-tight">
+                            <div class="text-white font-bold tracking-wider">PADAYON PORTAL</div>
+                            <div class="text-gray-400 text-xs font-mono">ENGR. HUD v7.0</div>
+                        </div>
+                    </div>
+
+                    <h1 class="welcome-title">Welcome Future Engineer</h1>
+                    <p class="welcome-sub">Prepare for your board exam with our advanced simulation portal.</p>
+                </div>
+
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+
+            <div class="card-right">
+                <h2 class="login-header">USER LOGIN</h2>
+                <form class="modern-form" onsubmit="event.preventDefault(); verifyLogin()">
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="username" class="modern-input" placeholder="Username">
+                    </div>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" class="modern-input" placeholder="Password">
+                    </div>
+                    <div class="form-footer">
+                        <label class="remember-me flex items-center gap-2">
+                            <input id="rememberMe" type="checkbox"> Remember
+                        </label>
+                        <button type="button" id="forgotPassLink" class="forgot-pass">Forgot password?</button>
+                    </div>
+                    <button type="submit" class="modern-login-btn">LOGIN</button>
+                    <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Forgot password modal -->
+    <div id="forgot-modal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-title">Forgot Password</div>
+            <div class="modal-sub">Enter your username and the last password you remember. This will open your email app to contact the admin.</div>
+
+            <div class="modal-grid">
+                <input id="forgot-username" class="modal-input" type="text" placeholder="Username">
+                <input id="forgot-lastpass" class="modal-input" type="text" placeholder="Last password you remember">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeForgotModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="sendForgotEmail()">Email Admin</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= LANDING ========================= -->
+    <div id="landing-page" class="hidden">
+        <div class="glitch-text">WELCOME<br>FUTURE ENGINEER</div>
+        <p class="text-gray-400 mt-4 font-mono tracking-widest text-xs md:text-sm text-center px-4" style="animation: popIn 0.8s ease 0.3s forwards; opacity: 0;">SYSTEM PREPARING MODULES...</p>
+        <button class="start-btn" onclick="goToLevel1()">INITIALIZE SYSTEM</button>
+    </div>
+
+
+    <!-- ========================= LEVEL 1 (CATEGORIES) ========================= -->
+    <div id="level-1-menu" class="menu-overlay hidden">
+        <!-- Landing page actions (category level only) -->
+        <button onclick="userQuickImportLibrary()" class="import-btn" title="Import a library.json backup/update">⬆ IMPORT</button>
+        <input id="user-import-file" type="file" accept="application/json" style="display:none" />
+        <button onclick="logoutToLogin()" class="logout-btn">⏻ LOGOUT</button>
+        <h2 class="menu-header">SELECT CATEGORY</h2>
+
+        <!-- Admin-only fallback import (category level only) -->
+        <div id="admin-quick-import" class="w-full max-w-5xl px-4 mt-4 hidden">
+            <div class="cyber-card p-4 rounded-xl">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <div class="text-sm font-mono tracking-widest text-gray-300">ADMIN QUICK IMPORT</div>
+                        <div class="text-xs font-mono text-gray-500">Import <span class="text-gray-400">library.json</span> (quizzes + PDFs). Visible only to admin.</div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2 items-center">
+                        <input id="admin-quick-import-file" type="file" accept="application/json" class="admin-file" />
+                        <button class="admin-btn" onclick="adminQuickImportLibrary()">IMPORT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ Online users (shows under Categories only) -->
+        <div id="online-users-card" class="w-full max-w-5xl px-4 mt-4">
+            <div class="cyber-card p-4 rounded-xl">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
+                        <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
+                    </div>
+                    <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
+                </div>
+                <div id="online-users-list" class="mt-3 flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl px-4 pb-20">
+            <div onclick="goToLevel2('undergrounds')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop">
+                <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🚇</div>
+                <h3 class="text-xl font-bold text-white tracking-widest">UNDERGROUNDS</h3>
+                <p class="text-gray-500 text-xs font-mono mt-2">Fundamental Concepts</p>
+            </div>
+
+            <div onclick="goToLevel2('taypi')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-100">
+                <div class="text-4xl mb-4 group-hover:text-[#ff00ff] transition-colors">🏛️</div>
+                <h3 class="text-xl font-bold text-white tracking-widest">T-AY-PI</h3>
+                <p class="text-gray-500 text-xs font-mono mt-2">Board Exam Simulation</p>
+            </div>
+
+            <div onclick="goToLevel2('exhale')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-200">
+                <div class="text-4xl mb-4 group-hover:text-[#00ff9d] transition-colors">😤</div>
+                <h3 class="text-xl font-bold text-white tracking-widest">EXHALE FILE</h3>
+                <p class="text-gray-500 text-xs font-mono mt-2">Deep Dive Analysis</p>
+            </div>
+
+            <div onclick="goToLevel2('pawer')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-300">
+                <div class="text-4xl mb-4 group-hover:text-[#ff0055] transition-colors">⚡</div>
+                <h3 class="text-xl font-bold text-white tracking-widest">PAWER-LAYN FILE</h3>
+                <p class="text-gray-500 text-xs font-mono mt-2">Power Systems & Grid</p>
+            </div>
+
+            <!-- Admin card (shown only if logged in as admin) -->
+            <div id="admin-card" onclick="openAdminPanel()" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop hidden">
+                <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🛠️</div>
+                <h3 class="text-xl font-bold text-white tracking-widest">ADMIN PANEL</h3>
+                <p class="text-gray-500 text-xs font-mono mt-2">Content Manager</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= UNDERGROUNDS ========================= -->
+    <div id="submenu-undergrounds" class="menu-overlay hidden">
+        <button onclick="backToLevel1()" class="back-btn">← BACK</button>
+        <h2 class="menu-header text-[#00f3ff] mt-12 md:mt-0">UNDERGROUNDS MODULES</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl px-4 pb-20">
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop" onclick="openTermsMenu()">
+                <div class="text-3xl mb-2">📚</div>
+                <div class="font-bold text-sm">TERMS & OBJECTIVES</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop delay-100" onclick="openNotesFolder('UNDERGROUNDS/FORMULAS', 'FORMULAS NOTES', 'submenu-undergrounds')">
+                <div class="text-3xl mb-2">∫dx</div>
+                <div class="font-bold text-sm">FORMULAS</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop delay-200" onclick="openCustomQuizBrowser('UNDERGROUNDS/PROBLEM EXERCISES', 'submenu-undergrounds', 'PROBLEM EXERCISES')">
+                <div class="text-3xl mb-2">✍️</div>
+                <div class="font-bold text-sm">PROBLEM EXERCISES</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop delay-300" onclick="openNotesFolder('UNDERGROUNDS/CALCULATOR TECHNIQUES', 'CALCULATOR TECHNIQUES', 'submenu-undergrounds')">
+                <div class="text-3xl mb-2">🖩</div>
+                <div class="font-bold text-sm">CALCULATOR TECHNIQUE</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Terms & Objectives (Archives Database) -->
+    <div id="submenu-terms" class="menu-overlay hidden flex flex-col justify-center items-center">
+        <div class="w-full max-w-3xl mx-auto pt-12 md:pt-0 px-6 relative mb-6 text-center shrink-0">
+            <button onclick="closeTermsMenu()" class="back-btn static md:absolute md:left-0 md:top-1 mb-4 md:mb-0">← BACK</button>
+            <h2 class="menu-header text-[#00f3ff] inline-block m-0">ARCHIVES DATABASE</h2>
+        </div>
+
+        <div class="w-full max-w-3xl h-[70vh] overflow-y-auto px-4 pb-20 hide-scrollbar">
+            <div class="flex flex-col gap-4">
+
+                <!-- Custom archives (PDFs uploaded by admin) -->
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openNotesFolder('UNDERGROUNDS/TERMS & OBJECTIVES', 'CUSTOM ARCHIVES', 'submenu-terms', 'all')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">🗄️</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">Custom Archives</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">PDFs & folders uploaded by admin</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <!-- Built-in past board sets -->
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openPastBoardList()">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">Esas Past Board (UG)</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Access Archived Exam Sets</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <!-- Previously locked modules now unlocked with placeholder -->
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/MATH SUBJECTS', 'submenu-terms', 'MATH SUBJECTS QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">Math Subjects</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Calculus, Algebra, & Probability</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/EE PAST BOARD', 'submenu-terms', 'EE PAST BOARD QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">EE Past Board (UG)</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Previous Licensure Examinations</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/EE PRE BOARD', 'submenu-terms', 'EE PRE BOARD QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">EE Pre Board (UG)</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Mock Board Examinations</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/EE DC CIRCUITS', 'submenu-terms', 'EE DC CIRCUITS QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">EE DC Circuits</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Ohm's Law, Network Theorems</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/EE DC MACHINES', 'submenu-terms', 'EE DC MACHINES QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">EE DC Machines</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Motors & Generators</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/EE AC SINGLE-PHASE', 'submenu-terms', 'EE AC SINGLE-PHASE QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">EE AC Single-Phase</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">R-L-C Series & Parallel</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+                <div class="cyber-card w-full p-6 rounded-xl flex items-center gap-6 cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/EE AC THREE-PHASE', 'submenu-terms', 'EE AC THREE-PHASE QUIZ SETS')">
+                    <div class="text-4xl text-[#00f3ff] bg-gray-900/50 p-3 rounded-lg group-hover:scale-110 transition-transform">📂</div>
+                    <div class="text-left flex-1">
+                        <div class="font-bold text-xl text-white group-hover:text-[#00f3ff] transition-colors">EE AC Three-Phase</div>
+                        <p class="text-gray-500 text-xs font-mono mt-1">Polyphase Systems</p>
+                    </div>
+                    <div class="text-gray-600 text-xl group-hover:text-white transition-colors">➔</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Built-in past board list -->
+    <div id="submenu-past-board-list" class="menu-overlay hidden">
+        <button onclick="closePastBoardList()" class="back-btn">← BACK</button>
+        <h2 class="menu-header text-[#00f3ff] mt-12 md:mt-0">SELECT EXAM SET</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl px-4 pb-20">
+            <div class="cyber-card p-8 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop" onclick="loadQuiz('ug1')">
+                <div class="text-4xl mb-4 text-[#00f3ff]">📜</div>
+                <div class="font-bold text-xl">PAST BOARD 1 (UG)</div>
+                <p class="text-gray-500 text-xs font-mono mt-2">Electrical Safety & Code</p>
+            </div>
+
+            <div class="cyber-card p-8 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop delay-100" onclick="loadQuiz('ug2')">
+                <div class="text-4xl mb-4 text-[#00f3ff]">🔬</div>
+                <div class="font-bold text-xl">PAST BOARD 2 (UG)</div>
+                <p class="text-gray-500 text-xs font-mono mt-2">Thermo & Mechanics</p>
+            </div>
+
+            <div class="cyber-card p-8 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop delay-200" onclick="loadQuiz('ug3')">
+                <div class="text-4xl mb-4 text-[#00f3ff]">🏗️</div>
+                <div class="font-bold text-xl">PAST BOARD 3 (UG)</div>
+                <p class="text-gray-500 text-xs font-mono mt-2">Materials & Sciences</p>
+            </div>
+
+            <div class="cyber-card p-8 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] animate-pop delay-300" onclick="openCustomQuizBrowser('UNDERGROUNDS/TERMS & OBJECTIVES/ESAS PAST BOARD', 'submenu-past-board-list', 'CUSTOM PAST BOARD SETS')">
+                <div class="text-4xl mb-4 text-[#00f3ff]">📂</div>
+                <div class="font-bold text-xl">CUSTOM PAST BOARD</div>
+                <p class="text-gray-500 text-xs font-mono mt-2">Admin-added quiz sets</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= T-AY-PI ========================= -->
+    <div id="submenu-taypi" class="menu-overlay hidden">
+        <button onclick="backToLevel1()" class="back-btn">← BACK</button>
+        <h2 class="menu-header text-[#ff00ff] mt-12 md:mt-0">T-AY-PI MODULES</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl px-4 pb-20">
+            <div onclick="loadQuiz('math')" class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff00ff] animate-pop">
+                <div class="text-4xl mb-2 group-hover:text-[#ff00ff]">📐</div>
+                <h3 class="font-bold text-lg">MATHEMATICS</h3>
+                <span class="text-xs text-[#ff00ff] border border-[#ff00ff] px-2 rounded mt-2 inline-block">50 Qs</span>
+            </div>
+
+            <div onclick="loadQuiz('esas')" class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff00ff] animate-pop delay-100">
+                <div class="text-4xl mb-2 group-hover:text-[#ff00ff]">⚙️</div>
+                <h3 class="font-bold text-lg">ESAS</h3>
+                <span class="text-xs text-[#ff00ff] border border-[#ff00ff] px-2 rounded mt-2 inline-block">50 Qs</span>
+            </div>
+
+            <div onclick="openCustomQuizBrowser('T-AY-PI/EE', 'submenu-taypi', 'T-AY-PI EE SETS')" class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff00ff] animate-pop delay-200">
+                <div class="text-4xl mb-2">⚡</div>
+                <h3 class="font-bold text-lg">EE</h3>
+                <span class="text-xs text-gray-500 mt-2 block">Custom quiz sets</span>
+            </div>
+
+            <div onclick="openCustomQuizBrowser('T-AY-PI', 'submenu-taypi', 'T-AY-PI CUSTOM SETS')" class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff00ff] animate-pop delay-300">
+                <div class="text-4xl mb-2">📂</div>
+                <h3 class="font-bold text-lg">CUSTOM SETS</h3>
+                <span class="text-xs text-gray-500 mt-2 block">Math / ESAS / EE / Other</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= EXHALE FILE ========================= -->
+    <div id="submenu-exhale" class="menu-overlay hidden">
+        <button onclick="backToLevel1()" class="back-btn">← BACK</button>
+        <h2 class="menu-header text-[#00ff9d] mt-12 md:mt-0">EXHALE FILE</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-4 pb-20">
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00ff9d] animate-pop" onclick="openNotesFolder('EXHALE FILE/NOTES', 'EXHALE FILE NOTES', 'submenu-exhale')">
+                <div class="text-4xl mb-4 text-[#00ff9d]">📝</div>
+                <div class="font-bold text-xl">NOTES</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00ff9d] animate-pop delay-100" onclick="openCustomQuizBrowser('EXHALE FILE/PRACTICE QUIZ', 'submenu-exhale', 'EXHALE FILE PRACTICE QUIZ')">
+                <div class="text-4xl mb-4 text-[#00ff9d]">🧠</div>
+                <div class="font-bold text-xl">PRACTICE QUIZ</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00ff9d] animate-pop delay-200" onclick="openCustomQuizBrowser('EXHALE FILE/EXAM', 'submenu-exhale', 'EXHALE FILE EXAM')">
+                <div class="text-4xl mb-4 text-[#00ff9d]">⏱️</div>
+                <div class="font-bold text-xl">EXAM</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= PAWER-LAYN FILE ========================= -->
+    <div id="submenu-pawer" class="menu-overlay hidden">
+        <button onclick="backToLevel1()" class="back-btn">← BACK</button>
+        <h2 class="menu-header text-[#ff0055] mt-12 md:mt-0">PAWER-LAYN FILE</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-4 pb-20">
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff0055] animate-pop" onclick="openNotesFolder('PAWER-LAYN FILE/NOTES', 'PAWER-LAYN FILE NOTES', 'submenu-pawer')">
+                <div class="text-4xl mb-4 text-[#ff0055]">📝</div>
+                <div class="font-bold text-xl">NOTES</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff0055] animate-pop delay-100" onclick="openCustomQuizBrowser('PAWER-LAYN FILE/PRACTICE QUIZ', 'submenu-pawer', 'PAWER-LAYN FILE PRACTICE QUIZ')">
+                <div class="text-4xl mb-4 text-[#ff0055]">🧠</div>
+                <div class="font-bold text-xl">PRACTICE QUIZ</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#ff0055] animate-pop delay-200" onclick="openCustomQuizBrowser('PAWER-LAYN FILE/EXAM', 'submenu-pawer', 'PAWER-LAYN FILE EXAM')">
+                <div class="text-4xl mb-4 text-[#ff0055]">⏱️</div>
+                <div class="font-bold text-xl">EXAM</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= QUIZ APP ========================= -->
+    <div id="main-app" class="hidden opacity-0 transition-opacity duration-500">
+        <header class="sticky top-0 z-50 backdrop-blur-md border-b border-gray-800 bg-[#0a0a0f]/95 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+                    <button onclick="backToQuizMenu()" class="text-gray-500 hover:text-white font-mono text-xs border border-gray-700 px-2 py-1 rounded">← MODULES</button>
+                    <!-- Logout is available only at category level (SELECT CATEGORY) -->
+                    <h1 class="text-lg md:text-2xl font-bold tracking-wider text-white">
+                        <span id="active-module-title" class="text-[#00f3ff]">BOARD</span>
+                        <span class="text-xs border border-gray-600 px-1 rounded text-gray-400">ACTIVE</span>
+                    </h1>
+                </div>
+
+                <div class="w-full md:w-auto overflow-x-auto">
+                    <div class="mode-switch mx-auto md:mx-0 min-w-max">
+                        <div id="btn-review" class="mode-btn active" onclick="setMode('review')">STUDY MODE</div>
+                        <div id="btn-practice" class="mode-btn inactive" onclick="setMode('practice')">PRACTICE MODE</div>
+                        <div id="btn-exam" class="mode-btn inactive" onclick="setMode('exam')">EXAM MODE</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto px-4 py-6 pb-24">
+            <div id="practice-dashboard" class="hidden mb-6 p-4 rounded bg-gray-900/50 border-l-4 border-purple-500 flex justify-between items-center">
+                <div>
+                    <h2 class="text-purple-400 font-bold uppercase text-xs md:text-sm mb-1">PRACTICE MODE ACTIVE</h2>
+                    <p class="text-gray-400 text-[10px] md:text-xs">Tap for instant feedback.</p>
+                </div>
+                <button onclick="resetPractice()" class="px-3 py-1 bg-purple-900/50 hover:bg-purple-800 text-purple-200 text-xs font-bold rounded border border-purple-500/30">RESET</button>
+            </div>
+
+            <div id="exam-dashboard" class="hidden mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="cyber-card p-4 rounded flex flex-col justify-center bg-gray-900/50 border-yellow-500/30">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="text-gray-400 text-xs uppercase">Exam Status</div>
+                        <div id="exam-status" class="text-sm font-bold text-yellow-500">IN PROGRESS</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="submitExam()" id="submit-btn" class="flex-1 px-4 py-2 bg-[#00f3ff] hover:bg-[#00c2cc] text-black font-bold rounded shadow-[0_0_10px_rgba(0,243,255,0.3)] transition-all text-sm uppercase">Submit</button>
+                        <button onclick="resetExam()" id="reset-btn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded transition-all text-sm uppercase">Reset</button>
+                    </div>
+                </div>
+
+                <div class="cyber-card p-4 rounded bg-gray-900/50 flex flex-col justify-center">
+                    <div class="text-gray-400 text-xs uppercase">Score</div>
+                    <div class="text-3xl font-bold text-white font-mono flex items-end gap-2">
+                        <span id="score-display" class="text-[#00f3ff]">--</span>
+                        <span id="total-score" class="text-gray-500 text-lg mb-1">/ --</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="questions-container" class="grid grid-cols-1 gap-6"></div>
+        </div>
+    </div>
+
+
+    <!-- ========================= NOTES (PDF LIST) OVERLAY ========================= -->
+    <div id="notes-overlay" class="menu-overlay hidden flex flex-col justify-center items-center">
+        <!-- BACK acts like “Up” inside folders; closes Notes when at the notes root -->
+        <button onclick="notesBrowserBackOrClose()" class="back-btn">← BACK</button>
+        <!-- Logout is available only at category level (SELECT CATEGORY) -->
+        <h2 id="notes-overlay-title" class="menu-header text-[#00f3ff] mt-12 md:mt-0">NOTES</h2>
+
+        <div id="notes-overlay-path" class="overlay-path"></div>
+
+        <div class="w-full max-w-5xl h-[70vh] overflow-y-auto px-4 pb-20 hide-scrollbar">
+            <div id="notes-overlay-list" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- PDF viewer overlay -->
+    <div id="pdf-overlay" class="menu-overlay hidden flex flex-col justify-center items-center">
+        <button onclick="closePdfOverlay()" class="back-btn">← BACK</button>
+        <!-- Logout is available only at category level (SELECT CATEGORY) -->
+        <h2 id="pdf-overlay-title" class="menu-header text-[#00f3ff] mt-12 md:mt-0">PDF</h2>
+
+        <div class="w-full max-w-6xl h-[75vh] px-4">
+            <iframe id="pdf-frame" class="w-full h-full rounded border border-gray-800 bg-black"></iframe>
+        </div>
+
+        <div class="mt-4 flex gap-3">
+            <a id="pdf-download" class="px-4 py-2 border border-gray-700 rounded font-mono text-xs text-gray-300 hover:text-white hover:border-[#00f3ff]" href="#" download>Download PDF</a>
+        </div>
+    </div>
+
+
+    <!-- ========================= CUSTOM QUIZ SETS BROWSER ========================= -->
+    <div id="quiz-browser-overlay" class="menu-overlay hidden">
+        <!-- BACK acts like “Up” inside folders; closes the browser when at the category root -->
+        <button onclick="quizBrowserBackOrClose()" class="back-btn">← BACK</button>
+        <!-- Logout is available only at category level (SELECT CATEGORY) -->
+        <h2 id="quiz-browser-title" class="menu-header text-[#00f3ff] mt-12 md:mt-0">QUIZ SETS</h2>
+
+        <div id="quiz-browser-path" class="overlay-path"></div>
+
+        <div class="w-full max-w-6xl h-[70vh] overflow-y-auto px-4 pb-20 hide-scrollbar">
+            <div id="quiz-browser-list" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+
+    <!-- ========================= ADMIN PANEL ========================= -->
+    <div id="admin-overlay" class="admin-overlay hidden">
+        <div class="admin-shell">
+            <aside class="admin-sidebar">
+                <div class="admin-title">NAVIGATION</div>
+
+                <button id="admin-nav-content" class="admin-nav-item active" type="button">🍪 Content</button>
+                <button id="admin-nav-accounts" class="admin-nav-item" type="button">👥 Accounts</button>
+                <button id="admin-nav-logs" class="admin-nav-item" type="button">🛰️ Online &amp; Logs</button>
+                <button id="admin-nav-backup" class="admin-nav-item" type="button">💾 Backup</button>
+
+                <div class="admin-spacer"></div>
+
+                <!-- One‑click Save (downloads library.json) -->
+                <button id="admin-save" class="admin-save" type="button">💾 SAVE</button>
+
+                <button id="admin-close" class="admin-logout" type="button">← BACK TO CATEGORIES</button>
+            </aside>
+
+            <main class="admin-main hide-scrollbar">
+                <!-- CONTENT TAB -->
+                <section id="admin-tab-content" class="admin-tab">
+                    <div class="admin-header">
+                        <div>
+                            <div class="admin-header-title">CONTENT MANAGER</div>
+                            <div class="admin-header-sub">Create quiz sets, upload PDFs, and create archive folders anywhere.</div>
+                        </div>
+                        <div id="admin-library-status" class="admin-pill">LIBRARY: ...</div>
+                    </div>
+
+                    <div id="admin-library-hint" class="admin-hint hidden"></div>
+
+                    <!-- SEARCH -->
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div class="admin-card-title">SEARCH</div>
+                            <button id="admin-search-clear" class="admin-mini-btn" type="button">CLEAR</button>
+                        </div>
+
+                        <div class="admin-search-grid">
+                            <input id="admin-search-input" class="admin-input" type="text" placeholder="Search folders, quiz sets, PDFs...">
+                            <div class="admin-tip">Tip: click a result to open/select.</div>
+                        </div>
+
+                        <div id="admin-search-results" class="admin-search-results hidden"></div>
+                        <div class="admin-help">Type to search folders / quiz sets / PDFs.</div>
+                    </div>
+
+                    <!-- TYPE PICKER -->
+                    <div class="admin-type-row">
+                        <button id="admin-type-quiz" class="admin-type-card active" type="button">
+                            <div class="admin-type-dot on"></div>
+                            <div>
+                                <div class="admin-type-title">QUIZ SET</div>
+                                <div class="admin-type-sub">Question builder + JSON import</div>
+                            </div>
+                        </button>
+
+                        <button id="admin-type-notes" class="admin-type-card" type="button">
+                            <div class="admin-type-dot"></div>
+                            <div>
+                                <div class="admin-type-title">NOTES (PDF)</div>
+                                <div class="admin-type-sub">Upload &amp; attach PDFs</div>
+                            </div>
+                        </button>
+
+                        <button id="admin-type-folder" class="admin-type-card" type="button">
+                            <div class="admin-type-dot"></div>
+                            <div>
+                                <div class="admin-type-title">ARCHIVE FOLDER</div>
+                                <div class="admin-type-sub">Create folders in any path</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- TARGET PATH -->
+                    <div class="admin-target-row">
+                        <div class="admin-field">
+                            <div class="admin-label">Target folder path</div>
+                            <input id="admin-target-path" class="admin-input" type="text" value="GLOBAL" placeholder="e.g. EXHALE FILE / UNDERGROUNDS/FORMULAS">
+                            <div class="admin-help">Tip: you can type ANY path; folders will be auto-created.</div>
+                        </div>
+
+                        <div class="admin-field">
+                            <div class="admin-label">Quick pick</div>
+                            <select id="admin-quick-pick" class="admin-select">
+                                <option value="">-- Select a common folder --</option>
+                                <!-- T-AY-PI -->
+                                <option value="T-AY-PI/MATHEMATICS">>T-AY-PI/MATHEMATICS</option>
+                                <option value="T-AY-PI/ESAS">>T-AY-PI/ESAS</option>
+                                <option value="T-AY-PI/EE">>T-AY-PI/EE</option>
+                                <option value="T-AY-PI/OTHERS">>T-AY-PI/OTHERS</option>
+
+                                <!-- EXHALE FILE -->
+                                <option value="EXHALE FILE">>EXHALE FILE</option>
+                                <option value="EXHALE FILE/NOTES">>EXHALE FILE/NOTES</option>
+                                <option value="EXHALE FILE/PRACTICE QUIZ">>EXHALE FILE/PRACTICE QUIZ</option>
+                                <option value="EXHALE FILE/EXAM">>EXHALE FILE/EXAM</option>
+
+                                <!-- PAWER-LAYN FILE -->
+                                <option value="PAWER-LAYN FILE">>PAWER-LAYN FILE</option>
+                                <option value="PAWER-LAYN FILE/NOTES">>PAWER-LAYN FILE/NOTES</option>
+                                <option value="PAWER-LAYN FILE/PRACTICE QUIZ">>PAWER-LAYN FILE/PRACTICE QUIZ</option>
+                                <option value="PAWER-LAYN FILE/EXAM">>PAWER-LAYN FILE/EXAM</option>
+
+                                <!-- UNDERGROUND FILE -->
+                                <option value="UNDERGROUNDS/FORMULAS">UNDERGROUNDS/FORMULAS</option>
+                                <option value="UNDERGROUNDS/CALCULATOR TECHNIQUES">UNDERGROUNDS/CALCULATOR TECHNIQUES</option>
+                                <option value="UNDERGROUNDS/PROBLEM EXERCISES">UNDERGROUNDS/PROBLEM EXERCISES</option>
+                                <option value="UNDERGROUNDS/TERMS & OBJECTIVES">UNDERGROUNDS/TERMS & OBJECTIVES</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- PATH HELPERS -->
+                    <div class="admin-path-info">
+                        <div class="admin-help">Normalized path: <span id="admin-path-normalized" class="admin-mono-accent">(loading...)</span></div>
+                        <div class="admin-help">Appears in user: <span id="admin-path-visibility" class="admin-mono">(loading...)</span></div>
+                        <div class="admin-path-actions">
+                            <button id="admin-copy-path" class="admin-mini-btn" type="button">COPY PATH</button>
+                            <button id="admin-preview-quiz" class="admin-mini-btn" type="button">PREVIEW QUIZ</button>
+                            <button id="admin-preview-pdfs" class="admin-mini-btn" type="button">PREVIEW PDFs</button>
+                        </div>
+                    </div>
+
+
+                    <!-- QUIZ SET PANEL -->
+                    <div id="admin-panel-quiz" class="admin-stack">
+                        <!-- Create/Select set -->
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">Create / Select Quiz Set</div>
+
+                            <div class="admin-row3">
+                                <input id="admin-quiz-title" class="admin-input" type="text" placeholder="Quiz set title (e.g. PAST BOARD 4)">
+                                <button id="admin-quiz-create-btn" class="admin-btn magenta" type="button">CREATE SET</button>
+                                <select id="admin-quiz-select" class="admin-select">
+                                    <option value="">-- Select existing set --</option>
+                                </select>
+                            </div>
+
+                            <div class="admin-help">Create set in the Target folder above, or select a set to edit/import questions.</div>
+                        </div>
+
+                        <!-- Tools -->
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">Quiz Set Tools</div>
+                            <div class="admin-help">Move or delete the selected quiz set. (Built-in sets are protected.)</div>
+
+                            <div class="admin-row3">
+                                <input id="admin-quiz-move-path" class="admin-input" type="text" placeholder="Move to folder path (blank = Target)">
+                                <button id="admin-quiz-move-btn" class="admin-btn green" type="button">MOVE SELECTED</button>
+                                <button id="admin-quiz-use-target-btn" class="admin-btn" type="button">USE TARGET PATH</button>
+                            </div>
+
+                            <div class="admin-row2">
+                                <label class="admin-check"><input id="admin-quiz-delete-questions" type="checkbox"> Delete questions too</label>
+                                <button id="admin-quiz-delete-btn" class="admin-btn danger" type="button">DELETE SELECTED</button>
+                            </div>
+                        </div>
+
+                        <!-- Import/Export -->
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title-row">
+                                <div class="admin-card-title">Import Questions (.json)</div>
+                                <div class="admin-help">Format: PADAYON_QUIZSET_V1 or plain array.</div>
+                            </div>
+
+                            <div class="admin-row3">
+                                <input id="admin-import-file" class="admin-file" type="file" accept="application/json">
+                                <button id="admin-import-btn" class="admin-btn green" type="button">IMPORT JSON</button>
+                                <button id="admin-export-btn" class="admin-btn" type="button">EXPORT SELECTED</button>
+                            </div>
+                        </div>
+
+                        <!-- Question Builder -->
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title-row">
+                                <div class="admin-card-title">Question Builder</div>
+                                <div class="admin-help">Questions in set: <span id="admin-q-count" class="admin-count">0</span></div>
+                            </div>
+
+                            <div class="admin-row2">
+                                <input id="admin-q-topic" class="admin-input" type="text" placeholder="Topic (optional)">
+                                <select id="admin-q-correct" class="admin-select">
+                                    <option value="a">Correct: A</option>
+                                    <option value="b">Correct: B</option>
+                                    <option value="c">Correct: C</option>
+                                    <option value="d">Correct: D</option>
+                                </select>
+                            </div>
+
+                            <textarea id="admin-q-text" class="admin-textarea" rows="4" placeholder="Question text (supports MathJax)"></textarea>
+
+                            <div class="admin-row2">
+                                <input id="admin-q-a" class="admin-input" type="text" placeholder="Option A">
+                                <input id="admin-q-b" class="admin-input" type="text" placeholder="Option B">
+                            </div>
+                            <div class="admin-row2">
+                                <input id="admin-q-c" class="admin-input" type="text" placeholder="Option C">
+                                <input id="admin-q-d" class="admin-input" type="text" placeholder="Option D">
+                            </div>
+
+                            <textarea id="admin-q-soln" class="admin-textarea" rows="4" placeholder="Solution / Explanation (optional, supports HTML + MathJax)"></textarea>
+                            <textarea id="admin-q-caltech" class="admin-textarea" rows="3" placeholder="Calculator Technique (optional)"></textarea>
+
+                            <div class="admin-row2">
+                                <button id="admin-q-add-btn" class="admin-btn cyan" type="button">ADD QUESTION</button>
+                                <button id="admin-q-clear-btn" class="admin-btn" type="button">CLEAR</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- NOTES (PDF) PANEL -->
+                    <div id="admin-panel-notes" class="admin-stack hidden">
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">Upload PDF Notes</div>
+                            <div class="admin-help">Upload works in EXHALE FILE / PAWER-LAYN FILE / UNDERGROUNDS FORMULAS / CALCULATOR TECHNIQUES / T-AY-PI (and any folder you type).</div>
+
+                            <div class="admin-row2">
+                                <select id="admin-pdf-kind" class="admin-select">
+                                    <option value="notes">Category: Notes</option>
+                                    <option value="archive">Category: Archive</option>
+                                </select>
+                                <div class="admin-help">Notes appear in Notes modules. Archive appears in Terms &amp; Objectives → Custom Archives.</div>
+                            </div>
+
+                            <div class="admin-row3">
+                                <input id="admin-pdf-file" class="admin-file" type="file" accept="application/pdf">
+                                <input id="admin-pdf-title" class="admin-input" type="text" placeholder="Display title (optional)">
+                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">UPLOAD &amp; ATTACH (EMBED)</button>
+                            </div>
+
+                            <div class="admin-row-url">
+                                <input id="admin-pdf-url" class="admin-input" type="text" placeholder="Or paste PDF URL/path (recommended for GitHub) e.g. assets/notes/myfile.pdf">
+                                <button id="admin-pdf-attach-url-btn" class="admin-btn cyan" type="button">ATTACH URL</button>
+                            </div>
+
+                            <div class="admin-hint">
+                                <strong>Tip:</strong> GitHub Pages is static. For sharing, upload the PDF file into your repo, then paste its relative path above and export <span class="font-mono">library.json</span>.
+                                Embedding (UPLOAD) stores the PDF inside <span class="font-mono">library.json</span> as base64 (can get huge).
+                            </div>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">PDFs in selected folder</div>
+                            <div id="admin-pdf-list" class="admin-list"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- ARCHIVE FOLDER PANEL -->
+                    <div id="admin-panel-folder" class="admin-stack hidden">
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">Create Archive Folder</div>
+                            <div class="admin-help">Creates a folder under the Target path. Works for any category/subcategory path.</div>
+
+                            <div class="admin-row3">
+                                <input id="admin-folder-name" class="admin-input" type="text" placeholder="Folder name (e.g. CHAPTER 1)">
+                                <button id="admin-folder-create-btn" class="admin-btn magenta" type="button">CREATE ARCHIVE FOLDER</button>
+                                <button id="admin-folder-open-btn" class="admin-btn" type="button">OPEN TARGET</button>
+                            </div>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">Folders under target</div>
+                            <div class="admin-help">Click a folder to set it as the Target path.</div>
+                            <div id="admin-folder-list" class="admin-list"></div>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title">Folder Tools</div>
+                            <div class="admin-help">Rename / move / delete the folder in Target folder path. Delete is recursive.</div>
+
+                            <div class="admin-row3">
+                                <input id="admin-folder-rename" class="admin-input" type="text" placeholder="New folder name (rename)">
+                                <button id="admin-folder-rename-btn" class="admin-btn green" type="button">RENAME</button>
+                                <button id="admin-folder-how-btn" class="admin-btn" type="button">HOW IT WORKS</button>
+                            </div>
+
+                            <div class="admin-row3">
+                                <input id="admin-folder-move-parent" class="admin-input" type="text" placeholder="New parent path (move)">
+                                <button id="admin-folder-move-btn" class="admin-btn green" type="button">MOVE</button>
+                                <button id="admin-folder-root-btn" class="admin-btn" type="button">USE ROOT</button>
+                            </div>
+
+                            <div class="admin-row2">
+                                <label class="admin-check"><input id="admin-folder-delete-contents" type="checkbox"> Also delete quiz sets / PDFs inside</label>
+                                <button id="admin-folder-delete-btn" class="admin-btn danger" type="button">DELETE FOLDER</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+
+                <!-- ACCOUNTS TAB -->
+                <section id="admin-tab-accounts" class="admin-tab hidden">
+                    <div class="admin-header">
+                        <div>
+                            <div class="admin-header-title">ACCOUNTS</div>
+                            <div class="admin-header-sub">Admin is hard-coded in script.js (admin/admin). User login remains (EE/C-1).</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title">Current Accounts</div>
+                        <div class="admin-list">
+                            <div class="admin-list-item">
+                                <div>
+                                    <div class="admin-list-title">admin</div>
+                                    <div class="admin-list-sub">Role: admin</div>
+                                </div>
+                                <div class="admin-pill">PROTECTED</div>
+                            </div>
+
+                            <div class="admin-list-item">
+                                <div>
+                                    <div class="admin-list-title">EE</div>
+                                    <div class="admin-list-sub">Role: user</div>
+                                </div>
+                                <div class="admin-pill">DEFAULT</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ✅ Server-backed accounts (Render backend) -->
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title">Create Account (Server)</div>
+                        <div class="admin-help">Creates a login stored in the backend (so users you create here can login on other devices and will appear in Online Users).</div>
+
+                        <div class="admin-row3">
+                            <input id="admin-create-username" class="admin-input" type="text" placeholder="Username">
+                            <input id="admin-create-password" class="admin-input" type="password" placeholder="Password">
+                            <select id="admin-create-role" class="admin-select">
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
+                        </div>
+
+                        <div class="admin-row2">
+                            <button id="admin-create-account-btn" class="admin-btn green" type="button">CREATE ACCOUNT</button>
+                            <button id="admin-refresh-accounts-btn" class="admin-btn" type="button">REFRESH LIST</button>
+                        </div>
+
+                        <div id="admin-account-status" class="admin-help">Backend: not connected.</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title">Server Accounts</div>
+                        <div class="admin-help">Accounts below are fetched from the backend. (Passwords are never shown.)</div>
+                        <div id="admin-server-accounts-list" class="admin-list"></div>
+                    </div>
+                </section>
+
+
+                <!-- LOGS TAB (placeholder) -->
+                <section id="admin-tab-logs" class="admin-tab hidden">
+                    <div class="admin-header">
+                        <div>
+                            <div class="admin-header-title">ONLINE &amp; LOGS</div>
+                            <div class="admin-header-sub">Real-time online users + what screen they're on (requires your Render backend).</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title">Connection</div>
+                        <div id="admin-live-status" class="admin-help">Backend: not connected.</div>
+                        <div class="admin-help">If this stays disconnected, check your backend URL setting and CORS origin.</div>
+                        <div class="admin-help" style="margin-top:12px;">Backend URL (Render)</div>
+                        <div class="admin-row3">
+                            <input id="admin-backend-url-input" class="admin-input" type="text" placeholder="https://your-backend-name.onrender.com">
+                            <button id="admin-backend-url-save-btn" class="admin-btn cyan" type="button">SAVE</button>
+                            <button id="admin-backend-url-clear-btn" class="admin-btn danger" type="button">CLEAR</button>
+                        </div>
+                        <div id="admin-backend-url-status" class="admin-help">Current: (not set)</div>
+                        <div class="admin-help" style="font-size:10px; color:#6b7280;">Tip: after changing URL, logout/login if it says “not authenticated”.</div>
+
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div class="admin-card-title">Online Users</div>
+                            <button id="admin-refresh-online-btn" class="admin-mini-btn" type="button">REFRESH</button>
+                        </div>
+                        <div id="admin-online-users-list" class="admin-list"></div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div class="admin-card-title">Live Activity Feed</div>
+                            <button id="admin-clear-log-btn" class="admin-mini-btn" type="button">CLEAR</button>
+                        </div>
+                        <div class="admin-help">Shows latest actions (navigation, opened notes/PDF, started quiz/exam, etc.).</div>
+                        <div id="admin-activity-log" class="admin-list"></div>
+                    </div>
+                </section>
+
+
+                <!-- BACKUP TAB -->
+                <section id="admin-tab-backup" class="admin-tab hidden">
+                    <div class="admin-header">
+                        <div>
+                            <div class="admin-header-title">BACKUP</div>
+                            <div class="admin-header-sub">Export &amp; import <span class="font-mono">library.json</span> so you can commit it to GitHub.</div>
+                        </div>
+                        <div class="admin-pill">SHARE TO FRIENDS</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title">Export</div>
+                        <div class="admin-help">After editing content, click Export Library, then replace the <span class="font-mono">library.json</span> file in your repo and push to GitHub.</div>
+                        <div class="admin-row2">
+                            <button id="admin-backup-export" class="admin-btn cyan" type="button">EXPORT LIBRARY.JSON</button>
+                            <button id="admin-backup-export-js" class="admin-btn" type="button">EXPORT LIBRARY.JS (OFFLINE)</button>
+                        </div>
+                        <div class="admin-help">If you run via <span class="font-mono">file://</span>, the browser blocks loading JSON. <span class="font-mono">library.js</span> is the offline fallback.</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title">Import</div>
+                        <div class="admin-help">Import a previously exported <span class="font-mono">library.json</span> (this updates the admin panel in-memory).</div>
+                        <div class="admin-row3">
+                            <input id="admin-backup-import-file" class="admin-file" type="file" accept="application/json">
+                            <button id="admin-backup-import-btn" class="admin-btn green" type="button">IMPORT LIBRARY</button>
+                            <div id="admin-backup-status" class="admin-help">No file imported yet.</div>
+                        </div>
+
+                        <div class="admin-hint">
+                            <strong>Local testing tip:</strong> If you open <span class="font-mono">index.html</span> directly (file://), the browser blocks fetch() for <span class="font-mono">library.json</span>. Use VSCode Live Server or run <span class="font-mono">python -m http.server</span> so the site loads via http:// and the library can be fetched.
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+
+    <script src="database.js"></script>
+    <script src="library.js"></script>
+
+    <!-- ✅ OPTIONAL: set your Render backend URL here (no trailing slash).
+         Example: https://your-backend-name.onrender.com -->
+    <script>
+        window.PADAYON_BACKEND_URL = window.PADAYON_BACKEND_URL || "";
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
