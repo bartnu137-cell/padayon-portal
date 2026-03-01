@@ -529,45 +529,35 @@ function updateLiveStatusUI(serverHello = null) {
 }
 
 function renderOnlineUsersWidget() {
-  const cardEl = document.getElementById('online-users-card');
   const countEl = document.getElementById('online-users-count');
   const listEl = document.getElementById('online-users-list');
-  const subEl = document.getElementById('online-users-sub');
+  if (!countEl || !listEl) return;
 
-  if (!cardEl || !countEl || !listEl || !subEl) return;
-
-  // ===== Automatically hide unless on CATEGORIES view =====
-  if (currentView !== 'CATEGORIES') {
-    cardEl.style.display = 'none';
-    return;
-  }
-
-  // ===== Show card before updating list =====
-  cardEl.style.display = 'block';
-
-  // Update subtitle text
-  if (!session?.username) {
-    subEl.textContent = 'Login to see online users.';
-  } else if (!liveIsEnabled()) {
-    subEl.textContent = 'Backend not set.';
-  } else if (!liveWsConnected) {
-    subEl.textContent = 'Connecting live…';
-  } else {
-    subEl.textContent = 'Live connected.';
-  }
-
-  // ===== Update list and count =====
+  // Prefer public list (for users). Admin still sees public list here.
   const users = Array.isArray(liveOnlinePublic) ? liveOnlinePublic : [];
+  countEl.textContent = String(users.length);
 
-  // If no users and not connected yet, we can hide the list
-  if (users.length === 0 && liveWsConnected) {
-    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">No one online.</span>';
-    countEl.textContent = '0';
+  if (!session?.username) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(login required)</span>';
     return;
   }
 
-  // Fill online users
-  countEl.textContent = String(users.length);
+  if (!liveIsEnabled()) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(backend not configured)</span>';
+    return;
+  }
+
+  if (!liveWsConnected) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(connecting…)</span>';
+    return;
+  }
+
+  if (users.length === 0) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">No one online.</span>';
+    return;
+  }
+
+  // Pills
   listEl.innerHTML = users.map(u => {
     const name = escapeHTML(u?.username || 'user');
     return `<span class="admin-pill">🟢 ${name}</span>`;
