@@ -117,21 +117,6 @@
         <button onclick="logoutToLogin()" class="logout-btn">⏻ LOGOUT</button>
         <h2 class="menu-header">SELECT CATEGORY</h2>
 
-        <!-- Admin-only fallback import (category level only) -->
-        <div id="admin-quick-import" class="w-full max-w-5xl px-4 mt-4 hidden">
-            <div class="cyber-card p-4 rounded-xl">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                        <div class="text-sm font-mono tracking-widest text-gray-300">ADMIN QUICK IMPORT</div>
-                        <div class="text-xs font-mono text-gray-500">Import <span class="text-gray-400">library.json</span> (quizzes + PDFs). Visible only to admin.</div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2 items-center">
-                        <input id="admin-quick-import-file" type="file" accept="application/json" class="admin-file" />
-                        <button class="admin-btn" onclick="adminQuickImportLibrary()">IMPORT</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- ✅ Online users (shows under Categories only) -->
         <div id="online-users-card" class="w-full max-w-5xl px-4 mt-4">
