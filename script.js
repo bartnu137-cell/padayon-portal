@@ -529,35 +529,45 @@ function updateLiveStatusUI(serverHello = null) {
 }
 
 function renderOnlineUsersWidget() {
+  const cardEl = document.getElementById('online-users-card');
   const countEl = document.getElementById('online-users-count');
   const listEl = document.getElementById('online-users-list');
-  if (!countEl || !listEl) return;
+  const subEl = document.getElementById('online-users-sub');
 
-  // Prefer public list (for users). Admin still sees public list here.
-  const users = Array.isArray(liveOnlinePublic) ? liveOnlinePublic : [];
-  countEl.textContent = String(users.length);
+  if (!cardEl || !countEl || !listEl || !subEl) return;
 
+  // ===== Automatically hide unless on CATEGORIES view =====
+  if (currentView !== 'CATEGORIES') {
+    cardEl.style.display = 'none';
+    return;
+  }
+
+  // ===== Show card before updating list =====
+  cardEl.style.display = 'block';
+
+  // Update subtitle text
   if (!session?.username) {
-    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(login required)</span>';
-    return;
+    subEl.textContent = 'Login to see online users.';
+  } else if (!liveIsEnabled()) {
+    subEl.textContent = 'Backend not set.';
+  } else if (!liveWsConnected) {
+    subEl.textContent = 'Connecting live…';
+  } else {
+    subEl.textContent = 'Live connected.';
   }
 
-  if (!liveIsEnabled()) {
-    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(backend not configured)</span>';
-    return;
-  }
+  // ===== Update list and count =====
+  const users = Array.isArray(liveOnlinePublic) ? liveOnlinePublic : [];
 
-  if (!liveWsConnected) {
-    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(connecting…)</span>';
-    return;
-  }
-
-  if (users.length === 0) {
+  // If no users and not connected yet, we can hide the list
+  if (users.length === 0 && liveWsConnected) {
     listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">No one online.</span>';
+    countEl.textContent = '0';
     return;
   }
 
-  // Pills
+  // Fill online users
+  countEl.textContent = String(users.length);
   listEl.innerHTML = users.map(u => {
     const name = escapeHTML(u?.username || 'user');
     return `<span class="admin-pill">🟢 ${name}</span>`;
