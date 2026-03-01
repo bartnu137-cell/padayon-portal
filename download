@@ -1,0 +1,5 @@
+node_modules
+.env
+# If you don't attach a persistent disk, your db will be recreated anyway.
+# Keep it out of git by default.
+data/db.json
