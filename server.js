@@ -1,1 +1,688 @@
-function _0x4f25(){const _0xbd25e4=['includes','jsonwebtoken','presence:public','post','password\x20too\x20short.','lastLoginAt','message','compareSync','200mb','saligao','map','renameSync','cristopher','maceda','slice','3857148HPhEEE','authorization','now','startsWith','30d','Disconnected','activity','user','isBuffer','delete','text/plain','POST','PUT','/api/library','terminate','.tmp','log:append','bcryptjs','object','Invalid\x20credentials.','DB\x20file:\x20','OPEN','Admin\x20only.','https://www.google.com/recaptcha/api/siteverify','carl','/api/accounts','hashSync','origin','Bearer\x20','put','existsSync','Padayon\x20Live\x20Backend\x20is\x20running.','4372805jGspuL','application/x-www-form-urlencoded','join','clients','isAlive','send','username\x20and\x20password\x20required.','get','find','use','request','status','path','toString','GET','Library\x20updated','Account\x20already\x20exists.','type','dirname','UNKNOWN','Please\x20complete\x20the\x20captcha.','/ws','list','push','reCAPTCHA\x20parse\x20error:','body','Content-Type','append','Padayon\x20backend\x20listening\x20on\x20:','sessionId','isArray','accounts','log:batch','Captcha\x20verification\x20failed.','headers','This\x20account\x20was\x20logged\x20in\x20on\x20another\x20device.','sign','cors','stringify','/api/health','library:changed','parse','hello\x20requires\x20a\x20valid\x20token','6DbPaBR','Unauthorized.','toLowerCase','CHANGE_ME_IN_RENDER_ENV','treb','verify','success','close','authed','error','1036858EGuDWi','presence:admin','clientId','reCAPTCHA\x20request\x20error:','toISOString','trim','Library\x20version\x20must\x20be\x202.','role','Missing\x20RECAPTCHA_SECRET_KEY\x20in\x20environment.','45yAvyZE','details','OPTIONS','initial_library.json','log:request','hello','801976PICpwQ','readFileSync','pdfs','utf8','byteLength','Connected','ping','library','rheygie','CORS\x20origin:\x20','LOGIN','2464752PggLiR','/api/auth/login','json','log','length','write','_lastLogTs','Invalid\x20or\x20expired\x20session.','db.json','filter','remoteip','random','express','username','any','captchaToken','quizSets','from','force_logout','listen','data','view','password','3944979pEYqNf','lastSeen','updatedAt','token','createdAt','6517343LpTNiB','folders','_lastLogKey','https','Online','version','values','presence:request','admin','forEach'];_0x4f25=function(){return _0xbd25e4;};return _0x4f25();}const _0x10dffa=_0x4ef8;function _0x4ef8(_0x29c60b,_0x4019bf){_0x29c60b=_0x29c60b-0x15c;const _0x4f25d5=_0x4f25();let _0x4ef84f=_0x4f25d5[_0x29c60b];return _0x4ef84f;}(function(_0x48dc4b,_0x91e9db){const _0xaeea41=_0x4ef8,_0x22fa66=_0x48dc4b();while(!![]){try{const _0x4cae8d=parseInt(_0xaeea41(0x18e))/0x1+-parseInt(_0xaeea41(0x19d))/0x2+parseInt(_0xaeea41(0x1bf))/0x3+-parseInt(_0xaeea41(0x1dd))/0x4+-parseInt(_0xaeea41(0x1fd))/0x5+-parseInt(_0xaeea41(0x184))/0x6*(parseInt(_0xaeea41(0x1c4))/0x7)+-parseInt(_0xaeea41(0x1a8))/0x8*(-parseInt(_0xaeea41(0x197))/0x9);if(_0x4cae8d===_0x91e9db)break;else _0x22fa66['push'](_0x22fa66['shift']());}catch(_0x1ebc2d){_0x22fa66['push'](_0x22fa66['shift']());}}}(_0x4f25,0xb021c));const express=require(_0x10dffa(0x1b4)),cors=require(_0x10dffa(0x17e)),http=require('http'),https=require(_0x10dffa(0x1c7)),path=require('path'),fs=require('fs'),{WebSocketServer}=require('ws'),bcrypt=require(_0x10dffa(0x1ee)),jwt=require(_0x10dffa(0x1cf)),PORT=Number(process.env.PORT||0xbb8),JWT_SECRET=String(process.env.JWT_SECRET||_0x10dffa(0x187)),RECAPTCHA_SECRET_KEY=String(process.env.RECAPTCHA_SECRET_KEY||''),CORS_ORIGIN_RAW=String(process.env.CORS_ORIGIN||'*'),DATA_DIR=String(process.env.DATA_DIR||path[_0x10dffa(0x1ff)](__dirname,_0x10dffa(0x1bc))),DB_FILE=path['join'](DATA_DIR,_0x10dffa(0x1b0)),INITIAL_LIBRARY_FILE=String(process.env.INITIAL_LIBRARY_FILE||path['join'](__dirname,_0x10dffa(0x19a)));function nowISO(){const _0x495e46=_0x10dffa;return new Date()[_0x495e46(0x192)]();}function verifyRecaptchaToken(_0x1e4523,_0x2c27f4){return new Promise(_0x18334e=>{const _0x2fe9d7=_0x4ef8;if(!RECAPTCHA_SECRET_KEY)return console[_0x2fe9d7(0x18d)](_0x2fe9d7(0x196)),_0x18334e(![]);const _0x5375d1=new URLSearchParams({'secret':RECAPTCHA_SECRET_KEY,'response':String(_0x1e4523||'')});_0x2c27f4&&_0x5375d1[_0x2fe9d7(0x174)](_0x2fe9d7(0x1b2),String(_0x2c27f4));const _0x284ada=https[_0x2fe9d7(0x163)](_0x2fe9d7(0x1f4),{'method':_0x2fe9d7(0x1e8),'headers':{'Content-Type':_0x2fe9d7(0x1fe),'Content-Length':Buffer[_0x2fe9d7(0x1a1)](_0x5375d1[_0x2fe9d7(0x166)]())}},_0x5ee1ac=>{let _0x48500b='';_0x5ee1ac['on']('data',_0x52d957=>{_0x48500b+=_0x52d957;}),_0x5ee1ac['on']('end',()=>{const _0x4aaed4=_0x4ef8;try{const _0x3eb483=JSON['parse'](_0x48500b);_0x18334e(!!_0x3eb483[_0x4aaed4(0x18a)]);}catch(_0x2cdcd8){console[_0x4aaed4(0x18d)](_0x4aaed4(0x171),_0x2cdcd8),_0x18334e(![]);}});});_0x284ada['on']('error',_0x3332d6=>{const _0x446bcd=_0x2fe9d7;console['error'](_0x446bcd(0x191),_0x3332d6),_0x18334e(![]);}),_0x284ada[_0x2fe9d7(0x1ad)](_0x5375d1['toString']()),_0x284ada['end']();});}function safeJsonParse(_0x50e2d1,_0x5b6530=null){const _0x492c2d=_0x10dffa;try{return JSON[_0x492c2d(0x182)](_0x50e2d1);}catch{return _0x5b6530;}}function ensureDir(_0x1c239c){const _0x2a2f55=_0x10dffa;if(!fs[_0x2a2f55(0x1fb)](_0x1c239c))fs['mkdirSync'](_0x1c239c,{'recursive':!![]});}function emptyLibrary(){return{'version':0x2,'updatedAt':null,'folders':[],'quizSets':[],'pdfs':[]};}function defaultDb(){return{'accounts':[],'library':emptyLibrary()};}function readJsonFileIfExists(_0x593f15){const _0x57e35b=_0x10dffa;if(!fs[_0x57e35b(0x1fb)](_0x593f15))return null;const _0x4d442b=fs[_0x57e35b(0x19e)](_0x593f15,_0x57e35b(0x1a0));return safeJsonParse(_0x4d442b,null);}function writeJsonAtomic(_0x40c60a,_0x490f0a){const _0x5f3bd4=_0x10dffa;ensureDir(path[_0x5f3bd4(0x16b)](_0x40c60a));const _0x5fc9e5=_0x40c60a+_0x5f3bd4(0x1ec);fs['writeFileSync'](_0x5fc9e5,JSON[_0x5f3bd4(0x17f)](_0x490f0a,null,0x2),_0x5f3bd4(0x1a0)),fs[_0x5f3bd4(0x1d9)](_0x5fc9e5,_0x40c60a);}function normalizeUsername(_0x34f413){const _0x572efc=_0x10dffa;return String(_0x34f413||'')[_0x572efc(0x193)]();}function findAccount(_0x4b4c55,_0x1f8180){const _0x278d0d=_0x10dffa,_0x41f688=normalizeUsername(_0x1f8180);if(!_0x41f688)return null;return _0x4b4c55[_0x278d0d(0x178)][_0x278d0d(0x161)](_0x22a8a5=>String(_0x22a8a5[_0x278d0d(0x1b5)])[_0x278d0d(0x186)]()===_0x41f688[_0x278d0d(0x186)]())||null;}function toSafeAccount(_0x5b4106){const _0x58c18f=_0x10dffa;return{'username':_0x5b4106[_0x58c18f(0x1b5)],'role':_0x5b4106[_0x58c18f(0x195)],'createdAt':_0x5b4106[_0x58c18f(0x1c3)]||null};}function sanitizeLibrary(_0x2fc0db){const _0x2bd5b1=_0x10dffa;if(!_0x2fc0db||typeof _0x2fc0db!==_0x2bd5b1(0x1ef))return emptyLibrary();const _0x306d26=Number(_0x2fc0db[_0x2bd5b1(0x1c9)]||0x0);if(_0x306d26!==0x2)throw new Error(_0x2bd5b1(0x194));const _0x432f1e=emptyLibrary();return _0x432f1e[_0x2bd5b1(0x1c9)]=0x2,_0x432f1e['updatedAt']=String(_0x2fc0db[_0x2bd5b1(0x1c1)]||'')||null,_0x432f1e[_0x2bd5b1(0x1c5)]=Array['isArray'](_0x2fc0db['folders'])?_0x2fc0db['folders']:[],_0x432f1e[_0x2bd5b1(0x1b8)]=Array[_0x2bd5b1(0x177)](_0x2fc0db['quizSets'])?_0x2fc0db[_0x2bd5b1(0x1b8)]:[],_0x432f1e[_0x2bd5b1(0x19f)]=Array[_0x2bd5b1(0x177)](_0x2fc0db[_0x2bd5b1(0x19f)])?_0x2fc0db[_0x2bd5b1(0x19f)]:[],_0x432f1e;}function initDbOnDisk(){const _0x28b1e6=_0x10dffa;ensureDir(DATA_DIR);let _0x319e0d=readJsonFileIfExists(DB_FILE);if(!_0x319e0d||typeof _0x319e0d!=='object')_0x319e0d=defaultDb();if(!_0x319e0d['library']||typeof _0x319e0d[_0x28b1e6(0x1a4)]!==_0x28b1e6(0x1ef)||Number(_0x319e0d[_0x28b1e6(0x1a4)][_0x28b1e6(0x1c9)]||0x0)!==0x2){const _0x2f70f2=readJsonFileIfExists(INITIAL_LIBRARY_FILE);if(_0x2f70f2&&typeof _0x2f70f2===_0x28b1e6(0x1ef))try{_0x319e0d['library']=sanitizeLibrary(_0x2f70f2);}catch{_0x319e0d[_0x28b1e6(0x1a4)]=emptyLibrary();}else _0x319e0d[_0x28b1e6(0x1a4)]=emptyLibrary();}let _0x403f59=![];const _0x2c6bc1=[{'username':'admin','password':_0x28b1e6(0x1cc),'role':'admin'},{'username':_0x28b1e6(0x1d7),'password':_0x28b1e6(0x1f5),'role':_0x28b1e6(0x1e4)},{'username':'ramos','password':_0x28b1e6(0x1f5),'role':'user'},{'username':'fernandez','password':_0x28b1e6(0x1da),'role':_0x28b1e6(0x1e4)},{'username':'cortez','password':'cyron','role':_0x28b1e6(0x1e4)},{'username':'castillo','password':'gian','role':_0x28b1e6(0x1e4)},{'username':_0x28b1e6(0x1db),'password':'mj','role':_0x28b1e6(0x1e4)},{'username':'quillopo','password':'pj','role':'user'},{'username':'arcenas','password':_0x28b1e6(0x1a5),'role':_0x28b1e6(0x1e4)},{'username':'felizarta','password':_0x28b1e6(0x188),'role':_0x28b1e6(0x1e4)}];return _0x2c6bc1[_0x28b1e6(0x1cd)](_0x19932c=>{const _0xd83835=_0x28b1e6;!findAccount(_0x319e0d,_0x19932c[_0xd83835(0x1b5)])&&(_0x319e0d[_0xd83835(0x178)][_0xd83835(0x170)]({'username':_0x19932c[_0xd83835(0x1b5)],'passwordHash':bcrypt['hashSync'](_0x19932c[_0xd83835(0x1be)],0xa),'role':_0x19932c[_0xd83835(0x195)],'createdAt':nowISO()}),_0x403f59=!![]);}),!Array[_0x28b1e6(0x177)](_0x319e0d[_0x28b1e6(0x178)])&&(_0x319e0d[_0x28b1e6(0x178)]=[],_0x403f59=!![]),(_0x403f59||!fs[_0x28b1e6(0x1fb)](DB_FILE))&&writeJsonAtomic(DB_FILE,_0x319e0d),_0x319e0d;}let db=initDbOnDisk();function saveDb(){writeJsonAtomic(DB_FILE,db);}function parseAllowedOrigins(_0x30d2a0){const _0x2ec16f=_0x10dffa,_0x47fb2e=String(_0x30d2a0||'')['trim']();if(!_0x47fb2e||_0x47fb2e==='*')return{'any':!![],'list':[]};const _0x424858=_0x47fb2e['split'](',')[_0x2ec16f(0x1d8)](_0x590dfc=>_0x590dfc[_0x2ec16f(0x193)]())[_0x2ec16f(0x1b1)](Boolean);return{'any':![],'list':_0x424858};}const allowedOrigins=parseAllowedOrigins(CORS_ORIGIN_RAW);function isOriginAllowed(_0x22df0b){const _0x14da17=_0x10dffa;if(allowedOrigins[_0x14da17(0x1b6)])return!![];if(!_0x22df0b)return!![];return allowedOrigins[_0x14da17(0x16f)][_0x14da17(0x1ce)](_0x22df0b);}const app=express();app['use'](express[_0x10dffa(0x1aa)]({'limit':_0x10dffa(0x1d6)})),app[_0x10dffa(0x162)](cors({'origin':(_0x26e80f,_0x359b3a)=>{if(isOriginAllowed(_0x26e80f))return _0x359b3a(null,!![]);return _0x359b3a(new Error('CORS\x20blocked\x20for\x20origin:\x20'+_0x26e80f));},'methods':[_0x10dffa(0x167),'POST',_0x10dffa(0x1e9),_0x10dffa(0x199)],'allowedHeaders':[_0x10dffa(0x173),'Authorization']}));function requireAuth(_0x28d8a9,_0x156623,_0x2b96a9){const _0x12445e=_0x10dffa,_0x35d99b=String(_0x28d8a9[_0x12445e(0x17b)][_0x12445e(0x1de)]||''),_0x182a12=_0x35d99b[_0x12445e(0x1e0)](_0x12445e(0x1f9))?_0x35d99b[_0x12445e(0x1dc)](_0x12445e(0x1f9)['length']):'';if(!_0x182a12)return _0x156623[_0x12445e(0x164)](0x191)[_0x12445e(0x1aa)]({'error':'Missing\x20Bearer\x20token.'});const _0x1a2a25=getUserFromActiveToken(_0x182a12);if(!_0x1a2a25)return _0x156623[_0x12445e(0x164)](0x191)[_0x12445e(0x1aa)]({'error':_0x12445e(0x1af)});return _0x28d8a9[_0x12445e(0x1e4)]=_0x1a2a25,_0x2b96a9();}function requireAdmin(_0x409ed0,_0x172e8c,_0x46d06f){const _0x5e33bf=_0x10dffa;if(!_0x409ed0[_0x5e33bf(0x1e4)])return _0x172e8c['status'](0x191)[_0x5e33bf(0x1aa)]({'error':_0x5e33bf(0x185)});if(_0x409ed0[_0x5e33bf(0x1e4)][_0x5e33bf(0x195)]!==_0x5e33bf(0x1cc))return _0x172e8c['status'](0x193)[_0x5e33bf(0x1aa)]({'error':_0x5e33bf(0x1f3)});return _0x46d06f();}app[_0x10dffa(0x160)]('/',(_0x825e2a,_0x2b4d1d)=>{const _0x3f83c5=_0x10dffa;_0x2b4d1d[_0x3f83c5(0x16a)](_0x3f83c5(0x1e7))['send'](_0x3f83c5(0x1fc));}),app[_0x10dffa(0x160)](_0x10dffa(0x180),(_0x2b6c2b,_0xc9a006)=>{const _0x4cf1eb=_0x10dffa;_0xc9a006[_0x4cf1eb(0x1aa)]({'ok':!![],'time':nowISO()});}),app[_0x10dffa(0x1d1)](_0x10dffa(0x1a9),async(_0x404344,_0x297fd1)=>{const _0x588d1b=_0x10dffa,_0x48db40=normalizeUsername(_0x404344['body']?.['username']),_0x4dbf8a=String(_0x404344['body']?.[_0x588d1b(0x1be)]||''),_0x2a23c6=String(_0x404344['body']?.[_0x588d1b(0x1b7)]||'');if(!_0x48db40||!_0x4dbf8a)return _0x297fd1[_0x588d1b(0x164)](0x190)[_0x588d1b(0x1aa)]({'error':'username\x20and\x20password\x20required.'});if(!_0x2a23c6)return _0x297fd1[_0x588d1b(0x164)](0x190)[_0x588d1b(0x1aa)]({'error':_0x588d1b(0x16d)});const _0x1b4134=await verifyRecaptchaToken(_0x2a23c6,_0x404344['ip']);if(!_0x1b4134)return _0x297fd1[_0x588d1b(0x164)](0x190)[_0x588d1b(0x1aa)]({'error':_0x588d1b(0x17a)});const _0x4f8181=findAccount(db,_0x48db40);if(!_0x4f8181)return _0x297fd1[_0x588d1b(0x164)](0x191)[_0x588d1b(0x1aa)]({'error':_0x588d1b(0x1f0)});const _0x21c23d=bcrypt[_0x588d1b(0x1d5)](_0x4dbf8a,_0x4f8181['passwordHash']||'');if(!_0x21c23d)return _0x297fd1[_0x588d1b(0x164)](0x191)[_0x588d1b(0x1aa)]({'error':_0x588d1b(0x1f0)});_0x4f8181[_0x588d1b(0x176)]=makeSessionId(),_0x4f8181[_0x588d1b(0x1d3)]=nowISO(),saveDb(),forceLogoutUserSockets(_0x4f8181[_0x588d1b(0x1b5)]);const _0x10307c=jwt[_0x588d1b(0x17d)]({'username':_0x4f8181[_0x588d1b(0x1b5)],'role':_0x4f8181[_0x588d1b(0x195)],'sessionId':_0x4f8181[_0x588d1b(0x176)]},JWT_SECRET,{'expiresIn':_0x588d1b(0x1e1)});return _0x297fd1[_0x588d1b(0x1aa)]({'token':_0x10307c,'user':{'username':_0x4f8181[_0x588d1b(0x1b5)],'role':_0x4f8181[_0x588d1b(0x195)]}});}),app[_0x10dffa(0x160)](_0x10dffa(0x1ea),(_0x30e2f3,_0x3bec1c)=>{const _0x2fc889=_0x10dffa;_0x3bec1c[_0x2fc889(0x1aa)](db[_0x2fc889(0x1a4)]||emptyLibrary());}),app[_0x10dffa(0x1fa)](_0x10dffa(0x1ea),requireAuth,requireAdmin,(_0x786369,_0x5e76cf)=>{const _0x5d662f=_0x10dffa;try{const _0x4a65df=sanitizeLibrary(_0x786369[_0x5d662f(0x172)]);_0x4a65df[_0x5d662f(0x1c1)]=nowISO(),db[_0x5d662f(0x1a4)]=_0x4a65df,saveDb();const _0x32ae3c=Date['parse'](_0x4a65df['updatedAt'])||Date['now']();broadcastAll({'type':_0x5d662f(0x181),'ms':_0x32ae3c,'updatedAt':_0x4a65df[_0x5d662f(0x1c1)]}),addLog(_0x786369[_0x5d662f(0x1e4)]['username'],_0x5d662f(0x168)),_0x5e76cf[_0x5d662f(0x1aa)]({'ok':!![],'updatedAt':_0x4a65df[_0x5d662f(0x1c1)]});}catch(_0x123a74){_0x5e76cf['status'](0x190)['json']({'error':String(_0x123a74?.[_0x5d662f(0x1d4)]||_0x123a74)});}}),app[_0x10dffa(0x160)](_0x10dffa(0x1f6),requireAuth,requireAdmin,(_0x60da60,_0x52b540)=>{const _0x2453e2=_0x10dffa,_0x162396=(db[_0x2453e2(0x178)]||[])[_0x2453e2(0x1d8)](toSafeAccount);_0x52b540[_0x2453e2(0x1aa)]({'accounts':_0x162396});}),app[_0x10dffa(0x1d1)](_0x10dffa(0x1f6),requireAuth,requireAdmin,(_0x40beca,_0x241077)=>{const _0xdf89e3=_0x10dffa,_0x48711e=normalizeUsername(_0x40beca['body']?.['username']),_0x1bf423=String(_0x40beca[_0xdf89e3(0x172)]?.['password']||''),_0x2bbc91=String(_0x40beca[_0xdf89e3(0x172)]?.[_0xdf89e3(0x195)]||_0xdf89e3(0x1e4))===_0xdf89e3(0x1cc)?'admin':_0xdf89e3(0x1e4);if(!_0x48711e||!_0x1bf423)return _0x241077[_0xdf89e3(0x164)](0x190)[_0xdf89e3(0x1aa)]({'error':_0xdf89e3(0x15f)});if(_0x1bf423[_0xdf89e3(0x1ac)]<0x3)return _0x241077[_0xdf89e3(0x164)](0x190)[_0xdf89e3(0x1aa)]({'error':_0xdf89e3(0x1d2)});if(findAccount(db,_0x48711e))return _0x241077[_0xdf89e3(0x164)](0x199)['json']({'error':_0xdf89e3(0x169)});const _0xabe4a={'username':_0x48711e,'passwordHash':bcrypt[_0xdf89e3(0x1f7)](_0x1bf423,0xa),'role':_0x2bbc91,'createdAt':nowISO()};db[_0xdf89e3(0x178)]['push'](_0xabe4a),saveDb(),addLog(_0x40beca[_0xdf89e3(0x1e4)]['username'],'Created\x20account:\x20'+_0x48711e+'\x20('+_0x2bbc91+')'),_0x241077[_0xdf89e3(0x1aa)]({'ok':!![],'account':toSafeAccount(_0xabe4a)});});let forceLogoutUserSockets=()=>{};const server=http['createServer'](app),wss=new WebSocketServer({'server':server,'path':_0x10dffa(0x16e)});forceLogoutUserSockets=function(_0x334df3){const _0x153f5e=_0x10dffa,_0x29af3e=String(_0x334df3||'')[_0x153f5e(0x186)]();wss[_0x153f5e(0x15c)][_0x153f5e(0x1cd)](_0x128ca3=>{const _0x5c6e98=_0x153f5e,_0x422860=clients[_0x5c6e98(0x160)](_0x128ca3);if(!_0x422860||!_0x422860[_0x5c6e98(0x1b5)])return;if(String(_0x422860[_0x5c6e98(0x1b5)])[_0x5c6e98(0x186)]()===_0x29af3e){wsSend(_0x128ca3,{'type':_0x5c6e98(0x1ba),'reason':_0x5c6e98(0x17c)});try{_0x128ca3[_0x5c6e98(0x18b)]();}catch{}}});};const clients=new Map();let activityLog=[];function addLog(_0x7b454e,_0x3fb056){const _0x2e261c=_0x10dffa,_0x1244cf={'ts':Date[_0x2e261c(0x1df)](),'username':String(_0x7b454e||''),'message':String(_0x3fb056||'')};activityLog['push'](_0x1244cf);if(activityLog[_0x2e261c(0x1ac)]>0x12c)activityLog=activityLog[_0x2e261c(0x1dc)](-0x12c);broadcastAdmins({'type':_0x2e261c(0x1ed),'item':_0x1244cf});}function getOnlineStates(){const _0x498b3b=_0x10dffa;return Array[_0x498b3b(0x1b9)](clients[_0x498b3b(0x1ca)]())[_0x498b3b(0x1b1)](_0x54f821=>_0x54f821&&_0x54f821[_0x498b3b(0x1b5)])['map'](_0x2d31dd=>({'username':_0x2d31dd['username'],'role':_0x2d31dd[_0x498b3b(0x195)],'activity':_0x2d31dd[_0x498b3b(0x1e3)],'view':_0x2d31dd[_0x498b3b(0x1bd)],'path':_0x2d31dd[_0x498b3b(0x165)],'details':_0x2d31dd[_0x498b3b(0x198)],'clientId':_0x2d31dd[_0x498b3b(0x190)],'connectedAt':_0x2d31dd['connectedAt'],'lastSeen':_0x2d31dd[_0x498b3b(0x1c0)]}));}function presencePayloadPublic(){const _0x310209=_0x10dffa,_0x3cfcf2=getOnlineStates()[_0x310209(0x1d8)](_0x1cb798=>({'username':_0x1cb798['username'],'role':_0x1cb798[_0x310209(0x195)]}));return{'type':_0x310209(0x1d0),'users':_0x3cfcf2};}function presencePayloadAdmin(){const _0x30f009=_0x10dffa;return{'type':_0x30f009(0x18f),'users':getOnlineStates()};}function wsSend(_0x3ad5f1,_0x317bc0){const _0x5dab71=_0x10dffa;try{if(_0x3ad5f1['readyState']===_0x3ad5f1[_0x5dab71(0x1f2)])_0x3ad5f1[_0x5dab71(0x15e)](JSON[_0x5dab71(0x17f)](_0x317bc0));}catch{}}function broadcastAll(_0x204efd){const _0x2c87e3=_0x10dffa;wss[_0x2c87e3(0x15c)][_0x2c87e3(0x1cd)](_0x12c753=>wsSend(_0x12c753,_0x204efd));}function broadcastAdmins(_0x40f4a7){const _0x46f882=_0x10dffa;wss[_0x46f882(0x15c)][_0x46f882(0x1cd)](_0x574f14=>{const _0x5c875c=_0x46f882,_0x5dbeb9=clients['get'](_0x574f14);if(_0x5dbeb9&&_0x5dbeb9['role']===_0x5c875c(0x1cc))wsSend(_0x574f14,_0x40f4a7);});}let presenceTimer=null;function schedulePresenceBroadcast(){if(presenceTimer)return;presenceTimer=setTimeout(()=>{const _0x2da7e5=_0x4ef8;presenceTimer=null;const _0x422ffc=presencePayloadPublic(),_0x156cdc=presencePayloadAdmin();wss[_0x2da7e5(0x15c)][_0x2da7e5(0x1cd)](_0x4d9596=>{const _0x187c9c=_0x2da7e5,_0x4dd485=clients['get'](_0x4d9596);if(!_0x4dd485||!_0x4dd485[_0x187c9c(0x18c)])return;wsSend(_0x4d9596,_0x4dd485[_0x187c9c(0x195)]==='admin'?_0x156cdc:_0x422ffc);});},0xc8);}function userFromToken(_0xba754){return getUserFromActiveToken(_0xba754);}function safeHelloUser(_0x2c2d80){const _0x5c7758=_0x10dffa,_0x575859=_0x2c2d80?.[_0x5c7758(0x1c2)];if(!_0x575859)return null;const _0x485280=userFromToken(_0x575859);if(!_0x485280)return null;return _0x485280;}function summarizeActivity(_0x45242a){const _0x44439a=_0x10dffa,_0x43c548=String(_0x45242a?.['activity']||'')[_0x44439a(0x193)](),_0xaa68d9=String(_0x45242a?.[_0x44439a(0x1bd)]||'')['trim'](),_0x841576=String(_0x45242a?.['path']||'')[_0x44439a(0x193)](),_0x4b2f9e=_0x45242a?.[_0x44439a(0x198)],_0x2a4d94=_0x4b2f9e===null||_0x4b2f9e===undefined?'':String(_0x4b2f9e)[_0x44439a(0x193)](),_0x2e2dd0=[];if(_0x43c548)_0x2e2dd0['push'](_0x43c548);if(_0x2a4d94)_0x2e2dd0[_0x44439a(0x170)]('—\x20'+_0x2a4d94);if(_0x841576)_0x2e2dd0['push']('('+_0x841576+')');if(_0xaa68d9)_0x2e2dd0['push']('['+_0xaa68d9+']');return _0x2e2dd0[_0x44439a(0x1ff)]('\x20');}wss['on']('connection',(_0x3bbbdb,_0x3ced7a)=>{const _0x5a3063=_0x10dffa,_0x18cb5f=_0x3ced7a[_0x5a3063(0x17b)][_0x5a3063(0x1f8)];if(!isOriginAllowed(_0x18cb5f)){try{_0x3bbbdb[_0x5a3063(0x18b)]();}catch{}return;}_0x3bbbdb[_0x5a3063(0x15d)]=!![],_0x3bbbdb['on']('pong',()=>{const _0x324415=_0x5a3063;_0x3bbbdb[_0x324415(0x15d)]=!![];});const _0x13a2e1={'authed':![],'username':'','role':_0x5a3063(0x1e4),'clientId':null,'activity':_0x5a3063(0x1c8),'view':_0x5a3063(0x1a7),'path':null,'details':null,'connectedAt':Date['now'](),'lastSeen':Date['now'](),'_lastLogKey':'','_lastLogTs':0x0};clients['set'](_0x3bbbdb,_0x13a2e1);const _0x3234ab=setTimeout(()=>{const _0x36d974=_0x5a3063,_0x3aa88c=clients[_0x36d974(0x160)](_0x3bbbdb);if(_0x3aa88c&&!_0x3aa88c['authed'])try{_0x3bbbdb[_0x36d974(0x18b)]();}catch{}},0x1f40);_0x3bbbdb['on'](_0x5a3063(0x1d4),_0x89a3e2=>{const _0x3ddc16=_0x5a3063,_0x1b11ad=Buffer[_0x3ddc16(0x1e5)](_0x89a3e2)?_0x89a3e2['toString'](_0x3ddc16(0x1a0)):String(_0x89a3e2||''),_0x2b3c28=safeJsonParse(_0x1b11ad,null);if(!_0x2b3c28||typeof _0x2b3c28!==_0x3ddc16(0x1ef))return;const _0x3dd11d=clients[_0x3ddc16(0x160)](_0x3bbbdb);if(!_0x3dd11d)return;const _0x4a5e8e=String(_0x2b3c28[_0x3ddc16(0x16a)]||'');if(_0x4a5e8e===_0x3ddc16(0x19c)){const _0x589481=safeHelloUser(_0x2b3c28);if(!_0x589481){wsSend(_0x3bbbdb,{'type':_0x3ddc16(0x18d),'error':_0x3ddc16(0x183)});try{_0x3bbbdb['close']();}catch{}return;}_0x3dd11d[_0x3ddc16(0x18c)]=!![],_0x3dd11d['username']=_0x589481[_0x3ddc16(0x1b5)],_0x3dd11d['role']=_0x589481[_0x3ddc16(0x195)],_0x3dd11d['clientId']=String(_0x2b3c28[_0x3ddc16(0x190)]||'')||null,_0x3dd11d[_0x3ddc16(0x1c0)]=Date[_0x3ddc16(0x1df)](),clearTimeout(_0x3234ab),wsSend(_0x3bbbdb,{'type':'hello:ack','user':{'username':_0x3dd11d[_0x3ddc16(0x1b5)],'role':_0x3dd11d[_0x3ddc16(0x195)]},'serverTime':Date[_0x3ddc16(0x1df)]()}),wsSend(_0x3bbbdb,_0x3dd11d[_0x3ddc16(0x195)]===_0x3ddc16(0x1cc)?presencePayloadAdmin():presencePayloadPublic());_0x3dd11d[_0x3ddc16(0x195)]===_0x3ddc16(0x1cc)&&wsSend(_0x3bbbdb,{'type':'log:batch','items':activityLog[_0x3ddc16(0x1dc)](-0xc8)});addLog(_0x3dd11d[_0x3ddc16(0x1b5)],_0x3ddc16(0x1a2)),schedulePresenceBroadcast();return;}if(!_0x3dd11d[_0x3ddc16(0x18c)])return;if(_0x4a5e8e==='activity'){_0x3dd11d[_0x3ddc16(0x1c0)]=Date[_0x3ddc16(0x1df)](),_0x3dd11d[_0x3ddc16(0x1e3)]=String(_0x2b3c28[_0x3ddc16(0x1e3)]||_0x3dd11d[_0x3ddc16(0x1e3)]||_0x3ddc16(0x1c8))[_0x3ddc16(0x1dc)](0x0,0xb4),_0x3dd11d[_0x3ddc16(0x1bd)]=String(_0x2b3c28[_0x3ddc16(0x1bd)]||_0x3dd11d[_0x3ddc16(0x1bd)]||_0x3ddc16(0x16c))[_0x3ddc16(0x1dc)](0x0,0x50),_0x3dd11d['path']=_0x2b3c28[_0x3ddc16(0x165)]===null||_0x2b3c28[_0x3ddc16(0x165)]===undefined?null:String(_0x2b3c28['path'])[_0x3ddc16(0x1dc)](0x0,0xf0),_0x3dd11d['details']=_0x2b3c28['details']===null||_0x2b3c28[_0x3ddc16(0x198)]===undefined?null:String(_0x2b3c28[_0x3ddc16(0x198)])[_0x3ddc16(0x1dc)](0x0,0xf0),schedulePresenceBroadcast();const _0x26a4bf=_0x3dd11d['activity']+'|'+_0x3dd11d[_0x3ddc16(0x1bd)]+'|'+(_0x3dd11d['path']||'')+'|'+(_0x3dd11d['details']||''),_0x3484cc=Date[_0x3ddc16(0x1df)]();(_0x26a4bf!==_0x3dd11d[_0x3ddc16(0x1c6)]||_0x3484cc-_0x3dd11d[_0x3ddc16(0x1ae)]>0x9c4)&&(_0x3dd11d[_0x3ddc16(0x1c6)]=_0x26a4bf,_0x3dd11d[_0x3ddc16(0x1ae)]=_0x3484cc,addLog(_0x3dd11d['username'],summarizeActivity({'activity':_0x3dd11d[_0x3ddc16(0x1e3)],'view':_0x3dd11d[_0x3ddc16(0x1bd)],'path':_0x3dd11d[_0x3ddc16(0x165)],'details':_0x3dd11d['details']})));return;}if(_0x4a5e8e===_0x3ddc16(0x1cb)){wsSend(_0x3bbbdb,_0x3dd11d[_0x3ddc16(0x195)]==='admin'?presencePayloadAdmin():presencePayloadPublic());return;}if(_0x4a5e8e===_0x3ddc16(0x19b)){if(_0x3dd11d[_0x3ddc16(0x195)]===_0x3ddc16(0x1cc))wsSend(_0x3bbbdb,{'type':_0x3ddc16(0x179),'items':activityLog[_0x3ddc16(0x1dc)](-0xc8)});return;}}),_0x3bbbdb['on'](_0x5a3063(0x18b),()=>{const _0x1515da=_0x5a3063;clearTimeout(_0x3234ab);const _0xb60cee=clients['get'](_0x3bbbdb);clients[_0x1515da(0x1e6)](_0x3bbbdb),_0xb60cee&&_0xb60cee['authed']&&_0xb60cee[_0x1515da(0x1b5)]&&(addLog(_0xb60cee[_0x1515da(0x1b5)],_0x1515da(0x1e2)),schedulePresenceBroadcast());});}),setInterval(()=>{wss['clients']['forEach'](_0x9f9ee7=>{const _0xb72ad3=_0x4ef8;if(_0x9f9ee7[_0xb72ad3(0x15d)]===![]){try{_0x9f9ee7[_0xb72ad3(0x1eb)]();}catch{}return;}_0x9f9ee7[_0xb72ad3(0x15d)]=![];try{_0x9f9ee7[_0xb72ad3(0x1a3)]();}catch{}});},0x7530),server[_0x10dffa(0x1bb)](PORT,()=>{const _0x41d13b=_0x10dffa;console[_0x41d13b(0x1ab)](_0x41d13b(0x175)+PORT),console[_0x41d13b(0x1ab)](_0x41d13b(0x1a6)+CORS_ORIGIN_RAW),console['log'](_0x41d13b(0x1f1)+DB_FILE);});function makeSessionId(){const _0x50ba41=_0x10dffa;return'sess_'+Date[_0x50ba41(0x1df)]()[_0x50ba41(0x166)](0x24)+'_'+Math[_0x50ba41(0x1b3)]()[_0x50ba41(0x166)](0x24)[_0x50ba41(0x1dc)](0x2,0xa);}function getUserFromActiveToken(_0x383bc0){const _0x2e04d1=_0x10dffa;try{const _0x2947c0=jwt[_0x2e04d1(0x189)](String(_0x383bc0||''),JWT_SECRET),_0x2afca8=findAccount(db,_0x2947c0['username']);if(!_0x2afca8)return null;if(!_0x2947c0[_0x2e04d1(0x176)])return null;if(_0x2afca8[_0x2e04d1(0x176)]!==_0x2947c0[_0x2e04d1(0x176)])return null;return{'username':_0x2afca8['username'],'role':_0x2afca8[_0x2e04d1(0x195)],'sessionId':_0x2afca8[_0x2e04d1(0x176)]};}catch{return null;}}
+/*
+  Padayon Live Backend
+  - Accounts (admin can create)
+  - Library storage (admin edits push here)
+  - WebSocket presence (online users) + activity tracking + live library update events
+
+  Designed for Render Web Services.
+*/
+
+const express = require('express');
+const cors = require('cors');
+const http = require('http');
+const https = require('https');
+const path = require('path');
+const fs = require('fs');
+const { WebSocketServer } = require('ws');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const PORT = Number(process.env.PORT || 3000);
+const JWT_SECRET = String(process.env.JWT_SECRET || 'CHANGE_ME_IN_RENDER_ENV');
+const RECAPTCHA_SECRET_KEY = String(process.env.RECAPTCHA_SECRET_KEY || '');
+const CORS_ORIGIN_RAW = String(process.env.CORS_ORIGIN || '*');
+
+
+// If you attach a Render Disk, set DATA_DIR=/var/data (or whatever mount path you pick)
+const DATA_DIR = String(process.env.DATA_DIR || path.join(__dirname, 'data'));
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+// Used only when db.json doesn't exist yet
+const INITIAL_LIBRARY_FILE = String(process.env.INITIAL_LIBRARY_FILE || path.join(__dirname, 'initial_library.json'));
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function verifyRecaptchaToken(token, remoteIp) {
+  return new Promise((resolve) => {
+    if (!RECAPTCHA_SECRET_KEY) {
+      console.error('Missing RECAPTCHA_SECRET_KEY in environment.');
+      return resolve(false);
+    }
+
+    const postData = new URLSearchParams({
+      secret: RECAPTCHA_SECRET_KEY,
+      response: String(token || ''),
+    });
+
+    if (remoteIp) {
+      postData.append('remoteip', String(remoteIp));
+    }
+
+    const req = https.request(
+      'https://www.google.com/recaptcha/api/siteverify',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(postData.toString()),
+        },
+      },
+      (res) => {
+        let body = '';
+
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(body);
+            resolve(!!json.success);
+          } catch (err) {
+            console.error('reCAPTCHA parse error:', err);
+            resolve(false);
+          }
+        });
+      }
+    );
+
+    req.on('error', (err) => {
+      console.error('reCAPTCHA request error:', err);
+      resolve(false);
+    });
+
+    req.write(postData.toString());
+    req.end();
+  });
+}
+
+function safeJsonParse(text, fallback = null) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
+  }
+}
+
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+function emptyLibrary() {
+  return {
+    version: 2,
+    updatedAt: null,
+    folders: [],
+    quizSets: [],
+    pdfs: [],
+  };
+}
+
+function defaultDb() {
+  return {
+    accounts: [],
+    library: emptyLibrary(),
+  };
+}
+
+function readJsonFileIfExists(filePath) {
+  if (!fs.existsSync(filePath)) return null;
+  const raw = fs.readFileSync(filePath, 'utf8');
+  return safeJsonParse(raw, null);
+}
+
+function writeJsonAtomic(filePath, obj) {
+  ensureDir(path.dirname(filePath));
+  const tmp = filePath + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(obj, null, 2), 'utf8');
+  fs.renameSync(tmp, filePath);
+}
+
+function normalizeUsername(u) {
+  return String(u || '').trim();
+}
+
+function findAccount(db, username) {
+  const u = normalizeUsername(username);
+  if (!u) return null;
+  return db.accounts.find(a => String(a.username).toLowerCase() === u.toLowerCase()) || null;
+}
+
+function toSafeAccount(acc) {
+  return {
+    username: acc.username,
+    role: acc.role,
+    createdAt: acc.createdAt || null,
+  };
+}
+
+function sanitizeLibrary(input) {
+  if (!input || typeof input !== 'object') return emptyLibrary();
+
+  // Require version 2 for compatibility
+  const version = Number(input.version || 0);
+  if (version !== 2) {
+    throw new Error('Library version must be 2.');
+  }
+
+  const out = emptyLibrary();
+  out.version = 2;
+  out.updatedAt = String(input.updatedAt || '') || null;
+  out.folders = Array.isArray(input.folders) ? input.folders : [];
+  out.quizSets = Array.isArray(input.quizSets) ? input.quizSets : [];
+  out.pdfs = Array.isArray(input.pdfs) ? input.pdfs : [];
+
+  return out;
+}
+
+function initDbOnDisk() {
+  ensureDir(DATA_DIR);
+
+  let db = readJsonFileIfExists(DB_FILE);
+  if (!db || typeof db !== 'object') db = defaultDb();
+
+  // If no library exists yet, try bootstrap from initial_library.json
+  if (!db.library || typeof db.library !== 'object' || Number(db.library.version || 0) !== 2) {
+    const initial = readJsonFileIfExists(INITIAL_LIBRARY_FILE);
+    if (initial && typeof initial === 'object') {
+      try {
+        db.library = sanitizeLibrary(initial);
+      } catch {
+        db.library = emptyLibrary();
+      }
+    } else {
+      db.library = emptyLibrary();
+    }
+  }
+
+  // Ensure at least one admin exists.
+  // These match your existing frontend defaults.
+  let changed = false;
+  const wantSeed = [
+  { username: 'admin', password: 'admin', role: 'admin' },
+  { username: 'saligao', password: 'carl', role: 'user' },
+  { username: 'ramos', password: 'carl', role: 'user' },
+  { username: 'fernandez', password: 'cristopher', role: 'user' },
+  { username: 'cortez', password: 'cyron', role: 'user' },
+  { username: 'castillo', password: 'gian', role: 'user' },
+  { username: 'maceda', password: 'mj', role: 'user' },
+  { username: 'quillopo', password: 'pj', role: 'user' },
+  { username: 'arcenas', password: 'rheygie', role: 'user' },
+  { username: 'felizarta', password: 'treb', role: 'user' },
+];
+
+  wantSeed.forEach(seed => {
+    if (!findAccount(db, seed.username)) {
+      db.accounts.push({
+        username: seed.username,
+        passwordHash: bcrypt.hashSync(seed.password, 10),
+        role: seed.role,
+        createdAt: nowISO(),
+      });
+      changed = true;
+    }
+  });
+
+  if (!Array.isArray(db.accounts)) {
+    db.accounts = [];
+    changed = true;
+  }
+
+  if (changed || !fs.existsSync(DB_FILE)) {
+    writeJsonAtomic(DB_FILE, db);
+  }
+
+  return db;
+}
+
+let db = initDbOnDisk();
+
+function saveDb() {
+  writeJsonAtomic(DB_FILE, db);
+}
+
+// --- CORS ---
+function parseAllowedOrigins(raw) {
+  const r = String(raw || '').trim();
+  if (!r || r === '*') return { any: true, list: [] };
+  const list = r.split(',').map(s => s.trim()).filter(Boolean);
+  return { any: false, list };
+}
+
+const allowedOrigins = parseAllowedOrigins(CORS_ORIGIN_RAW);
+
+function isOriginAllowed(origin) {
+  if (allowedOrigins.any) return true;
+  if (!origin) return true; // non-browser / server-to-server
+  return allowedOrigins.list.includes(origin);
+}
+
+const app = express();
+app.use(express.json({ limit: '200mb' }));
+app.use(cors({
+  origin: (origin, cb) => {
+    if (isOriginAllowed(origin)) return cb(null, true);
+    return cb(new Error('CORS blocked for origin: ' + origin));
+  },
+  methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// --- Auth middleware ---
+function requireAuth(req, res, next) {
+  const hdr = String(req.headers.authorization || '');
+  const token = hdr.startsWith('Bearer ') ? hdr.slice('Bearer '.length) : '';
+  if (!token) return res.status(401).json({ error: 'Missing Bearer token.' });
+
+  const user = getUserFromActiveToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid or expired session.' });
+
+  req.user = user;
+  return next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.user) return res.status(401).json({ error: 'Unauthorized.' });
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only.' });
+  return next();
+}
+
+// --- API ---
+app.get('/', (req, res) => {
+  res.type('text/plain').send('Padayon Live Backend is running.');
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, time: nowISO() });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const username = normalizeUsername(req.body?.username);
+  const password = String(req.body?.password || '');
+  const captchaToken = String(req.body?.captchaToken || '');
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'username and password required.' });
+  }
+
+  if (!captchaToken) {
+    return res.status(400).json({ error: 'Please complete the captcha.' });
+  }
+
+  const captchaOk = await verifyRecaptchaToken(captchaToken, req.ip);
+  if (!captchaOk) {
+    return res.status(400).json({ error: 'Captcha verification failed.' });
+  }
+
+  const acc = findAccount(db, username);
+  if (!acc) return res.status(401).json({ error: 'Invalid credentials.' });
+
+  const ok = bcrypt.compareSync(password, acc.passwordHash || '');
+  if (!ok) return res.status(401).json({ error: 'Invalid credentials.' });
+
+  acc.sessionId = makeSessionId();
+  acc.lastLoginAt = nowISO();
+  saveDb();
+
+  forceLogoutUserSockets(acc.username);
+
+  const token = jwt.sign(
+    {
+      username: acc.username,
+      role: acc.role,
+      sessionId: acc.sessionId,
+    },
+    JWT_SECRET,
+    { expiresIn: '30d' }
+  );
+
+  return res.json({
+    token,
+    user: { username: acc.username, role: acc.role },
+  });
+});
+
+app.get('/api/library', (req, res) => {
+  res.json(db.library || emptyLibrary());
+});
+
+
+app.put('/api/library', requireAuth, requireAdmin, (req, res) => {
+  try {
+    const incoming = sanitizeLibrary(req.body);
+    // Server is source of truth for updatedAt
+    incoming.updatedAt = nowISO();
+
+    db.library = incoming;
+    saveDb();
+
+    const ms = Date.parse(incoming.updatedAt) || Date.now();
+    broadcastAll({ type: 'library:changed', ms, updatedAt: incoming.updatedAt });
+    addLog(req.user.username, 'Library updated');
+
+    res.json({ ok: true, updatedAt: incoming.updatedAt });
+  } catch (err) {
+    res.status(400).json({ error: String(err?.message || err) });
+  }
+});
+
+app.get('/api/accounts', requireAuth, requireAdmin, (req, res) => {
+  const accounts = (db.accounts || []).map(toSafeAccount);
+  res.json({ accounts });
+});
+
+app.post('/api/accounts', requireAuth, requireAdmin, (req, res) => {
+  const username = normalizeUsername(req.body?.username);
+  const password = String(req.body?.password || '');
+  const role = (String(req.body?.role || 'user') === 'admin') ? 'admin' : 'user';
+
+  if (!username || !password) return res.status(400).json({ error: 'username and password required.' });
+  if (password.length < 3) return res.status(400).json({ error: 'password too short.' });
+
+  if (findAccount(db, username)) return res.status(409).json({ error: 'Account already exists.' });
+
+  const acc = {
+    username,
+    passwordHash: bcrypt.hashSync(password, 10),
+    role,
+    createdAt: nowISO(),
+  };
+
+  db.accounts.push(acc);
+  saveDb();
+
+  addLog(req.user.username, `Created account: ${username} (${role})`);
+
+  res.json({ ok: true, account: toSafeAccount(acc) });
+});
+
+// --- WebSockets ---
+let forceLogoutUserSockets = () => {};
+
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+forceLogoutUserSockets = function (username) {
+  const target = String(username || '').toLowerCase();
+
+  wss.clients.forEach(ws => {
+    const st = clients.get(ws);
+    if (!st || !st.username) return;
+
+    if (String(st.username).toLowerCase() === target) {
+      wsSend(ws, {
+        type: 'force_logout',
+        reason: 'This account was logged in on another device.',
+      });
+
+      try { ws.close(); } catch {}
+    }
+  });
+};
+
+// ws -> state
+const clients = new Map();
+
+let activityLog = []; // { ts, username, message }
+
+function addLog(username, message) {
+  const item = { ts: Date.now(), username: String(username || ''), message: String(message || '') };
+  activityLog.push(item);
+  if (activityLog.length > 300) activityLog = activityLog.slice(-300);
+
+  broadcastAdmins({ type: 'log:append', item });
+}
+
+function getOnlineStates() {
+  return Array.from(clients.values())
+    .filter(s => s && s.username)
+    .map(s => ({
+      username: s.username,
+      role: s.role,
+      activity: s.activity,
+      view: s.view,
+      path: s.path,
+      details: s.details,
+      clientId: s.clientId,
+      connectedAt: s.connectedAt,
+      lastSeen: s.lastSeen,
+    }));
+}
+
+function presencePayloadPublic() {
+  const users = getOnlineStates().map(u => ({ username: u.username, role: u.role }));
+  return { type: 'presence:public', users };
+}
+
+function presencePayloadAdmin() {
+  return { type: 'presence:admin', users: getOnlineStates() };
+}
+
+function wsSend(ws, obj) {
+  try {
+    if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(obj));
+  } catch {
+    // ignore
+  }
+}
+
+function broadcastAll(obj) {
+  wss.clients.forEach(ws => wsSend(ws, obj));
+}
+
+function broadcastAdmins(obj) {
+  wss.clients.forEach(ws => {
+    const st = clients.get(ws);
+    if (st && st.role === 'admin') wsSend(ws, obj);
+  });
+}
+
+let presenceTimer = null;
+function schedulePresenceBroadcast() {
+  if (presenceTimer) return;
+  presenceTimer = setTimeout(() => {
+    presenceTimer = null;
+    const pub = presencePayloadPublic();
+    const adm = presencePayloadAdmin();
+
+    wss.clients.forEach(ws => {
+      const st = clients.get(ws);
+      if (!st || !st.authed) return;
+      wsSend(ws, st.role === 'admin' ? adm : pub);
+    });
+  }, 200);
+}
+
+function userFromToken(token) {
+  return getUserFromActiveToken(token);
+}
+
+function safeHelloUser(msg) {
+  const tok = msg?.token;
+  if (!tok) return null;
+
+  const u = userFromToken(tok);
+  if (!u) return null;
+
+  return u;
+}
+
+function summarizeActivity(msg) {
+  const a = String(msg?.activity || '').trim();
+  const view = String(msg?.view || '').trim();
+  const path0 = String(msg?.path || '').trim();
+  const details = msg?.details;
+  const d = (details === null || details === undefined) ? '' : String(details).trim();
+
+  const bits = [];
+  if (a) bits.push(a);
+  if (d) bits.push('— ' + d);
+  if (path0) bits.push('(' + path0 + ')');
+  if (view) bits.push('[' + view + ']');
+
+  return bits.join(' ');
+}
+
+wss.on('connection', (ws, req) => {
+  // Origin guard (optional)
+  const origin = req.headers.origin;
+  if (!isOriginAllowed(origin)) {
+    try { ws.close(); } catch {}
+    return;
+  }
+
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
+
+  const state = {
+    authed: false,
+    username: '',
+    role: 'user',
+    clientId: null,
+    activity: 'Online',
+    view: 'LOGIN',
+    path: null,
+    details: null,
+    connectedAt: Date.now(),
+    lastSeen: Date.now(),
+    _lastLogKey: '',
+    _lastLogTs: 0,
+  };
+
+  clients.set(ws, state);
+
+  const helloTimeout = setTimeout(() => {
+    const st = clients.get(ws);
+    if (st && !st.authed) {
+      try { ws.close(); } catch {}
+    }
+  }, 8000);
+
+  ws.on('message', (data) => {
+    const raw = (Buffer.isBuffer(data) ? data.toString('utf8') : String(data || ''));
+    const msg = safeJsonParse(raw, null);
+    if (!msg || typeof msg !== 'object') return;
+
+    const st = clients.get(ws);
+    if (!st) return;
+
+    const type = String(msg.type || '');
+
+    if (type === 'hello') {
+      const u = safeHelloUser(msg);
+      if (!u) {
+        wsSend(ws, { type: 'error', error: 'hello requires a valid token' });
+        try { ws.close(); } catch {}
+        return;
+      }
+
+      st.authed = true;
+      st.username = u.username;
+      st.role = u.role;
+      st.clientId = String(msg.clientId || '') || null;
+      st.lastSeen = Date.now();
+
+      clearTimeout(helloTimeout);
+
+      wsSend(ws, {
+        type: 'hello:ack',
+        user: { username: st.username, role: st.role },
+        serverTime: Date.now(),
+      });
+
+      // Send initial snapshots
+      wsSend(ws, st.role === 'admin' ? presencePayloadAdmin() : presencePayloadPublic());
+      if (st.role === 'admin') {
+        wsSend(ws, { type: 'log:batch', items: activityLog.slice(-200) });
+      }
+
+      addLog(st.username, 'Connected');
+      schedulePresenceBroadcast();
+      return;
+    }
+
+    // Ignore everything until hello
+    if (!st.authed) return;
+
+    if (type === 'activity') {
+      st.lastSeen = Date.now();
+      st.activity = String(msg.activity || st.activity || 'Online').slice(0, 180);
+      st.view = String(msg.view || st.view || 'UNKNOWN').slice(0, 80);
+      st.path = (msg.path === null || msg.path === undefined) ? null : String(msg.path).slice(0, 240);
+      st.details = (msg.details === null || msg.details === undefined) ? null : String(msg.details).slice(0, 240);
+
+      schedulePresenceBroadcast();
+
+      // Rate-limited logging
+      const key = `${st.activity}|${st.view}|${st.path || ''}|${st.details || ''}`;
+      const now = Date.now();
+      if (key !== st._lastLogKey || (now - st._lastLogTs) > 2500) {
+        st._lastLogKey = key;
+        st._lastLogTs = now;
+        addLog(st.username, summarizeActivity({
+          activity: st.activity,
+          view: st.view,
+          path: st.path,
+          details: st.details,
+        }));
+      }
+
+      return;
+    }
+
+    if (type === 'presence:request') {
+      wsSend(ws, st.role === 'admin' ? presencePayloadAdmin() : presencePayloadPublic());
+      return;
+    }
+
+    if (type === 'log:request') {
+      if (st.role === 'admin') wsSend(ws, { type: 'log:batch', items: activityLog.slice(-200) });
+      return;
+    }
+  });
+
+  ws.on('close', () => {
+    clearTimeout(helloTimeout);
+
+    const st = clients.get(ws);
+    clients.delete(ws);
+
+    if (st && st.authed && st.username) {
+      addLog(st.username, 'Disconnected');
+      schedulePresenceBroadcast();
+    }
+  });
+});
+
+// Heartbeat
+setInterval(() => {
+  wss.clients.forEach(ws => {
+    if (ws.isAlive === false) {
+      try { ws.terminate(); } catch {}
+      return;
+    }
+    ws.isAlive = false;
+    try { ws.ping(); } catch {}
+  });
+}, 30000);
+
+server.listen(PORT, () => {
+  console.log(`Padayon backend listening on :${PORT}`);
+  console.log(`CORS origin: ${CORS_ORIGIN_RAW}`);
+  console.log(`DB file: ${DB_FILE}`);
+});
+
+function makeSessionId() {
+  return 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+function getUserFromActiveToken(token) {
+  try {
+    const decoded = jwt.verify(String(token || ''), JWT_SECRET);
+    const acc = findAccount(db, decoded.username);
+    if (!acc) return null;
+
+    if (!decoded.sessionId) return null;
+    if (acc.sessionId !== decoded.sessionId) return null;
+
+    return {
+      username: acc.username,
+      role: acc.role,
+      sessionId: acc.sessionId,
+    };
+  } catch {
+    return null;
+  }
+}
