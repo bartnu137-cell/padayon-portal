@@ -1,1 +1,3802 @@
-const _0x3511a3=_0x4d8d;(function(_0x1dee0d,_0x231d8e){const _0x5c6e92=_0x4d8d,_0x2e96bb=_0x1dee0d();while(!![]){try{const _0x375f1c=parseInt(_0x5c6e92(0x3b5))/0x1+parseInt(_0x5c6e92(0x27d))/0x2*(parseInt(_0x5c6e92(0x3bf))/0x3)+-parseInt(_0x5c6e92(0x1d0))/0x4*(-parseInt(_0x5c6e92(0x321))/0x5)+-parseInt(_0x5c6e92(0x1e7))/0x6*(-parseInt(_0x5c6e92(0x269))/0x7)+-parseInt(_0x5c6e92(0x154))/0x8*(-parseInt(_0x5c6e92(0x217))/0x9)+-parseInt(_0x5c6e92(0x2e1))/0xa+-parseInt(_0x5c6e92(0x27b))/0xb;if(_0x375f1c===_0x231d8e)break;else _0x2e96bb['push'](_0x2e96bb['shift']());}catch(_0x1a1362){_0x2e96bb['push'](_0x2e96bb['shift']());}}}(_0x185a,0x539c6));const ACCOUNTS=[{'username':_0x3511a3(0x1ce),'password':'admin','role':_0x3511a3(0x1ce)},{'username':'saligao','password':_0x3511a3(0x29f),'role':_0x3511a3(0x155)},{'username':'ramos','password':_0x3511a3(0x29f),'role':_0x3511a3(0x155)},{'username':_0x3511a3(0x327),'password':_0x3511a3(0x311),'role':_0x3511a3(0x155)},{'username':_0x3511a3(0x300),'password':_0x3511a3(0x158),'role':_0x3511a3(0x155)},{'username':'castillo','password':_0x3511a3(0x245),'role':_0x3511a3(0x155)},{'username':'maceda','password':'mj','role':_0x3511a3(0x155)},{'username':'quillopo','password':'pj','role':'user'},{'username':_0x3511a3(0x186),'password':'rheygie','role':_0x3511a3(0x155)},{'username':_0x3511a3(0x2e9),'password':_0x3511a3(0x14e),'role':_0x3511a3(0x155)}];let session={'username':null,'role':null},activeMenu=_0x3511a3(0x2c0);const LIBRARY_FILENAME=_0x3511a3(0x2a2),LIBRARY_JS_FILENAME=_0x3511a3(0x3bb),LIBRARY_CACHE_KEY=_0x3511a3(0x2d6),LIBRARY_GLOBAL_VAR=_0x3511a3(0x162),LIBRARY_SYNC_CHANNEL=_0x3511a3(0x244);let librarySyncChannel=null,librarySyncInitialized=![],lastAppliedLibraryUpdatedAtMs=0x0;const LIVE_BACKEND_URL_KEY='padayon_backend_url',LIVE_TOKEN_KEY='padayon_auth_token_v1';let liveBackendUrl='',liveAuthToken='',liveWs=null,liveWsConnected=![],liveReconnectTimer=null,liveReconnectDelayMs=0x3e8,liveClientId=null,liveOnlinePublic=[],liveOnlineAdmin=[],liveAdminLog=[],liveLastPresenceHash='',liveLibraryPushTimer=null,liveLastLibraryPushedAtMs=0x0;function trimSlash(_0x444252){const _0x49cb7e=_0x3511a3;return String(_0x444252||'')[_0x49cb7e(0x18e)]()[_0x49cb7e(0x17f)](/\/+$/,'');}function getConfiguredBackendUrl(){const _0x35fcab=_0x3511a3;let _0x2eeff9='';try{_0x2eeff9=trimSlash(localStorage[_0x35fcab(0x2c9)](LIVE_BACKEND_URL_KEY)||'');}catch(_0x3a9198){_0x2eeff9='';}if(!_0x2eeff9)try{_0x2eeff9=trimSlash(window['PADAYON_BACKEND_URL']||'');}catch(_0x5d4dbf){_0x2eeff9='';}_0x2eeff9&&!/^https?:\/\//i[_0x35fcab(0x173)](_0x2eeff9)&&(_0x2eeff9=_0x35fcab(0x37d)+_0x2eeff9);try{if(_0x2eeff9)localStorage[_0x35fcab(0x1f9)](LIVE_BACKEND_URL_KEY,_0x2eeff9);}catch(_0xebe1e2){}return _0x2eeff9;}function setConfiguredBackendUrl(_0x80419c){const _0x426f08=_0x3511a3;let _0x5f25eb=trimSlash(_0x80419c);if(_0x5f25eb&&!/^https?:\/\//i[_0x426f08(0x173)](_0x5f25eb))_0x5f25eb=_0x426f08(0x37d)+_0x5f25eb;try{if(_0x5f25eb)localStorage[_0x426f08(0x1f9)](LIVE_BACKEND_URL_KEY,_0x5f25eb);else localStorage['removeItem'](LIVE_BACKEND_URL_KEY);}catch(_0x18c48e){}liveBackendUrl=_0x5f25eb,updateLiveStatusUI();}function adminRefreshBackendUrlUI(){const _0x5e8a6f=_0x3511a3,_0x548d86=document[_0x5e8a6f(0x389)](_0x5e8a6f(0x171)),_0x4bba86=document[_0x5e8a6f(0x389)]('admin-backend-url-status'),_0x4841c4=getConfiguredBackendUrl();_0x548d86&&document[_0x5e8a6f(0x2b5)]!==_0x548d86&&(_0x548d86[_0x5e8a6f(0x357)]=_0x4841c4||''),_0x4bba86&&(_0x4bba86['textContent']=_0x5e8a6f(0x39c)+(_0x4841c4||_0x5e8a6f(0x392)));}async function liveReloginFromRememberIfPossible(){const _0x26b6ea=_0x3511a3;if(!liveIsEnabled())return{'ok':![],'reason':_0x26b6ea(0x265)};if(!session?.[_0x26b6ea(0x1e1)])return{'ok':![],'reason':_0x26b6ea(0x202)};if(liveAuthToken)return{'ok':!![],'reason':'has_token'};return{'ok':![],'reason':_0x26b6ea(0x1d6)};}async function adminSaveBackendUrlFromUI(){const _0x2d7eb9=_0x3511a3,_0x3ef96e=document[_0x2d7eb9(0x389)](_0x2d7eb9(0x171));if(!_0x3ef96e)return;const _0x23e965=trimSlash(liveBackendUrl),_0x28dd5a=String(_0x3ef96e['value']||'')[_0x2d7eb9(0x18e)]();setConfiguredBackendUrl(_0x28dd5a),liveBackendUrl=getConfiguredBackendUrl();const _0x3603e7=trimSlash(liveBackendUrl);_0x23e965!==_0x3603e7&&setLiveToken('');try{liveDisconnect();}catch(_0xce9cd1){}try{session?.[_0x2d7eb9(0x1e1)]&&liveIsEnabled()&&(liveAuthToken=getLiveToken(),await liveReloginFromRememberIfPossible(),liveAuthToken=getLiveToken(),liveConnect(),loadLibraryFromBackend());}catch(_0x192519){}adminRefreshBackendUrlUI();}function adminClearBackendUrlFromUI(){setConfiguredBackendUrl(''),setLiveToken('');try{liveDisconnect();}catch(_0x523e44){}try{liveOnlinePublic=[],liveOnlineAdmin=[],renderOnlineUsersWidget(),renderAdminOnlineUsers(),renderAdminLog(),updateLiveStatusUI();}catch(_0x16e2e7){}adminRefreshBackendUrlUI();}function getLiveToken(){const _0x58abca=_0x3511a3;try{return String(localStorage[_0x58abca(0x2c9)](LIVE_TOKEN_KEY)||'')[_0x58abca(0x18e)]();}catch(_0x55c9a0){return'';}}function setLiveToken(_0x1787ca){const _0x262941=_0x3511a3,_0x373899=String(_0x1787ca||'')[_0x262941(0x18e)]();try{if(_0x373899)localStorage[_0x262941(0x1f9)](LIVE_TOKEN_KEY,_0x373899);else localStorage[_0x262941(0x21e)](LIVE_TOKEN_KEY);}catch(_0x2ad1b4){}liveAuthToken=_0x373899;}function httpToWsUrl(_0x21c9d4){const _0x30f143=_0x3511a3,_0xe7c00e=String(_0x21c9d4||'')['trim']();if(!_0xe7c00e)return'';if(_0xe7c00e['startsWith'](_0x30f143(0x37d)))return _0x30f143(0x18d)+_0xe7c00e['slice'](_0x30f143(0x37d)['length']);if(_0xe7c00e[_0x30f143(0x1de)](_0x30f143(0x23c)))return _0x30f143(0x36c)+_0xe7c00e[_0x30f143(0x396)]('http://'[_0x30f143(0x3bc)]);return'wss://'+_0xe7c00e[_0x30f143(0x17f)](/^wss?:\/\//,'');}function liveIsEnabled(){const _0x34e9ed=_0x3511a3;return!!(liveBackendUrl&&liveBackendUrl[_0x34e9ed(0x1de)](_0x34e9ed(0x2d7)));}async function liveApiFetch(_0x2ee2c1,{method:method=_0x3511a3(0x33f),body:body=null,headers:headers={}}={}){const _0x18f841=_0x3511a3;if(!liveIsEnabled())throw new Error('Backend\x20URL\x20not\x20configured.');const _0x3680d6=trimSlash(liveBackendUrl)+String(_0x2ee2c1||''),_0x364d57={'Content-Type':_0x18f841(0x223),...headers};if(liveAuthToken)_0x364d57[_0x18f841(0x391)]='Bearer\x20'+liveAuthToken;const _0x320a3d=await fetch(_0x3680d6,{'method':method,'headers':_0x364d57,'body':body?JSON[_0x18f841(0x1ab)](body):null}),_0x49862e=await _0x320a3d[_0x18f841(0x257)]();let _0x42d157=null;try{_0x42d157=_0x49862e?JSON[_0x18f841(0x39f)](_0x49862e):null;}catch(_0x4b0f98){_0x42d157=null;}if(!_0x320a3d['ok']){const _0x25df44=_0x42d157&&(_0x42d157[_0x18f841(0x34a)]||_0x42d157['message'])?_0x42d157[_0x18f841(0x34a)]||_0x42d157[_0x18f841(0x37c)]:_0x49862e||_0x18f841(0x272)+_0x320a3d[_0x18f841(0x23b)];throw new Error(_0x25df44);}return _0x42d157;}async function liveTryBackendLogin(_0x3f1732,_0x4dd873,_0x2bf767){const _0xbab8af=_0x3511a3;if(!liveIsEnabled())return{'ok':![],'reason':_0xbab8af(0x265)};try{const _0x4628a4=await liveApiFetch(_0xbab8af(0x2a8),{'method':_0xbab8af(0x1e4),'body':{'username':_0x3f1732,'password':_0x4dd873,'captchaToken':_0x2bf767}});if(_0x4628a4?.['token'])return setLiveToken(_0x4628a4[_0xbab8af(0x226)]),{'ok':!![],'token':_0x4628a4[_0xbab8af(0x226)],'user':_0x4628a4[_0xbab8af(0x155)]||{'username':_0x3f1732,'role':'user'}};return{'ok':![],'reason':_0xbab8af(0x2e7)};}catch(_0x25384a){return{'ok':![],'reason':_0xbab8af(0x34a),'error':_0x25384a};}}function liveConnect(){const _0xf5bbe4=_0x3511a3;if(!liveIsEnabled()){updateLiveStatusUI();return;}if(!liveClientId){try{const _0x4643dc=localStorage[_0xf5bbe4(0x2c9)](_0xf5bbe4(0x25e));if(_0x4643dc)liveClientId=_0x4643dc;}catch(_0x2ef677){}if(!liveClientId){liveClientId=uid('client');try{localStorage[_0xf5bbe4(0x1f9)](_0xf5bbe4(0x25e),liveClientId);}catch(_0x27006f){}}}if(liveWs&&(liveWs[_0xf5bbe4(0x1fc)]===WebSocket[_0xf5bbe4(0x359)]||liveWs[_0xf5bbe4(0x1fc)]===WebSocket['CONNECTING'])){updateLiveStatusUI();return;}const _0x225e89=httpToWsUrl(liveBackendUrl)+_0xf5bbe4(0x2a1);try{liveWs=new WebSocket(_0x225e89);}catch(_0x5cc577){console[_0xf5bbe4(0x2e4)]('Live\x20WS\x20init\x20failed:',_0x5cc577),liveWs=null,scheduleLiveReconnect(),updateLiveStatusUI();return;}liveWs[_0xf5bbe4(0x3c7)]=()=>{const _0x1bb55b=_0xf5bbe4;liveWsConnected=!![],liveReconnectDelayMs=0x3e8,updateLiveStatusUI(),safeLiveSend({'type':_0x1bb55b(0x2be),'token':liveAuthToken||null,'username':session?.[_0x1bb55b(0x1e1)]||null,'role':session?.[_0x1bb55b(0x151)]||null,'clientId':liveClientId,'ua':navigator[_0x1bb55b(0x305)],'ts':Date[_0x1bb55b(0x16b)]()});try{liveSetActivity(_0x1bb55b(0x3b1),{'view':currentViewName()});}catch(_0x239271){}},liveWs[_0xf5bbe4(0x343)]=_0x958973=>{const _0x1d9e98=_0xf5bbe4,_0x5dc2ff=String(_0x958973?.['data']||'');if(!_0x5dc2ff)return;let _0x218f00=null;try{_0x218f00=JSON[_0x1d9e98(0x39f)](_0x5dc2ff);}catch(_0x4e7bf1){return;}if(!_0x218f00||typeof _0x218f00!==_0x1d9e98(0x268))return;handleLiveMessage(_0x218f00);},liveWs[_0xf5bbe4(0x1c4)]=()=>{liveWsConnected=![],updateLiveStatusUI(),scheduleLiveReconnect();},liveWs[_0xf5bbe4(0x3be)]=()=>{updateLiveStatusUI();},updateLiveStatusUI();}function liveDisconnect(){const _0x411e15=_0x3511a3;try{if(liveReconnectTimer)clearTimeout(liveReconnectTimer);}catch(_0x559e76){}liveReconnectTimer=null,liveReconnectDelayMs=0x3e8;try{if(liveWs)liveWs[_0x411e15(0x34f)]();}catch(_0x4b70e3){}liveWs=null,liveWsConnected=![],updateLiveStatusUI();}function scheduleLiveReconnect(){const _0x1d0e76=_0x3511a3;if(!liveIsEnabled())return;if(liveReconnectTimer)return;const _0x27a8de=Math[_0x1d0e76(0x234)](0x3a98,Math[_0x1d0e76(0x303)](0x3e8,liveReconnectDelayMs));liveReconnectDelayMs=Math[_0x1d0e76(0x234)](0x3a98,_0x27a8de*1.6),liveReconnectTimer=setTimeout(()=>{const _0x5be566=_0x1d0e76;liveReconnectTimer=null;if(session?.[_0x5be566(0x1e1)])liveConnect();},_0x27a8de);}function safeLiveSend(_0x12873c){const _0x43965d=_0x3511a3;try{if(!liveWs||liveWs[_0x43965d(0x1fc)]!==WebSocket[_0x43965d(0x359)])return![];return liveWs[_0x43965d(0x39e)](JSON['stringify'](_0x12873c)),!![];}catch(_0x2985a1){return![];}}function currentViewName(){const _0x28537f=_0x3511a3;if(!session?.['username'])return _0x28537f(0x2b7);if(!document[_0x28537f(0x389)]('admin-overlay')?.[_0x28537f(0x281)][_0x28537f(0x284)]('hidden'))return _0x28537f(0x393);if(!document['getElementById'](_0x28537f(0x264))?.[_0x28537f(0x281)][_0x28537f(0x284)]('hidden'))return _0x28537f(0x191);if(!document[_0x28537f(0x389)](_0x28537f(0x3a3))?.[_0x28537f(0x281)][_0x28537f(0x284)]('hidden'))return _0x28537f(0x2ef);if(!document['getElementById'](_0x28537f(0x183))?.[_0x28537f(0x281)][_0x28537f(0x284)]('hidden'))return'QUIZ_BROWSER';if(!document[_0x28537f(0x389)](_0x28537f(0x2ed))?.[_0x28537f(0x281)][_0x28537f(0x284)]('hidden'))return _0x28537f(0x26d);if(!document[_0x28537f(0x389)](_0x28537f(0x207))?.[_0x28537f(0x281)]['contains']('hidden'))return _0x28537f(0x19d);return _0x28537f(0x153);}function liveSetActivity(_0x352f78,_0x545afe={}){const _0x135b12=_0x3511a3,_0x42bcd3=Date[_0x135b12(0x16b)](),_0x40ec81={'type':'activity','activity':String(_0x352f78||'')['slice'](0x0,0xb4),'view':_0x545afe[_0x135b12(0x1be)]||currentViewName(),'path':_0x545afe[_0x135b12(0x31f)]||null,'details':_0x545afe['details']||null,'ts':_0x42bcd3};if(!liveWsConnected)return;if(liveSetActivity['_lastSentAt']&&_0x42bcd3-liveSetActivity[_0x135b12(0x297)]<0x15e)return;liveSetActivity[_0x135b12(0x297)]=_0x42bcd3,safeLiveSend(_0x40ec81);}function handleLiveMessage(_0xf3009f){const _0x33c34d=_0x3511a3,_0x4a217a=String(_0xf3009f['type']||'');if(_0x4a217a===_0x33c34d(0x288)){alert(_0xf3009f['reason']||_0x33c34d(0x324)),logoutToLogin();return;}if(_0x4a217a===_0x33c34d(0x312)){liveOnlinePublic=Array['isArray'](_0xf3009f[_0x33c34d(0x176)])?_0xf3009f[_0x33c34d(0x176)]:[],renderOnlineUsersWidget();return;}if(_0x4a217a==='presence:admin'){liveOnlineAdmin=Array['isArray'](_0xf3009f[_0x33c34d(0x176)])?_0xf3009f[_0x33c34d(0x176)]:[],liveOnlinePublic=liveOnlineAdmin[_0x33c34d(0x201)](_0x5d7a0b=>({'username':_0x5d7a0b[_0x33c34d(0x1e1)],'role':_0x5d7a0b['role']})),renderOnlineUsersWidget(),renderAdminOnlineUsers();return;}if(_0x4a217a==='library:changed'){const _0x1155d2=Number(_0xf3009f['ms']||0x0);_0x1155d2&&_0x1155d2>getLibraryUpdatedAtMs(library)&&loadLibraryFromBackend();return;}if(_0x4a217a===_0x33c34d(0x164)){Array[_0x33c34d(0x1a1)](_0xf3009f[_0x33c34d(0x30b)])&&(liveAdminLog=_0xf3009f[_0x33c34d(0x30b)][_0x33c34d(0x396)](-0xc8),renderAdminLog());return;}if(_0x4a217a===_0x33c34d(0x2f5)){const _0x329b29=_0xf3009f[_0x33c34d(0x2d5)];if(_0x329b29&&typeof _0x329b29===_0x33c34d(0x268)){liveAdminLog['push'](_0x329b29);if(liveAdminLog[_0x33c34d(0x3bc)]>0xc8)liveAdminLog=liveAdminLog[_0x33c34d(0x396)](-0xc8);renderAdminLog();}return;}if(_0x4a217a===_0x33c34d(0x166)){updateLiveStatusUI(_0xf3009f);session?.[_0x33c34d(0x151)]==='admin'&&(safeLiveSend({'type':'presence:request'}),safeLiveSend({'type':'log:request'}));return;}}function updateLiveStatusUI(_0x2c5b1f=null){const _0x6e004e=_0x3511a3,_0x36d376=document['getElementById'](_0x6e004e(0x19f));if(_0x36d376){if(!session?.[_0x6e004e(0x1e1)])_0x36d376['textContent']=_0x6e004e(0x1ae);else{if(!liveIsEnabled())_0x36d376[_0x6e004e(0x152)]=_0x6e004e(0x2e8);else{if(liveWsConnected)_0x36d376[_0x6e004e(0x152)]=_0x6e004e(0x28b);else _0x36d376['textContent']='Connecting…';}}}const _0x101a7e=document['getElementById'](_0x6e004e(0x2d3));if(_0x101a7e){if(!liveIsEnabled())_0x101a7e['textContent']=_0x6e004e(0x364);else{if(liveWsConnected)_0x101a7e[_0x6e004e(0x152)]='Backend:\x20connected\x20(live).';else _0x101a7e[_0x6e004e(0x152)]=_0x6e004e(0x219);}}const _0x616086=document[_0x6e004e(0x389)](_0x6e004e(0x247));if(_0x616086){if(!liveIsEnabled())_0x616086[_0x6e004e(0x152)]=_0x6e004e(0x364);else{if(!liveAuthToken)_0x616086[_0x6e004e(0x152)]=_0x6e004e(0x16a);else _0x616086[_0x6e004e(0x152)]=liveWsConnected?_0x6e004e(0x2dc):_0x6e004e(0x1ec);}}}function _0x4d8d(_0x24f4e0,_0x1b0775){_0x24f4e0=_0x24f4e0-0x149;const _0x185a2c=_0x185a();let _0x4d8dec=_0x185a2c[_0x24f4e0];return _0x4d8dec;}function renderOnlineUsersWidget(){const _0x50be3e=_0x3511a3,_0x122a07=document[_0x50be3e(0x389)]('online-users-count'),_0x2fb11f=document['getElementById'](_0x50be3e(0x271));if(!_0x122a07||!_0x2fb11f)return;const _0x553f26=Array[_0x50be3e(0x1a1)](liveOnlinePublic)?liveOnlinePublic:[];_0x122a07[_0x50be3e(0x152)]=String(_0x553f26[_0x50be3e(0x3bc)]);if(!session?.[_0x50be3e(0x1e1)]){_0x2fb11f['innerHTML']=_0x50be3e(0x159);return;}if(!liveIsEnabled()){_0x2fb11f[_0x50be3e(0x15a)]=_0x50be3e(0x193);return;}if(!liveWsConnected){_0x2fb11f[_0x50be3e(0x15a)]=_0x50be3e(0x34e);return;}if(_0x553f26['length']===0x0){_0x2fb11f['innerHTML']=_0x50be3e(0x278);return;}_0x2fb11f['innerHTML']=_0x553f26[_0x50be3e(0x201)](_0x14c308=>{const _0x2305a8=_0x50be3e,_0x564c42=escapeHTML(_0x14c308?.[_0x2305a8(0x1e1)]||_0x2305a8(0x155));return'<span\x20class=\x22admin-pill\x22>🟢\x20'+_0x564c42+_0x2305a8(0x3c1);})[_0x50be3e(0x373)]('');}function renderAdminOnlineUsers(){const _0x26362b=_0x3511a3,_0x41847f=document['getElementById'](_0x26362b(0x242));if(!_0x41847f)return;if(session?.[_0x26362b(0x151)]!==_0x26362b(0x1ce)){_0x41847f[_0x26362b(0x15a)]=_0x26362b(0x203);return;}if(!liveWsConnected){_0x41847f[_0x26362b(0x15a)]=_0x26362b(0x273);return;}const _0x73f911=Array['isArray'](liveOnlineAdmin)?liveOnlineAdmin:[];if(_0x73f911[_0x26362b(0x3bc)]===0x0){_0x41847f[_0x26362b(0x15a)]=_0x26362b(0x38a);return;}_0x41847f[_0x26362b(0x15a)]=_0x73f911[_0x26362b(0x201)](_0x2b4690=>{const _0x1ba6b4=_0x26362b,_0x8b8dda=escapeHTML(_0x2b4690[_0x1ba6b4(0x1e1)]||_0x1ba6b4(0x155)),_0x1f391b=escapeHTML(_0x2b4690['role']||_0x1ba6b4(0x155)),_0x155f24=escapeHTML(_0x2b4690[_0x1ba6b4(0x1a9)]||'Online'),_0x3e05c3=_0x2b4690[_0x1ba6b4(0x31f)]?escapeHTML(String(_0x2b4690[_0x1ba6b4(0x31f)])):'',_0x618466=_0x2b4690[_0x1ba6b4(0x1be)]?escapeHTML(String(_0x2b4690[_0x1ba6b4(0x1be)])):'',_0x278f40=[_0x155f24,_0x618466?_0x1ba6b4(0x213)+_0x618466:null,_0x3e05c3?_0x1ba6b4(0x3ae)+_0x3e05c3:null]['filter'](Boolean)['join'](_0x1ba6b4(0x1a8));return'\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>🟢\x20'+_0x8b8dda+_0x1ba6b4(0x1eb)+(_0x278f40||'')+_0x1ba6b4(0x345)+_0x1f391b+_0x1ba6b4(0x1c7);})[_0x26362b(0x373)]('');}function renderAdminLog(){const _0x12746c=_0x3511a3,_0x45bd14=document['getElementById']('admin-activity-log');if(!_0x45bd14)return;if(session?.['role']!==_0x12746c(0x1ce)){_0x45bd14['innerHTML']='<div\x20class=\x22admin-help\x22>Admin\x20only.</div>';return;}if(!liveWsConnected){_0x45bd14[_0x12746c(0x15a)]=_0x12746c(0x273);return;}const _0x26bf0a=Array[_0x12746c(0x1a1)](liveAdminLog)?liveAdminLog[_0x12746c(0x396)](-0x78):[];if(_0x26bf0a['length']===0x0){_0x45bd14[_0x12746c(0x15a)]=_0x12746c(0x218);return;}_0x45bd14[_0x12746c(0x15a)]=_0x26bf0a[_0x12746c(0x396)]()[_0x12746c(0x1e8)]()['map'](_0x34e25f=>{const _0x238f92=_0x12746c,_0x8a439f=_0x34e25f?.['ts']?new Date(_0x34e25f['ts'])[_0x238f92(0x2a7)]():'',_0x3fffef=escapeHTML(_0x34e25f?.['username']||''),_0x210530=escapeHTML(_0x34e25f?.[_0x238f92(0x37c)]||'');return _0x238f92(0x14b)+(_0x3fffef?_0x3fffef+_0x238f92(0x1a8):'')+escapeHTML(_0x8a439f)+_0x238f92(0x1eb)+_0x210530+_0x238f92(0x323);})[_0x12746c(0x373)]('');}function liveRequestAdminRefresh(){const _0x2217f2=_0x3511a3;if(session?.[_0x2217f2(0x151)]!==_0x2217f2(0x1ce))return;safeLiveSend({'type':_0x2217f2(0x337)}),safeLiveSend({'type':_0x2217f2(0x38e)});}function scheduleLiveLibraryPush(_0x4ee2b8=![]){const _0x9085c8=_0x3511a3;if(session?.[_0x9085c8(0x151)]!==_0x9085c8(0x1ce))return;if(!liveIsEnabled())return;if(!liveAuthToken)return;const _0x3134cf=getLibraryUpdatedAtMs(library);if(_0x3134cf<=liveLastLibraryPushedAtMs)return;try{if(liveLibraryPushTimer)clearTimeout(liveLibraryPushTimer);}catch(_0x2cb434){}liveLibraryPushTimer=setTimeout(()=>{liveLibraryPushTimer=null,livePushLibraryToBackend();},_0x4ee2b8?0xa:0x384);}async function livePushLibraryToBackend(){const _0x278dd=_0x3511a3;if(session?.[_0x278dd(0x151)]!=='admin')return;if(!liveIsEnabled())return;if(!liveAuthToken)return;const _0x15ca2b=getLibraryUpdatedAtMs(library);if(_0x15ca2b<=liveLastLibraryPushedAtMs)return;try{await liveApiFetch(_0x278dd(0x1e9),{'method':_0x278dd(0x341),'body':library}),liveLastLibraryPushedAtMs=_0x15ca2b;}catch(_0xc27391){console['warn']('Live\x20library\x20push\x20failed:',_0xc27391);}}async function loadLibraryFromBackend(){const _0x8a5b92=_0x3511a3;if(!liveIsEnabled())return![];try{const _0xfcab2a=await liveApiFetch(_0x8a5b92(0x1e9),{'method':_0x8a5b92(0x33f)}),_0x41b90c=normalizeIncomingLibrary(_0xfcab2a),_0xec3bd=getLibraryUpdatedAtMs(_0x41b90c),_0x2f6235=getLibraryUpdatedAtMs(library);if(_0xec3bd&&_0xec3bd>_0x2f6235){library=_0x41b90c,libraryLoadState={'ok':!![],'source':_0x8a5b92(0x32b),'error':null},persistLibraryToCache(),lastAppliedLibraryUpdatedAtMs=_0xec3bd;try{refreshUiAfterLibraryChange();}catch(_0x30adb9){}try{updateAdminLibraryStatus();}catch(_0x193bb2){}return!![];}return![];}catch(_0x408f1e){return![];}}function emptyLibrary(){return{'version':0x2,'updatedAt':null,'folders':[],'quizSets':[],'pdfs':[]};}let library=emptyLibrary(),libraryLoadState={'ok':![],'source':'empty','error':null},libraryBootstrappedFromFallback=![];function nowISO(){return new Date()['toISOString']();}function uid(_0x10bd8d){const _0xcdeedb=_0x3511a3;return _0x10bd8d+'_'+Date[_0xcdeedb(0x16b)]()['toString'](0x24)+'_'+Math[_0xcdeedb(0x38f)]()[_0xcdeedb(0x1bf)](0x24)['slice'](0x2,0x8);}function normalizePath(_0xddcc7){const _0x3d7452=_0x3511a3;if(typeof _0xddcc7!=='string')return'';let _0x26cf02=_0xddcc7[_0x3d7452(0x17f)](/\\/g,'/');return _0x26cf02=_0x26cf02[_0x3d7452(0x397)]('/')[_0x3d7452(0x201)](_0x4c69f1=>_0x4c69f1[_0x3d7452(0x18e)]())[_0x3d7452(0x3af)](Boolean)[_0x3d7452(0x373)]('/'),_0x26cf02;}function samePath(_0x1dacff,_0x375cd7){const _0x202916=_0x3511a3;return normalizePath(_0x1dacff)['toLowerCase']()===normalizePath(_0x375cd7)[_0x202916(0x3c6)]();}function isUnderPath(_0x2dbad0,_0x58a952){const _0x3538d6=_0x3511a3,_0x295d7c=normalizePath(_0x2dbad0)[_0x3538d6(0x3c6)](),_0x15d441=normalizePath(_0x58a952)['toLowerCase']();if(!_0x15d441)return!![];return _0x295d7c===_0x15d441||_0x295d7c[_0x3538d6(0x1de)](_0x15d441+'/');}function parentPath(_0x239db2){const _0xcdc179=_0x3511a3,_0xc09b27=normalizePath(_0x239db2),_0x538d13=_0xc09b27['split']('/')[_0xcdc179(0x3af)](Boolean);if(_0x538d13[_0xcdc179(0x3bc)]<=0x1)return'';return _0x538d13[_0xcdc179(0x396)](0x0,-0x1)[_0xcdc179(0x373)]('/');}function baseName(_0x90cc3f){const _0x3a2d45=_0x3511a3,_0x4ba99b=normalizePath(_0x90cc3f),_0x4a12d6=_0x4ba99b['split']('/')['filter'](Boolean);return _0x4a12d6[_0x4a12d6[_0x3a2d45(0x3bc)]-0x1]||'';}function getAllFolderPaths(){const _0x4ab46f=_0x3511a3,_0x5707b5=new Map();return(library[_0x4ab46f(0x209)]||[])[_0x4ab46f(0x30d)](_0x13cd79=>{const _0x199a51=_0x4ab46f,_0x44cf0b=normalizePath(_0x13cd79?.['path']||'');if(_0x44cf0b)_0x5707b5[_0x199a51(0x2fc)](_0x44cf0b[_0x199a51(0x3c6)](),_0x44cf0b);}),(library[_0x4ab46f(0x1c0)]||[])[_0x4ab46f(0x30d)](_0x271051=>{const _0x56d0a9=_0x4ab46f,_0x4d9a7b=normalizePath(_0x271051?.[_0x56d0a9(0x283)]||'');if(_0x4d9a7b)_0x5707b5['set'](_0x4d9a7b[_0x56d0a9(0x3c6)](),_0x4d9a7b);}),(library['pdfs']||[])[_0x4ab46f(0x30d)](_0x5587d1=>{const _0x54fc78=_0x4ab46f,_0x54c6fd=normalizePath(_0x5587d1?.['folder']||'');if(_0x54c6fd)_0x5707b5[_0x54fc78(0x2fc)](_0x54c6fd[_0x54fc78(0x3c6)](),_0x54c6fd);}),Array[_0x4ab46f(0x325)](_0x5707b5['values']());}function getImmediateChildFolders(_0x2d8a66){const _0x1f4019=_0x3511a3,_0x300d02=normalizePath(_0x2d8a66),_0x35929f=_0x300d02['toLowerCase'](),_0x5a78a5=getAllFolderPaths(),_0x4924cc=new Map();return _0x5a78a5['forEach'](_0x594c90=>{const _0x10d38f=_0x4d8d,_0x5b82ad=normalizePath(_0x594c90);if(!_0x5b82ad)return;const _0x193876=_0x5b82ad[_0x10d38f(0x3c6)]();if(!_0x300d02){const _0x49b12e=_0x5b82ad['split']('/')[0x0];if(!_0x49b12e)return;const _0x53d94a=normalizePath(_0x49b12e);_0x4924cc[_0x10d38f(0x2fc)](_0x53d94a[_0x10d38f(0x3c6)](),{'path':_0x53d94a,'name':_0x49b12e});return;}if(_0x193876===_0x35929f)return;if(!_0x193876[_0x10d38f(0x1de)](_0x35929f+'/'))return;const _0x453660=_0x5b82ad[_0x10d38f(0x396)](_0x300d02[_0x10d38f(0x3bc)]+0x1),_0x5776fc=_0x453660[_0x10d38f(0x397)]('/')[0x0];if(!_0x5776fc)return;const _0x375ac0=normalizePath(_0x300d02+'/'+_0x5776fc);_0x4924cc[_0x10d38f(0x2fc)](_0x375ac0[_0x10d38f(0x3c6)](),{'path':_0x375ac0,'name':_0x5776fc});}),Array[_0x1f4019(0x325)](_0x4924cc[_0x1f4019(0x334)]())['sort']((_0x169d44,_0x3f4e4b)=>_0x169d44[_0x1f4019(0x344)][_0x1f4019(0x1f8)](_0x3f4e4b[_0x1f4019(0x344)]));}function ensureFolder(_0x5b751d,_0x1fc9ae=library){const _0x492a10=_0x3511a3,_0x56c1f8=normalizePath(_0x5b751d);if(!_0x56c1f8)return![];const _0x1fe5a8=_0x56c1f8[_0x492a10(0x397)]('/')[_0x492a10(0x3af)](Boolean);let _0x1b1aed='',_0x1e54bd=![];for(const _0x1ae73b of _0x1fe5a8){_0x1b1aed=_0x1b1aed?_0x1b1aed+'/'+_0x1ae73b:_0x1ae73b;const _0xfcb7d5=_0x1fc9ae['folders']['some'](_0x5cd298=>samePath(_0x5cd298[_0x492a10(0x31f)],_0x1b1aed));!_0xfcb7d5&&(_0x1fc9ae[_0x492a10(0x209)]['push']({'path':_0x1b1aed,'createdAt':nowISO()}),_0x1e54bd=!![]);}return _0x1e54bd;}function persistLibraryToCache(){const _0x425eeb=_0x3511a3;try{return localStorage[_0x425eeb(0x1f9)](LIBRARY_CACHE_KEY,JSON[_0x425eeb(0x1ab)](library)),!![];}catch(_0x1ca5eb){return![];}}function touchLibrary(){const _0x4acc3f=_0x3511a3;library[_0x4acc3f(0x2bf)]=nowISO();const _0x5a930f=persistLibraryToCache();_0x5a930f&&(lastAppliedLibraryUpdatedAtMs=getLibraryUpdatedAtMs(library),broadcastLibraryUpdated());try{scheduleLiveLibraryPush(![]);}catch(_0x315d5f){}return _0x5a930f;}function normalizeIncomingLibrary(_0x274840){const _0x3e455f=_0x3511a3;if(_0x274840&&typeof _0x274840===_0x3e455f(0x268)&&_0x274840[_0x3e455f(0x230)]===0x2){const _0x374be2=emptyLibrary();return _0x374be2[_0x3e455f(0x2bf)]=_0x274840[_0x3e455f(0x2bf)]||null,_0x374be2[_0x3e455f(0x209)]=Array[_0x3e455f(0x1a1)](_0x274840[_0x3e455f(0x209)])?_0x274840['folders'][_0x3e455f(0x3af)](Boolean)[_0x3e455f(0x201)](_0xa3a10f=>({'path':normalizePath(_0xa3a10f[_0x3e455f(0x31f)]||''),'createdAt':_0xa3a10f['createdAt']||null}))[_0x3e455f(0x3af)](_0x58ea72=>_0x58ea72['path']):[],_0x374be2['quizSets']=Array[_0x3e455f(0x1a1)](_0x274840[_0x3e455f(0x1c0)])?_0x274840['quizSets']['map'](_0x1830ba=>({'id':String(_0x1830ba['id']||uid('qs')),'title':String(_0x1830ba[_0x3e455f(0x20a)]||'Untitled'),'folder':normalizePath(_0x1830ba[_0x3e455f(0x283)]||_0x3e455f(0x35e)),'createdAt':_0x1830ba[_0x3e455f(0x22b)]||null,'updatedAt':_0x1830ba[_0x3e455f(0x2bf)]||null,'questions':Array[_0x3e455f(0x1a1)](_0x1830ba[_0x3e455f(0x205)])?_0x1830ba['questions']:[]})):[],_0x374be2[_0x3e455f(0x255)]=Array['isArray'](_0x274840[_0x3e455f(0x255)])?_0x274840[_0x3e455f(0x255)][_0x3e455f(0x201)](_0x101626=>({'id':String(_0x101626['id']||uid('pdf')),'title':String(_0x101626[_0x3e455f(0x20a)]||_0x3e455f(0x20f)),'folder':normalizePath(_0x101626[_0x3e455f(0x283)]||_0x3e455f(0x35e)),'kind':_0x101626[_0x3e455f(0x36b)]==='archive'?'archive':'notes','src':String(_0x101626[_0x3e455f(0x376)]||''),'createdAt':_0x101626['createdAt']||null})):[],_0x374be2[_0x3e455f(0x1c0)][_0x3e455f(0x30d)](_0x2f833c=>ensureFolder(_0x2f833c[_0x3e455f(0x283)],_0x374be2)),_0x374be2['pdfs'][_0x3e455f(0x30d)](_0x4b61bd=>ensureFolder(_0x4b61bd[_0x3e455f(0x283)],_0x374be2)),_0x374be2;}if(_0x274840&&typeof _0x274840==='object'&&_0x274840[_0x3e455f(0x230)]===0x1){const _0x51f3f1=emptyLibrary();_0x51f3f1[_0x3e455f(0x2bf)]=_0x274840[_0x3e455f(0x2bf)]||null;Array[_0x3e455f(0x1a1)](_0x274840[_0x3e455f(0x1c0)])&&(_0x51f3f1['quizSets']=_0x274840[_0x3e455f(0x1c0)][_0x3e455f(0x201)](_0x59add4=>({'id':String(_0x59add4['id']||uid('qs')),'title':String(_0x59add4[_0x3e455f(0x20a)]||_0x3e455f(0x1e2)),'folder':normalizePath(_0x59add4[_0x3e455f(0x283)]||_0x3e455f(0x35e)),'createdAt':_0x59add4[_0x3e455f(0x22b)]||null,'updatedAt':_0x59add4['updatedAt']||null,'questions':Array['isArray'](_0x59add4[_0x3e455f(0x205)])?_0x59add4[_0x3e455f(0x205)]:[]})));const _0x5425ab=[];return Array[_0x3e455f(0x1a1)](_0x274840[_0x3e455f(0x3b7)])&&_0x274840[_0x3e455f(0x3b7)][_0x3e455f(0x30d)](_0x248259=>_0x5425ab[_0x3e455f(0x2a6)]({..._0x248259,'kind':_0x3e455f(0x3b7)})),Array[_0x3e455f(0x1a1)](_0x274840[_0x3e455f(0x3a9)])&&_0x274840[_0x3e455f(0x3a9)][_0x3e455f(0x30d)](_0xd0b4dd=>_0x5425ab['push']({..._0xd0b4dd,'kind':_0x3e455f(0x179)})),_0x51f3f1['pdfs']=_0x5425ab[_0x3e455f(0x201)](_0x4accc6=>({'id':String(_0x4accc6['id']||uid(_0x3e455f(0x17c))),'title':String(_0x4accc6['title']||'PDF'),'folder':normalizePath(_0x4accc6[_0x3e455f(0x283)]||_0x3e455f(0x35e)),'kind':_0x4accc6[_0x3e455f(0x36b)]===_0x3e455f(0x179)?_0x3e455f(0x179):'notes','src':String(_0x4accc6[_0x3e455f(0x376)]||_0x4accc6[_0x3e455f(0x24d)]||_0x4accc6[_0x3e455f(0x2fa)]||''),'createdAt':_0x4accc6[_0x3e455f(0x22b)]||null})),_0x51f3f1['quizSets'][_0x3e455f(0x30d)](_0x1d1951=>ensureFolder(_0x1d1951['folder'],_0x51f3f1)),_0x51f3f1[_0x3e455f(0x255)]['forEach'](_0x34d053=>ensureFolder(_0x34d053[_0x3e455f(0x283)],_0x51f3f1)),_0x51f3f1;}return emptyLibrary();}function getLibraryUpdatedAtMs(_0x2532a4){const _0x124a39=_0x3511a3,_0xaa6546=Date[_0x124a39(0x39f)](String(_0x2532a4?.[_0x124a39(0x2bf)]||''));return Number[_0x124a39(0x25f)](_0xaa6546)?_0xaa6546:0x0;}function readLibraryCache(){const _0x2d46a3=_0x3511a3;try{const _0x1fc125=localStorage[_0x2d46a3(0x2c9)](LIBRARY_CACHE_KEY);if(!_0x1fc125)return null;const _0x561e37=JSON[_0x2d46a3(0x39f)](_0x1fc125);return normalizeIncomingLibrary(_0x561e37);}catch(_0x374205){return null;}}function isOverlayOpen(_0x199db5){const _0x31b9b8=_0x3511a3,_0x27af18=document['getElementById'](_0x199db5);return!!_0x27af18&&!_0x27af18[_0x31b9b8(0x281)][_0x31b9b8(0x284)](_0x31b9b8(0x2cf));}function refreshUiAfterLibraryChange(){const _0x2ba341=_0x3511a3;if(isOverlayOpen(_0x2ba341(0x174))){try{updateAdminLibraryStatus();}catch(_0x2552fd){}try{adminRefreshAll();}catch(_0x46b860){}}if(isOverlayOpen('quiz-browser-overlay'))try{renderQuizBrowser();}catch(_0x1bf377){}if(isOverlayOpen(_0x2ba341(0x3a3)))try{renderNotesOverlayList(notesCurrentFolder);}catch(_0x2ad926){}}function maybeReloadLibraryFromCache(_0x3399f0='cache'){const _0x4955cf=_0x3511a3,_0x1c4e41=readLibraryCache();if(!_0x1c4e41)return![];const _0x7e88d6=getLibraryUpdatedAtMs(_0x1c4e41),_0x1da803=getLibraryUpdatedAtMs(library);if(_0x7e88d6<=_0x1da803)return![];library=normalizeIncomingLibrary(_0x1c4e41),libraryLoadState={'ok':!![],'source':_0x4955cf(0x394),'error':null},lastAppliedLibraryUpdatedAtMs=_0x7e88d6;try{refreshUiAfterLibraryChange();}catch(_0x49ecbb){}return!![];}function broadcastLibraryUpdated(){const _0x5a3e1c=_0x3511a3;if(!librarySyncChannel)return;try{librarySyncChannel[_0x5a3e1c(0x328)]({'type':_0x5a3e1c(0x309),'updatedAt':library?.['updatedAt']||null,'ms':getLibraryUpdatedAtMs(library)});}catch(_0x58d3cc){}}function initLibraryLiveSync(){const _0x46a0ad=_0x3511a3;if(librarySyncInitialized)return;librarySyncInitialized=!![];try{librarySyncChannel=new BroadcastChannel(LIBRARY_SYNC_CHANNEL),librarySyncChannel[_0x46a0ad(0x343)]=_0x453c7a=>{const _0x4dad6d=_0x46a0ad;if(_0x453c7a?.['data']?.[_0x4dad6d(0x14a)]!==_0x4dad6d(0x309))return;maybeReloadLibraryFromCache(_0x4dad6d(0x2e6));};}catch(_0x3ac92c){librarySyncChannel=null;}window[_0x46a0ad(0x18c)](_0x46a0ad(0x187),_0x5d3187=>{const _0x236207=_0x46a0ad;if(_0x5d3187?.[_0x236207(0x1d9)]!==LIBRARY_CACHE_KEY)return;maybeReloadLibraryFromCache(_0x236207(0x187));}),document[_0x46a0ad(0x18c)]('visibilitychange',()=>{const _0x52f9f7=_0x46a0ad;if(!document['hidden'])maybeReloadLibraryFromCache(_0x52f9f7(0x377));});}function loadLibraryFromFallbacks(){const _0x2dea05=_0x3511a3,_0x2e09e0=[];try{const _0x3ea19f=localStorage[_0x2dea05(0x2c9)](LIBRARY_CACHE_KEY);if(_0x3ea19f){const _0x18b2d8=JSON[_0x2dea05(0x39f)](_0x3ea19f),_0x12945e=normalizeIncomingLibrary(_0x18b2d8);_0x2e09e0['push']({'source':_0x2dea05(0x394),'lib':_0x12945e,'ms':getLibraryUpdatedAtMs(_0x12945e)});}}catch(_0x48b86f){}try{const _0x1a0135=window[LIBRARY_GLOBAL_VAR];if(_0x1a0135&&typeof _0x1a0135===_0x2dea05(0x268)){const _0x2f3b1f=normalizeIncomingLibrary(_0x1a0135);_0x2e09e0[_0x2dea05(0x2a6)]({'source':'bundle','lib':_0x2f3b1f,'ms':getLibraryUpdatedAtMs(_0x2f3b1f)});}}catch(_0xd64203){}if(_0x2e09e0[_0x2dea05(0x3bc)]===0x0)return![];_0x2e09e0[_0x2dea05(0x1c3)]((_0x12f4cc,_0xbce60c)=>{const _0x348b00=_0x2dea05;if(_0xbce60c['ms']!==_0x12f4cc['ms'])return _0xbce60c['ms']-_0x12f4cc['ms'];if(_0x12f4cc[_0x348b00(0x398)]===_0xbce60c[_0x348b00(0x398)])return 0x0;return _0x12f4cc[_0x348b00(0x398)]===_0x348b00(0x394)?-0x1:0x1;});const _0x48fdd5=_0x2e09e0[0x0];return library=_0x48fdd5[_0x2dea05(0x222)],libraryLoadState={'ok':!![],'source':_0x48fdd5[_0x2dea05(0x398)],'error':null},libraryBootstrappedFromFallback=!![],!![];}async function loadLibraryFromRepo(){const _0x47fc6d=_0x3511a3,_0x59d390=window[_0x47fc6d(0x3a1)][_0x47fc6d(0x2c8)]==='file:';!libraryBootstrappedFromFallback&&loadLibraryFromFallbacks();if(_0x59d390){const _0x2fb708=loadLibraryFromFallbacks();!_0x2fb708?(library=emptyLibrary(),libraryLoadState={'ok':![],'source':_0x47fc6d(0x2c2),'error':new Error(_0x47fc6d(0x308))}):persistLibraryToCache();updateAdminLibraryStatus();if(!document['getElementById'](_0x47fc6d(0x174))?.['classList'][_0x47fc6d(0x284)](_0x47fc6d(0x2cf)))adminRefreshAll();return;}try{const _0x4437d1=await fetch(LIBRARY_FILENAME,{'cache':_0x47fc6d(0x385)});if(!_0x4437d1['ok'])throw new Error('HTTP\x20'+_0x4437d1[_0x47fc6d(0x23b)]);const _0x319a9e=await _0x4437d1[_0x47fc6d(0x34c)](),_0x2b5cb8=normalizeIncomingLibrary(_0x319a9e),_0x561eda=getLibraryUpdatedAtMs(_0x2b5cb8),_0xdc3ee4=getLibraryUpdatedAtMs(library);!libraryLoadState['ok']||_0x561eda>_0xdc3ee4?(library=_0x2b5cb8,libraryLoadState={'ok':!![],'source':'repo','error':null},persistLibraryToCache()):libraryLoadState={'ok':!![],'source':libraryLoadState[_0x47fc6d(0x398)]||_0x47fc6d(0x394),'error':null};}catch(_0x5c882e){console[_0x47fc6d(0x2e4)]('Library\x20not\x20found\x20or\x20invalid.\x20Trying\x20offline\x20fallbacks…',_0x5c882e);const _0x19f2c8=loadLibraryFromFallbacks();!_0x19f2c8?(library=emptyLibrary(),libraryLoadState={'ok':![],'source':_0x47fc6d(0x2c2),'error':_0x5c882e},console[_0x47fc6d(0x2e4)](_0x47fc6d(0x243),_0x5c882e)):persistLibraryToCache();}lastAppliedLibraryUpdatedAtMs=getLibraryUpdatedAtMs(library),updateAdminLibraryStatus(),!document[_0x47fc6d(0x389)](_0x47fc6d(0x174))?.[_0x47fc6d(0x281)][_0x47fc6d(0x284)]('hidden')&&adminRefreshAll();}function downloadJSON(_0x148953,_0x5fe7a4){const _0x50c1b6=_0x3511a3,_0x4d11d6=JSON[_0x50c1b6(0x1ab)](_0x5fe7a4,null,0x2),_0x178d78=new Blob([_0x4d11d6],{'type':'application/json'}),_0x46bede=URL['createObjectURL'](_0x178d78),_0x4261a8=document[_0x50c1b6(0x39b)]('a');_0x4261a8[_0x50c1b6(0x1a5)]=_0x46bede,_0x4261a8[_0x50c1b6(0x18b)]=_0x148953,document[_0x50c1b6(0x24f)][_0x50c1b6(0x20b)](_0x4261a8),_0x4261a8['click'](),_0x4261a8[_0x50c1b6(0x30f)](),URL[_0x50c1b6(0x36d)](_0x46bede);}function downloadText(_0xe551de,_0xfd5f7,_0x445a6e=_0x3511a3(0x18a)){const _0x4e4038=_0x3511a3,_0x31f7b5=new Blob([_0xfd5f7],{'type':_0x445a6e}),_0x4145ae=URL['createObjectURL'](_0x31f7b5),_0xd68a76=document['createElement']('a');_0xd68a76[_0x4e4038(0x1a5)]=_0x4145ae,_0xd68a76[_0x4e4038(0x18b)]=_0xe551de,document[_0x4e4038(0x24f)][_0x4e4038(0x20b)](_0xd68a76),_0xd68a76[_0x4e4038(0x2ee)](),_0xd68a76[_0x4e4038(0x30f)](),URL['revokeObjectURL'](_0x4145ae);}function adminSaveLibrary(){const _0x422106=_0x3511a3;if(session[_0x422106(0x151)]!==_0x422106(0x1ce)){alert(_0x422106(0x306));return;}touchLibrary();try{scheduleLiveLibraryPush(!![]);}catch(_0x2ec0f9){}adminExportLibrary();}function readFileAsText(_0x343ba8){return new Promise((_0x58849c,_0x4569dc)=>{const _0x1812bf=_0x4d8d,_0x39a64f=new FileReader();_0x39a64f['onload']=()=>_0x58849c(String(_0x39a64f['result']||'')),_0x39a64f[_0x1812bf(0x3be)]=()=>_0x4569dc(_0x39a64f['error']||new Error(_0x1812bf(0x33b))),_0x39a64f[_0x1812bf(0x2aa)](_0x343ba8);});}function _0x185a(){const _0x3a3a1f=['</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20','readAsText','offline\x20cache','Set\x20Target\x20folder\x20path\x20to\x20the\x20folder\x20you\x20want\x20to\x20move.','Start\x20Built-in\x20Quiz','admin-quick-pick','focus','</div>\x0a\x20\x20\x20\x20','ug3','admin-pdf-kind','PADAYON\x20PORTAL\x20-\x20Forgot\x20Password','admin-nav-content','activeElement','submenu-undergrounds','LOGIN','quiz-browser-path','admin-panel-folder','Folder\x20renamed.','scrollTo','onchange','getAttribute','hello','updatedAt','submenu-taypi','active','empty','mailto:bartnu137@gmail.com?subject=','admin-quiz-create-btn','Please\x20enter\x20username\x20and\x20last\x20password\x20you\x20remember.','Enter\x20a\x20new\x20parent\x20path.','left','protocol','getItem','admin-pdf-title','backup','admin-close','admin-type-quiz','\x22\x20class=\x22','hidden','Enter\x20folder\x20name.','\x20wrong','admin-library-status','admin-live-status','admin-nav-backup','item','padayon_library_cache_v2','http','admin-quiz-title','admin-import-file','Imported\x20library.json,\x20but\x20could\x20not\x20save\x20to\x20cache\x20(storage\x20might\x20be\x20full).\x20You\x20can\x20still\x20Export\x20+\x20commit\x20to\x20GitHub.','entries','Backend:\x20authenticated\x20+\x20live\x20connected.','caltech','Invalid\x20library.json','quiz','opt-btn','4648240cljmSL','submenu-terms','Hi\x20Admin,\x0a\x0aI\x20forgot\x20my\x20password.\x0a\x0aUsername:\x20','warn','style','broadcast','no_token','Backend\x20URL\x20not\x20set.','felizarta','OFFLINE\x20CACHE','fixed','PAWER-LAYN\x20FILE/PRACTICE\x20QUIZ','main-app','click','NOTES','some','admin-folder-create-btn',']</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22document.getElementById(\x27soln-','admin-folder-name','\x0a\x0aThanks!','log:append','&lt;','PLEASE\x20CONFIRM\x20YOU\x20ARE\x20NOT\x20A\x20ROBOT','&#039;','<div\x20class=\x22admin-search-type\x22>','url','\x20(saved\x20to\x20cache).','set','T-AY-PI','display:none;','admin-library-hint','cortez','quiz_set','opacity\x200.5s','max','Choose\x20a\x20library.json\x20file\x20first.','userAgent','Admin\x20only.','admin-path-visibility','file://\x20cannot\x20fetch\x20library.json','LIBRARY_UPDATED','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex-1\x22>','items','Backend:\x20authenticated\x20(loading\x20accounts)…','forEach','•\x20Export\x20library.json\x20in\x20Backup\x20tab\x20and\x20COMMIT\x20it\x20to\x20GitHub\x20so\x20everyone\x20can\x20see\x20the\x20updates.','remove','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>','cristopher','presence:public','admin-q-count','selectExamOption(','admin-panel-quiz','admin-q-topic','Custom\x20path\x20(not\x20linked\x20in\x20UI\x20yet)','\x0a\x0aThis\x20will\x20affect\x20subfolders\x20and\x20content\x20inside.','admin-pdf-url','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x20duration-200\x20hover:bg-[#1a1a24]\x20group\x22\x20onclick=\x22loadQuizCustom(\x27','content','admin-search-item','Backend\x20login\x20required\x20(no\x20token).\x20Login\x20again\x20while\x20backend\x20is\x20configured.','UNDERGROUNDS\x20→\x20CALCULATOR\x20TECHNIQUES\x20(Notes)','path','admin-clear-log-btn','5ioUTzM','PDF\x20URL\x20attached,\x20but\x20browser\x20storage\x20is\x20blocked/full.\x0a\x0a👉\x20To\x20persist/share:\x20use\x20Backup\x20→\x20Export\x20library.json.','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','This\x20account\x20was\x20logged\x20in\x20on\x20another\x20device.','from','application/javascript','fernandez','postMessage','change','admin-backup-import-btn','backend','\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-4xl\x20mb-4\x20text-[#00f3ff]\x22>📁</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22font-bold\x20text-lg\x22>','Enter\x20new\x20folder\x20name.','ESAS','T-AY-PI\x20(Quiz\x20Sets)','MATHEMATICS','admin-refresh-online-btn','Quiz\x20set\x20created:\x20','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20justify-between\x20items-start\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-center\x20gap-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22text-3xl\x20font-bold\x20text-gray-700\x20font-mono\x22>#','values','\x22\x20class=\x22hidden\x20pt-4\x20border-t\x20border-gray-800\x20space-y-4\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-400\x20text-sm\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong\x20class=\x22text-[#00f3ff]\x22>SOLUTION:</strong><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-2\x22>','/\x20--','presence:request','admin-folder-move-btn','PAWER-LAYN\x20FILE\x20→\x20NOTES\x20(PDF\x20Notes)','PAWER-LAYN\x20FILE','Failed\x20to\x20read\x20file','Close\x20Admin\x20Panel','Option\x20','admin-backend-url-clear-btn','GET','&body=','PUT','exam-dashboard','onmessage','name','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22><span\x20class=\x22admin-pill\x22>','PAWER-LAYN\x20FILE\x20→\x20EXAM\x20(Quiz\x20Sets)','admin-quick-import-file','.json','LIBRARY:\x20EMPTY\x20(import\x20in\x20Backup)','error','admin-save','json','//\x20Auto-generated\x20by\x20PADAYON\x20Admin\x0a//\x20Offline\x20fallback\x20for\x20file://\x20mode\x20(fetching\x20library.json\x20is\x20blocked\x20by\x20the\x20browser).\x0awindow.','<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(connecting…)</span>','close','admin-target-path','getResponse','<span\x20class=\x22text-gray-500\x22>(no\x20solution\x20provided)</span>','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','QUIZ\x20SETS','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','Copy\x20failed.\x20You\x20can\x20manually\x20select\x20and\x20copy\x20the\x20Target\x20path\x20input.','value','admin-q-clear-btn','OPEN','Target\x20path\x20is\x20empty.','Start\x20Custom\x20Quiz','Created\x20account:\x20','\x20set','GLOBAL','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','UNKNOWN','\x0aLast\x20password\x20I\x20remember:\x20','T-AY-PI/ESAS','cyber-card\x20rounded-lg\x20p-6\x20flex\x20flex-col\x20gap-4','Backend:\x20URL\x20not\x20set.','setAttribute','PDF\x20attached,\x20but\x20browser\x20storage\x20is\x20full\x20(PDF\x20embed\x20can\x20be\x20very\x20large).\x0a\x0a✅\x20It\x20will\x20still\x20work\x20right\x20now.\x0a👉\x20To\x20share/persist:\x20use\x20Backup\x20→\x20Export\x20library.json,\x20or\x20attach\x20by\x20URL\x20(recommended\x20for\x20GitHub).','admin-q-a','admin-type-folder','.pdf','admin-folder-how-btn','kind','ws://','revokeObjectURL','EXHALE\x20FILE/NOTES','div','ROOT\x20(not\x20linked\x20to\x20a\x20menu)','PDF\x20not\x20found\x20in\x20library.','textarea','join','Notes:\x20Open\x20Folder','text-yellow-500','src','visibility','Back\x20to\x20Terms\x20List','UNDERGROUNDS\x20→\x20FORMULAS\x20(Notes)','Close\x20Quiz\x20Browser','\x27);\x20adminRefreshAll();\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>📁\x20','message','https://','</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','preventDefault','admin-q-add-btn','text-[#ff00ff]','isSecureContext','querySelectorAll','\x0a\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-search-label\x22>','no-store','position','Enter','admin-nav-logs','getElementById','<div\x20class=\x22admin-help\x22>No\x20users\x20online.</div>','Imported\x20library.json\x20and\x20saved\x20to\x20cache.\x20Export\x20+\x20commit\x20to\x20GitHub\x20to\x20share\x20with\x20friends.','grecaptcha','EXHALE\x20FILE','log:request','random','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-4\x20pt-4\x20border-t\x20border-gray-800\x20text-sm\x20animate-fade-in\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-300\x20bg-gray-900/80\x20p-3\x20rounded\x20border-l-2\x20border-[#00ff9d]\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-[#00ff9d]\x20text-xs\x20font-bold\x20mb-1\x22>SOLUTION:</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','Authorization','(not\x20set)','ADMIN','cache','Back\x20to\x20UNDERGROUNDS','slice','split','source','admin-tab-backup','has','createElement','Current:\x20','admin-pdf-upload-btn','send','parse','includes','location','admin-pdf-list','notes-overlay','pdf-frame','bundle','ROOT','PDFs','</span>.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20font-mono\x20text-xs\x20mt-2\x22>Ask\x20admin\x20to\x20create\x20quiz\x20sets\x20in\x20Admin\x20Panel\x20→\x20Quiz\x20Set.</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','archives','EXHALE\x20FILE/EXAM','Open\x20PDF','practice','\x20wrong-ans','PATH:\x20','filter','admin-export-btn','Online','\x20correct','selectPracticeOption(','keydown','538610xOCCeJ','admin-tab-logs','notes','practice-dashboard','copy','Select\x20a\x20quiz\x20set\x20first.','library.js','length','\x20\x20[','onerror','240393aqCaUb','all','</span>','CUSTOM\x20SET','solution','PLEASE\x20ENTER\x20USERNAME\x20AND\x20PASSWORD','borderColor','toLowerCase','onopen','</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x20align-items:center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22>VIEW</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22\x20style=\x22border-color:\x20rgba(255,\x200,\x2085,\x200.55);\x22>DELETE</button>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','Notes:\x20Go\x20Up','typesetPromise','function','PAWER-LAYN\x20FILE\x20→\x20PRACTICE\x20QUIZ\x20(Quiz\x20Sets)','UNDERGROUNDS/TERMS\x20&\x20OBJECTIVES','admin-quiz-move-path','Open\x20Category','landing-page','type','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>','T-AY-PI/MATHEMATICS','block','treb','concat','admin-search-input','role','textContent','MENUS','80eVcKeG','user','admin-quiz-select','<span\x20class=\x22bg-gray-800\x20border\x20border-[#00f3ff]\x20text-[#00f3ff]\x20text-xs\x20px-2\x20py-1\x20rounded\x20font-mono\x20flex\x20items-center\x20gap-1\x22><span\x20class=\x22w-2\x20h-2\x20rounded-full\x20bg-[#00f3ff]\x20animate-pulse\x22></span>\x20CALTECH</span>','cyron','<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(login\x20required)</span>','innerHTML','text-[#00f3ff]','innerText','readAsDataURL','PAWER-LAYN\x20FILE/NOTES','question','admin-refresh-accounts-btn','admin-card','PADAYON_LIBRARY','PAST\x20BOARD\x202','log:batch','initLive','hello:ack','Offline\x20mode:\x20loaded\x20library\x20from\x20','clipboard','rgba(0,\x20255,\x20157,\x200.55)','Backend:\x20not\x20authenticated\x20(login\x20required).','now','\x20correct-ans','Quick\x20pick:\x20choose\x20a\x20folder…','add','admin-pdf-file','admin-q-soln','admin-backend-url-input','repeat','test','admin-overlay','admin-create-password','users','admin-tab-accounts','Imported\x20','archive','input','<div\x20class=\x22admin-help\x22>Loading…</div>','pdf','none','className','replace','display','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22><span\x20class=\x22admin-pill\x22>OPEN</span></div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','option','quiz-browser-overlay','GLOBAL\x20(shows\x20in\x20all\x20quiz\x20browsers\x20&\x20notes\x20roots)','admin-q-text','arcenas','storage','admin-folder-move-parent','esas','text/plain','download','addEventListener','wss://','trim','&quot;','soln','PDF_VIEWER','admin-search-clear','<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(backend\x20not\x20configured)</span>','admin-backup-export','Module\x20Under\x20Construction','RUNNING','Import\x20library.json?\x0a\x0aThis\x20will\x20replace\x20your\x20current\x20local\x20quiz/notes\x20library\x20on\x20this\x20device.','smooth','PAWER-LAYN\x20FILE/EXAM','•\x20Target\x20folder\x20path\x20=\x20where\x20quiz\x20sets/PDFs\x20are\x20attached.\x0a','Exit\x20Quiz','\x27).classList.toggle(\x27hidden\x27)\x22\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20class=\x22mt-auto\x20w-full\x20py-2\x20bg-[#1f1f2e]\x20hover:bg-[#2d2d3a]\x20text-gray-300\x20text-sm\x20font-bold\x20uppercase\x20tracking-widest\x20transition-colors\x20border-t\x20border-gray-700\x20flex\x20justify-center\x20items-center\x20gap-2\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>View\x20Protocol</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22soln-','CATEGORIES','\x20pdf','online-users-sub','ug2','isArray','/api/accounts','admin-folder-delete-btn','•\x20Archive\x20Folder\x20tool\x20edits\x20the\x20folder\x20in\x20Target\x20folder\x20path.\x0a','href','admin-create-username','text-[#00ff9d]','\x20•\x20','activity','inactive','stringify','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-2\x20p-3\x20bg-black/40\x20border-l-2\x20border-yellow-500\x20text-yellow-500\x20font-mono\x20text-sm\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20ANSWER:\x20','admin-import-btn','Login\x20to\x20see\x20online\x20users.','password','quiz-browser-title','admin-backup-export-js','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','transition','admin-pdf-attach-url-btn','Delete\x20folder\x20(recursive):\x0a','MathJax','forgotPassLink','admin-quick-import','selected','label','btn-','\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-center\x20justify-between\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-3xl\x20text-[#00f3ff]\x22>🧠</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>','admin-folder-open-btn','view','toString','quizSets','EXHALE\x20FILE\x20→\x20NOTES\x20(PDF\x20Notes)','admin-create-account-btn','sort','onclose','admin-create-role','active-module-title','</span></div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','Question\x20text\x20is\x20required.','Folder\x20moved.','<option\x20value=\x22\x22>--\x20Select\x20existing\x20set\x20--</option>','Open\x20Past\x20Board\x20List','logs','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','admin','admin-quiz-delete-questions','921824wROYEq','<div\x20class=\x22admin-help\x22>Login\x20to\x20backend\x20required\x20(no\x20token).</div>','Questions\x20imported,\x20but\x20all\x20were\x20empty\x20after\x20sanitizing.','files','string','exam','captcha_required','UNDERGROUNDS','QUIZ_BROWSER','key','admin-list-item','PDF\x20attached.\x20(Export\x20library.json\x20in\x20Backup\x20to\x20share)','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22><span\x20class=\x22admin-pill\x22>','querySelector','startsWith','import','pdf-download','username','Untitled','accounts','POST','T-AY-PI/OTHERS','correct','22992rloczJ','reverse','/api/library','Landing','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>','Backend:\x20authenticated\x20(connecting\x20live)…','Folder\x20deleted.','UNDERGROUNDS/PROBLEM\x20EXERCISES','ans','PDF\x20URL\x20attached.\x20(Export\x20library.json\x20in\x20Backup\x20to\x20share)','admin-quiz-use-target-btn','Open\x20','You\x27re\x20opening\x20via\x20file://,\x20so\x20the\x20browser\x20blocks\x20fetch()\x20for\x20library.json.\x20Use\x20a\x20local\x20server\x20(VSCode\x20Live\x20Server\x20/\x20python\x20-m\x20http.server)\x20OR\x20use\x20library.js\x20(offline\x20bundle).','submenu-pawer','PREVIEW\x20QUIZ\x20SETS','Custom','admin-tab-content','localeCompare','setItem','questions-container','admin-preview-pdfs','readyState','onload','result','<div\x20class=\x22opt-container\x22>','Open\x20Terms\x20&\x20Objectives','map','no_session','<div\x20class=\x22admin-help\x22>Admin\x20only.</div>','\x20<span\x20class=\x22text-gray-500\x20text-xs\x20ml-2\x22>[Option\x20','questions','-9999px','level-1-menu','Browsing\x20Categories','folders','title','appendChild','Mode\x20Change','review','forgot-lastpass','PDF','submenu-exhale','Enter\x20a\x20quiz\x20set\x20title.','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>Role:\x20','VIEW:\x20','login-msg','options','Open\x20Admin\x20Panel','66510ICHaCq','<div\x20class=\x22admin-help\x22>No\x20activity\x20yet.</div>','Backend:\x20connecting…','UNDERGROUNDS/CALCULATOR\x20TECHNIQUES','Update\x20imported\x20and\x20saved\x20locally.','<div\x20class=\x22admin-help\x22>No\x20server\x20accounts\x20yet.</div>','execCommand','removeItem','Close\x20Notes','Set\x20Target\x20folder\x20path\x20to\x20the\x20folder\x20you\x20want\x20to\x20delete.','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22opt-letter\x22>','lib','application/json','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22\x20onclick=\x22setAdminTargetPath(\x27','Choose\x20a\x20JSON\x20file\x20first.','token','admin-quiz-delete-btn','topic','sub','Logout','createdAt','user-import-file','<div\x20class=\x22mt-2\x20bg-[#1a1a24]\x20p-2\x20rounded\x20border\x20border-gray-700\x20font-mono\x20text-xs\x20text-gray-400\x22>⌨️\x20','notes-overlay-title','[onclick]','version','find','Score:\x20','admin-q-b','min','onclick','checked','UNDERGROUNDS/FORMULAS','<div\x20class=\x22admin-list-item\x22><div\x20class=\x22admin-list-left\x22><div\x20class=\x22admin-list-title\x22>No\x20subfolders</div><div\x20class=\x22admin-list-sub\x22>Create\x20one\x20above,\x20or\x20type\x20a\x20deeper\x20Target\x20path.</div></div></div>','file:','toggle','status','http://','\x20Q</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-4\x20font-bold\x20text-lg\x20text-white\x20group-hover:text-[#00f3ff]\x20transition-colors\x22>','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20text-center\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x22\x20onclick=\x22openPdfOverlay(\x27','admin-copy-path','\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20','Choose\x20a\x20PDF\x20file\x20first.','admin-online-users-list','Library\x20not\x20found\x20or\x20invalid.\x20Using\x20empty\x20library.','padayon_library_sync_v1','gian','submit-btn','admin-account-status','Server\x20accounts:\x200','Folder\x20created:\x20',',\x20\x27','PAST\x20BOARD\x201','padayon_remember','dataUrl','Back\x20from\x20PDF','body','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>','target','admin-q-c','submenu-past-board-list','Open\x20Quiz\x20Browser','pdfs','admin-folder-rename','text','</span>.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20font-mono\x20text-xs\x20mt-2\x22>Ask\x20admin\x20to\x20upload\x20PDFs\x20in\x20Admin\x20Panel\x20→\x20Notes\x20(PDF),\x20or\x20create\x20folders\x20in\x20Admin\x20Panel\x20→\x20Archive\x20Folder.</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','undefined','Submit\x20Exam','isCorrect','INVALID\x20CREDENTIALS\x20OR\x20CAPTCHA\x20FAILED','rgba(255,\x200,\x2085,\x200.55)','padayon_client_id_v1','isFinite','admin-nav-accounts','admin-path-normalized','admin-folder-list','EXHALE\x20FILE\x20→\x20PRACTICE\x20QUIZ\x20(Quiz\x20Sets)','pdf-overlay','no_backend','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20text-center\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x22\x20onclick=\x22notesGoToFolder(\x27','Please\x20fill\x20Options\x20A,\x20B,\x20C,\x20and\x20D.','object','294xXcjKO','total-score','disabled','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20md:col-span-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-300\x20font-mono\x20text-sm\x22>No\x20PDFs\x20or\x20folders\x20found\x20in\x20<span\x20class=\x22text-[#00f3ff]\x22>','QUIZ_ENGINE','\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','rememberMe','admin-panel-notes','online-users-list','HTTP\x20','<div\x20class=\x22admin-help\x22>Connecting…</div>','\x20(in-memory\x20only;\x20cache/storage\x20may\x20be\x20full).','EXHALE\x20FILE/PRACTICE\x20QUIZ','UNDERGROUNDS\x20→\x20PROBLEM\x20EXERCISES\x20(Quiz\x20Sets)','\x0a\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>','<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>No\x20one\x20online.</span>','Target\x20folder\x20path:\x0a','admin-q-d','3925658pMvgpd','Failed\x20to\x20load\x20server\x20accounts.','4GOfgBB','</div>','.menu-overlay','toUpperCase','classList','connectToBackend','folder','contains','findIndex','admin-type-notes','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x20mt-2\x22>','force_logout','No\x20questions\x20found\x20in\x20JSON.','opacity','Live\x20connected.','&gt;','admin-q-caltech','\x20dimmed','button','forgot-modal','<span\x20class=\x22text-xs\x20text-[#ff00ff]\x20border\x20border-[#ff00ff]\x20px-2\x20rounded\x20uppercase\x20tracking-wider\x22>','Invalid\x20JSON\x20file.','score-display','PADAYON_QUIZSET_V1','opacity-50','LANDING','_lastSentAt','select','login-page','admin-folder-delete-contents','admin-quiz-move-btn','admin-backup-status','.\x20To\x20share\x20on\x20GitHub\x20Pages:\x20export\x20library.json\x20and\x20commit\x20it.','replaceAll','carl','EXHALE\x20FILE\x20→\x20EXAM\x20(Quiz\x20Sets)','/ws','library.json','PAST\x20BOARD\x203','\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-lg\x20font-medium\x20text-gray-200\x22>','forgot-username','push','toLocaleString','/api/auth/login'];_0x185a=function(){return _0x3a3a1f;};return _0x185a();}function readFileAsDataURL(_0x489193){return new Promise((_0x2e3f25,_0x12bdb5)=>{const _0x5e6d6c=_0x4d8d,_0x659186=new FileReader();_0x659186[_0x5e6d6c(0x1fd)]=()=>_0x2e3f25(String(_0x659186[_0x5e6d6c(0x1fe)]||'')),_0x659186['onerror']=()=>_0x12bdb5(_0x659186[_0x5e6d6c(0x34a)]||new Error('Failed\x20to\x20read\x20file')),_0x659186[_0x5e6d6c(0x15d)](_0x489193);});}function findAccount(_0x1b0498,_0x1e53d8){const _0x312f12=_0x3511a3,_0x31b4f4=String(_0x1b0498||'')['trim'](),_0x1ec7ee=String(_0x1e53d8||'');return ACCOUNTS[_0x312f12(0x231)](_0x2f778b=>_0x2f778b[_0x312f12(0x1e1)][_0x312f12(0x3c6)]()===_0x31b4f4[_0x312f12(0x3c6)]()&&_0x2f778b[_0x312f12(0x1af)]===_0x1ec7ee)||null;}function showLoginError(){const _0x3793a1=_0x3511a3,_0xa0d28b=document['getElementById'](_0x3793a1(0x214));_0xa0d28b&&(_0xa0d28b['classList'][_0x3793a1(0x30f)]('hidden'),_0xa0d28b[_0x3793a1(0x281)][_0x3793a1(0x16e)]('animate-pulse'));}function hideLoginError(){const _0x4d33eb=_0x3511a3,_0x306fd6=document[_0x4d33eb(0x389)](_0x4d33eb(0x214));if(_0x306fd6)_0x306fd6[_0x4d33eb(0x281)][_0x4d33eb(0x16e)]('hidden');}function setRememberMe(_0x2210f7,_0xa46616){const _0x1ca37e=_0x3511a3,_0x339e22=document['getElementById']('rememberMe');if(!_0x339e22)return;if(_0x339e22['checked']){const _0x344f07={'username':_0x2210f7,'password':_0xa46616};localStorage[_0x1ca37e(0x1f9)](_0x1ca37e(0x24c),JSON[_0x1ca37e(0x1ab)](_0x344f07));}else localStorage[_0x1ca37e(0x21e)](_0x1ca37e(0x24c));}function initRememberMe(){const _0x622893=_0x3511a3;try{const _0x25e3c2=localStorage[_0x622893(0x2c9)](_0x622893(0x24c));if(!_0x25e3c2)return;const _0x2db3f3=JSON[_0x622893(0x39f)](_0x25e3c2);if(!_0x2db3f3)return;const _0xae7f74=document['getElementById'](_0x622893(0x1e1)),_0x479c18=document[_0x622893(0x389)](_0x622893(0x1af)),_0x3fc3be=document[_0x622893(0x389)](_0x622893(0x26f));if(_0xae7f74&&typeof _0x2db3f3[_0x622893(0x1e1)]==='string')_0xae7f74[_0x622893(0x357)]=_0x2db3f3['username'];if(_0x479c18&&typeof _0x2db3f3['password']===_0x622893(0x1d4))_0x479c18[_0x622893(0x357)]=_0x2db3f3[_0x622893(0x1af)];if(_0x3fc3be)_0x3fc3be['checked']=!![];}catch{}}async function verifyLogin(){const _0x40a15d=_0x3511a3,_0x57f907=String(document[_0x40a15d(0x389)](_0x40a15d(0x1e1))?.['value']||'')[_0x40a15d(0x18e)](),_0x2bcbc2=String(document[_0x40a15d(0x389)](_0x40a15d(0x1af))?.[_0x40a15d(0x357)]||''),_0x47b387=document[_0x40a15d(0x389)](_0x40a15d(0x299)),_0x5a3651=document[_0x40a15d(0x389)]('landing-page'),_0x2e2bf8=document[_0x40a15d(0x389)](_0x40a15d(0x214));setLiveToken('');if(!_0x57f907||!_0x2bcbc2){_0x2e2bf8&&(_0x2e2bf8[_0x40a15d(0x152)]=_0x40a15d(0x3c4),_0x2e2bf8[_0x40a15d(0x281)][_0x40a15d(0x30f)]('hidden'));return;}const _0x5d5afc=window[_0x40a15d(0x38c)]&&typeof grecaptcha[_0x40a15d(0x351)]===_0x40a15d(0x3cb)?grecaptcha[_0x40a15d(0x351)]():'';if(!_0x5d5afc){_0x2e2bf8&&(_0x2e2bf8[_0x40a15d(0x152)]=_0x40a15d(0x2f7),_0x2e2bf8['classList']['remove'](_0x40a15d(0x2cf)));return;}let _0x25c945=null;if(liveIsEnabled()){const _0x35d616=await liveTryBackendLogin(_0x57f907,_0x2bcbc2,_0x5d5afc);if(_0x35d616?.['ok'])_0x25c945={'username':_0x35d616[_0x40a15d(0x155)]?.[_0x40a15d(0x1e1)]||_0x57f907,'role':_0x35d616[_0x40a15d(0x155)]?.[_0x40a15d(0x151)]||'user'};else{_0x2e2bf8&&(_0x2e2bf8[_0x40a15d(0x152)]=(_0x35d616?.[_0x40a15d(0x34a)]?.[_0x40a15d(0x37c)]||_0x40a15d(0x25c))[_0x40a15d(0x280)](),_0x2e2bf8[_0x40a15d(0x281)][_0x40a15d(0x30f)]('hidden'));const _0x36b17e=document[_0x40a15d(0x389)]('password');if(_0x36b17e)_0x36b17e['value']='';window['grecaptcha']&&typeof grecaptcha['reset']===_0x40a15d(0x3cb)&&grecaptcha['reset']();updateLiveStatusUI();return;}}else{_0x2e2bf8&&(_0x2e2bf8['textContent']='BACKEND\x20NOT\x20AVAILABLE',_0x2e2bf8['classList'][_0x40a15d(0x30f)](_0x40a15d(0x2cf)));return;}if(_0x2e2bf8)_0x2e2bf8[_0x40a15d(0x281)]['add'](_0x40a15d(0x2cf));hideLoginError(),session={'username':_0x25c945[_0x40a15d(0x1e1)],'role':_0x25c945[_0x40a15d(0x151)]},setRememberMe(_0x57f907,_0x2bcbc2);try{liveBackendUrl=getConfiguredBackendUrl(),liveAuthToken=getLiveToken(),updateLiveStatusUI(),liveConnect();}catch(_0x2ddc8d){}_0x47b387&&(_0x47b387[_0x40a15d(0x2e5)][_0x40a15d(0x28a)]='0',_0x47b387[_0x40a15d(0x2e5)][_0x40a15d(0x1b3)]=_0x40a15d(0x302)),setTimeout(()=>{const _0x2753c5=_0x40a15d;if(_0x47b387)_0x47b387['style'][_0x2753c5(0x180)]=_0x2753c5(0x17d);const _0x507835=document[_0x2753c5(0x389)](_0x2753c5(0x161));if(_0x507835)_0x507835[_0x2753c5(0x281)][_0x2753c5(0x23a)]('hidden',session[_0x2753c5(0x151)]!==_0x2753c5(0x1ce));const _0x569ed8=document[_0x2753c5(0x389)](_0x2753c5(0x1b8));if(_0x569ed8)_0x569ed8['classList'][_0x2753c5(0x23a)](_0x2753c5(0x2cf),session[_0x2753c5(0x151)]!==_0x2753c5(0x1ce));if(_0x5a3651)_0x5a3651[_0x2753c5(0x281)][_0x2753c5(0x30f)]('hidden');try{liveSetActivity(_0x2753c5(0x1ea),{'view':_0x2753c5(0x296)});}catch(_0x436f4b){}},0x1f4);}function logoutToLogin(){const _0x4797f3=_0x3511a3;try{liveSetActivity(_0x4797f3(0x22a),{'view':'LOGIN'});}catch(_0x782fbe){}try{liveDisconnect();}catch(_0x421b28){}try{setLiveToken('');}catch(_0x225449){}session={'username':null,'role':null};try{liveOnlinePublic=[],liveOnlineAdmin=[],renderOnlineUsersWidget(),renderAdminOnlineUsers(),updateLiveStatusUI();}catch(_0x2bd760){}document[_0x4797f3(0x389)](_0x4797f3(0x149))?.['classList']['add'](_0x4797f3(0x2cf)),document[_0x4797f3(0x383)]('.menu-overlay')[_0x4797f3(0x30d)](_0x542ce4=>_0x542ce4[_0x4797f3(0x281)]['add'](_0x4797f3(0x2cf)));const _0x3fc0d0=document[_0x4797f3(0x389)](_0x4797f3(0x2ed));_0x3fc0d0&&(_0x3fc0d0['classList']['add'](_0x4797f3(0x2cf)),_0x3fc0d0[_0x4797f3(0x2e5)][_0x4797f3(0x28a)]='0');document[_0x4797f3(0x389)](_0x4797f3(0x174))?.[_0x4797f3(0x281)][_0x4797f3(0x16e)](_0x4797f3(0x2cf));const _0x9dc258=document[_0x4797f3(0x389)]('login-page');_0x9dc258&&(_0x9dc258[_0x4797f3(0x2e5)][_0x4797f3(0x180)]=_0x4797f3(0x14d),_0x9dc258[_0x4797f3(0x2e5)]['opacity']='1');}document[_0x3511a3(0x18c)]('DOMContentLoaded',()=>{const _0x2c5352=_0x3511a3;initRememberMe();const _0x8e8e54=document[_0x2c5352(0x389)](_0x2c5352(0x1af));_0x8e8e54&&_0x8e8e54[_0x2c5352(0x18c)]('keypress',_0x1d412f=>{const _0x3ce241=_0x2c5352;_0x1d412f['key']===_0x3ce241(0x387)&&(_0x1d412f[_0x3ce241(0x37f)](),verifyLogin());});const _0x17b118=document[_0x2c5352(0x389)](_0x2c5352(0x1b7));_0x17b118&&_0x17b118[_0x2c5352(0x18c)](_0x2c5352(0x2ee),()=>{const _0x4063c0=_0x2c5352;document[_0x4063c0(0x389)]('forgot-modal')?.[_0x4063c0(0x281)][_0x4063c0(0x30f)](_0x4063c0(0x2cf)),document['getElementById'](_0x4063c0(0x2a5))?.[_0x4063c0(0x2af)]();});const _0x57553d=document[_0x2c5352(0x389)](_0x2c5352(0x290));_0x57553d&&_0x57553d[_0x2c5352(0x18c)](_0x2c5352(0x2ee),_0x1ae49b=>{const _0x680f10=_0x2c5352;if(_0x1ae49b[_0x680f10(0x251)]===_0x57553d)closeForgotModal();}),initLibraryLiveSync(),loadLibraryFromRepo(),liveBackendUrl=getConfiguredBackendUrl(),liveAuthToken=getLiveToken(),updateLiveStatusUI(),loadLibraryFromBackend();});function closeForgotModal(){const _0x57b7c6=_0x3511a3;document[_0x57b7c6(0x389)](_0x57b7c6(0x290))?.['classList']['add'](_0x57b7c6(0x2cf));}function sendForgotEmail(){const _0x1a3be9=_0x3511a3,_0x3fc63a=String(document[_0x1a3be9(0x389)](_0x1a3be9(0x2a5))?.[_0x1a3be9(0x357)]||'')[_0x1a3be9(0x18e)](),_0x3bb634=String(document['getElementById'](_0x1a3be9(0x20e))?.['value']||'')[_0x1a3be9(0x18e)]();if(!_0x3fc63a||!_0x3bb634){alert(_0x1a3be9(0x2c5));return;}const _0x564bfd=encodeURIComponent(_0x1a3be9(0x2b3)),_0x38adf1=encodeURIComponent(_0x1a3be9(0x2e3)+_0x3fc63a+_0x1a3be9(0x361)+_0x3bb634+_0x1a3be9(0x2f4));window['location']['href']=_0x1a3be9(0x2c3)+_0x564bfd+_0x1a3be9(0x340)+_0x38adf1,closeForgotModal();}function goToLevel1(){const _0x386aed=_0x3511a3;document['getElementById'](_0x386aed(0x149))?.[_0x386aed(0x365)]('style',_0x386aed(0x2fe)),document['getElementById'](_0x386aed(0x207))?.[_0x386aed(0x281)]['remove'](_0x386aed(0x2cf));try{liveSetActivity(_0x386aed(0x208),{'view':'CATEGORIES'});}catch(_0xc0f986){}}function goToLevel2(_0xbf1556){const _0x3f8792=_0x3511a3;document['getElementById']('level-1-menu')?.[_0x3f8792(0x281)][_0x3f8792(0x16e)](_0x3f8792(0x2cf)),[_0x3f8792(0x2b6),'submenu-taypi',_0x3f8792(0x210),_0x3f8792(0x1f4)][_0x3f8792(0x30d)](_0x18738c=>{const _0xa57d58=_0x3f8792;document[_0xa57d58(0x389)](_0x18738c)?.['classList'][_0xa57d58(0x16e)](_0xa57d58(0x2cf));}),document['getElementById']('submenu-'+_0xbf1556)?.['classList'][_0x3f8792(0x30f)](_0x3f8792(0x2cf));try{liveSetActivity(_0x3f8792(0x3cf),{'view':'MENUS','details':String(_0xbf1556||'')[_0x3f8792(0x280)]()});}catch(_0x1b7124){}}function backToLevel1(){const _0x688bdf=_0x3511a3;['submenu-undergrounds',_0x688bdf(0x2c0),_0x688bdf(0x210),_0x688bdf(0x1f4)][_0x688bdf(0x30d)](_0x1d41f8=>{const _0x3fa52d=_0x688bdf;document[_0x3fa52d(0x389)](_0x1d41f8)?.[_0x3fa52d(0x281)][_0x3fa52d(0x16e)]('hidden');}),document[_0x688bdf(0x389)]('level-1-menu')?.['classList'][_0x688bdf(0x30f)](_0x688bdf(0x2cf));try{liveSetActivity('Back\x20to\x20Categories',{'view':_0x688bdf(0x19d)});}catch(_0x2edcd8){}}function openTermsMenu(){const _0x55555f=_0x3511a3;document['getElementById'](_0x55555f(0x2b6))?.[_0x55555f(0x281)][_0x55555f(0x16e)](_0x55555f(0x2cf)),document[_0x55555f(0x389)]('submenu-terms')?.[_0x55555f(0x281)][_0x55555f(0x30f)](_0x55555f(0x2cf));try{liveSetActivity(_0x55555f(0x200),{'view':_0x55555f(0x153),'details':_0x55555f(0x3cd)});}catch(_0x4e334d){}}function closeTermsMenu(){const _0x88d4b1=_0x3511a3;document['getElementById']('submenu-terms')?.[_0x88d4b1(0x281)][_0x88d4b1(0x16e)](_0x88d4b1(0x2cf)),document[_0x88d4b1(0x389)](_0x88d4b1(0x2b6))?.[_0x88d4b1(0x281)][_0x88d4b1(0x30f)](_0x88d4b1(0x2cf));try{liveSetActivity(_0x88d4b1(0x395),{'view':_0x88d4b1(0x153)});}catch(_0x2183aa){}}function openPastBoardList(){const _0x1009e4=_0x3511a3;document[_0x1009e4(0x389)](_0x1009e4(0x2e2))?.[_0x1009e4(0x281)][_0x1009e4(0x16e)](_0x1009e4(0x2cf)),document[_0x1009e4(0x389)](_0x1009e4(0x253))?.[_0x1009e4(0x281)][_0x1009e4(0x30f)](_0x1009e4(0x2cf));try{liveSetActivity(_0x1009e4(0x1cb),{'view':_0x1009e4(0x153)});}catch(_0x19be25){}}function closePastBoardList(){const _0x241d9f=_0x3511a3;document[_0x241d9f(0x389)]('submenu-past-board-list')?.['classList']['add'](_0x241d9f(0x2cf)),document[_0x241d9f(0x389)]('submenu-terms')?.['classList']['remove'](_0x241d9f(0x2cf));try{liveSetActivity(_0x241d9f(0x378),{'view':_0x241d9f(0x153)});}catch(_0x21cc3c){}}function callAdminNotice(_0x2058d7){alert(_0x2058d7+'\x20is\x20empty.\x0a\x0aCall\x20admin\x20to\x20put\x20something\x20here.');}let notesBackMenuId=null,notesRootFolder=null,notesCurrentFolder=null,notesCurrentKind=null,notesOverlayTitle=_0x3511a3(0x2ef);function openNotesFolder(_0x2ffb71,_0xd91bd7,_0x953fc2,_0x2d2511=_0x3511a3(0x3b7)){const _0x12c7ea=_0x3511a3;notesBackMenuId=_0x953fc2,notesRootFolder=normalizePath(_0x2ffb71),notesCurrentFolder=notesRootFolder,notesCurrentKind=_0x2d2511,notesOverlayTitle=_0xd91bd7||_0x12c7ea(0x2ef);if(_0x953fc2)document[_0x12c7ea(0x389)](_0x953fc2)?.[_0x12c7ea(0x281)][_0x12c7ea(0x16e)]('hidden');const _0xd62dbb=document[_0x12c7ea(0x389)](_0x12c7ea(0x22e));if(_0xd62dbb)_0xd62dbb[_0x12c7ea(0x152)]=notesOverlayTitle;renderNotesOverlayList(),document['getElementById']('notes-overlay')?.[_0x12c7ea(0x281)][_0x12c7ea(0x30f)]('hidden');try{const _0x2b460e=_0x2d2511===_0x12c7ea(0x179)?'ARCHIVE':_0x2d2511==='all'?_0x12c7ea(0x3a7):_0x12c7ea(0x2ef);liveSetActivity(_0x12c7ea(0x1f2)+_0x2b460e,{'view':_0x12c7ea(0x2ef),'path':notesCurrentFolder||notesRootFolder||''});}catch(_0x37af84){}}function closeNotesOverlay(){const _0x1a84d1=_0x3511a3;document['getElementById'](_0x1a84d1(0x3a3))?.[_0x1a84d1(0x281)][_0x1a84d1(0x16e)](_0x1a84d1(0x2cf));if(notesBackMenuId)document[_0x1a84d1(0x389)](notesBackMenuId)?.[_0x1a84d1(0x281)][_0x1a84d1(0x30f)](_0x1a84d1(0x2cf));try{liveSetActivity(_0x1a84d1(0x21f),{'view':currentViewName()});}catch(_0x59fcd7){}notesBackMenuId=null,notesRootFolder=null,notesCurrentFolder=null,notesCurrentKind=null,notesOverlayTitle='NOTES';}function notesGoToFolder(_0x211971){const _0x25ce7d=_0x3511a3,_0x55b8a0=normalizePath(_0x211971);if(!_0x55b8a0)return;if(notesRootFolder&&!isUnderPath(_0x55b8a0,notesRootFolder))return;notesCurrentFolder=_0x55b8a0,renderNotesOverlayList();try{liveSetActivity(_0x25ce7d(0x374),{'view':'NOTES','path':notesCurrentFolder||''});}catch(_0x5589ce){}}function notesGoUp(){const _0x4380a4=_0x3511a3,_0x375885=normalizePath(notesRootFolder||''),_0x13dcec=normalizePath(notesCurrentFolder||_0x375885);if(!_0x13dcec)return;if(samePath(_0x13dcec,_0x375885))return;const _0x452175=parentPath(_0x13dcec);_0x375885&&!isUnderPath(_0x452175,_0x375885)?notesCurrentFolder=_0x375885:notesCurrentFolder=_0x452175||_0x375885;renderNotesOverlayList();try{liveSetActivity(_0x4380a4(0x3c9),{'view':_0x4380a4(0x2ef),'path':notesCurrentFolder||''});}catch(_0x3e854d){}}function notesBrowserBackOrClose(){const _0x293ee5=normalizePath(notesRootFolder||''),_0x444304=normalizePath(notesCurrentFolder||_0x293ee5);if(_0x293ee5&&_0x444304&&!samePath(_0x444304,_0x293ee5)){notesGoUp();return;}closeNotesOverlay();}function renderNotesOverlayList(){const _0x3dc16b=_0x3511a3,_0x1590ce=document[_0x3dc16b(0x389)]('notes-overlay-list');if(!_0x1590ce)return;const _0x16f698=normalizePath(notesRootFolder||''),_0x16d5cd=normalizePath(notesCurrentFolder||_0x16f698||''),_0x42782d=notesCurrentKind||_0x3dc16b(0x3b7),_0x461c14=document[_0x3dc16b(0x389)]('notes-overlay-path');_0x461c14&&(_0x461c14[_0x3dc16b(0x152)]=_0x3dc16b(0x3ae)+(_0x16d5cd||_0x3dc16b(0x3a6)));const _0x3c5eba=samePath(_0x16d5cd,_0x16f698),_0x3963b1=getImmediateChildFolders(_0x16d5cd)[_0x3dc16b(0x3af)](_0x508c54=>_0x16f698?isUnderPath(_0x508c54[_0x3dc16b(0x31f)],_0x16f698):!![])[_0x3dc16b(0x3af)](_0x51dda0=>!samePath(_0x51dda0[_0x3dc16b(0x31f)],_0x16d5cd)),_0x358a51=(library['pdfs']||[])[_0x3dc16b(0x3af)](_0x520d5b=>_0x42782d==='all'?!![]:_0x520d5b[_0x3dc16b(0x36b)]===_0x42782d)['filter'](_0x1fb083=>{const _0x18e735=_0x3dc16b;if(isGlobalFolder(_0x1fb083[_0x18e735(0x283)]))return _0x3c5eba;return samePath(_0x1fb083[_0x18e735(0x283)],_0x16d5cd);}),_0x493c62=[];_0x3963b1[_0x3dc16b(0x30d)](_0x6f9fcd=>{const _0x462450=_0x3dc16b,_0x141878=(library[_0x462450(0x255)]||[])[_0x462450(0x3af)](_0x54404e=>_0x42782d==='all'?!![]:_0x54404e[_0x462450(0x36b)]===_0x42782d)[_0x462450(0x3af)](_0x396a36=>isUnderPath(_0x396a36[_0x462450(0x283)],_0x6f9fcd['path']))[_0x462450(0x3bc)];_0x493c62[_0x462450(0x2a6)](_0x462450(0x266)+_0x6f9fcd[_0x462450(0x31f)][_0x462450(0x17f)](/'/g,'\x5c\x27')+_0x462450(0x32c)+escapeHTML(_0x6f9fcd[_0x462450(0x344)])+_0x462450(0x287)+_0x141878+'\x20PDF'+(_0x141878===0x1?'':'s')+'</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20');}),_0x358a51[_0x3dc16b(0x30d)](_0x1ccfd=>{const _0x161781=_0x3dc16b,_0x2a32cf=escapeHTML(_0x1ccfd[_0x161781(0x20a)]||_0x161781(0x20f)),_0x1e1212=escapeHTML(isGlobalFolder(_0x1ccfd['folder'])?_0x161781(0x35e):_0x1ccfd['folder']||_0x161781(0x3a6));_0x493c62[_0x161781(0x2a6)](_0x161781(0x23e)+_0x1ccfd['id'][_0x161781(0x17f)](/'/g,'\x5c\x27')+'\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-4xl\x20mb-4\x20text-[#00f3ff]\x22>📄</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22font-bold\x20text-lg\x22>'+_0x2a32cf+_0x161781(0x287)+_0x1e1212+_0x161781(0x37e));});if(_0x493c62[_0x3dc16b(0x3bc)]===0x0){_0x1590ce[_0x3dc16b(0x15a)]=_0x3dc16b(0x26c)+escapeHTML(_0x16d5cd||_0x3dc16b(0x3a6))+_0x3dc16b(0x258);return;}_0x1590ce[_0x3dc16b(0x15a)]=_0x493c62['join']('');}function getPdfById(_0x5c530f){const _0x1497fc=_0x3511a3;return library[_0x1497fc(0x255)][_0x1497fc(0x231)](_0x46d452=>_0x46d452['id']===_0x5c530f)||null;}let pdfBackOverlayId=null;function openPdfOverlay(_0x3b2b33,_0x461015=null){const _0x1686d9=_0x3511a3,_0x576fa1=getPdfById(_0x3b2b33);if(!_0x576fa1){alert(_0x1686d9(0x371));return;}pdfBackOverlayId=_0x461015;_0x461015&&document[_0x1686d9(0x389)](_0x461015)?.['classList'][_0x1686d9(0x16e)](_0x1686d9(0x2cf));document[_0x1686d9(0x389)](_0x1686d9(0x3a3))?.[_0x1686d9(0x281)][_0x1686d9(0x16e)](_0x1686d9(0x2cf));const _0x451235=document['getElementById']('pdf-overlay-title');if(_0x451235)_0x451235[_0x1686d9(0x152)]=_0x576fa1['title']||_0x1686d9(0x20f);const _0x2af053=document['getElementById'](_0x1686d9(0x3a4));if(_0x2af053)_0x2af053[_0x1686d9(0x376)]=_0x576fa1[_0x1686d9(0x376)];const _0x59fe72=document['getElementById'](_0x1686d9(0x1e0));if(_0x59fe72){_0x59fe72['href']=_0x576fa1['src'];const _0x36ef00=(_0x576fa1[_0x1686d9(0x20a)]||_0x1686d9(0x3b7))['replace'](/[^a-z0-9\-\_]+/gi,'_')+_0x1686d9(0x369);_0x59fe72[_0x1686d9(0x365)](_0x1686d9(0x18b),_0x36ef00);}document['getElementById']('pdf-overlay')?.['classList'][_0x1686d9(0x30f)](_0x1686d9(0x2cf));try{liveSetActivity(_0x1686d9(0x3ab),{'view':_0x1686d9(0x191),'path':_0x576fa1[_0x1686d9(0x283)]||'','details':_0x576fa1[_0x1686d9(0x20a)]||_0x1686d9(0x20f)});}catch(_0x7307f4){}}function closePdfOverlay(){const _0x35e707=_0x3511a3;document[_0x35e707(0x389)](_0x35e707(0x264))?.[_0x35e707(0x281)][_0x35e707(0x16e)](_0x35e707(0x2cf));const _0xe5acd6=document[_0x35e707(0x389)](_0x35e707(0x3a4));if(_0xe5acd6)_0xe5acd6[_0x35e707(0x376)]='';if(pdfBackOverlayId){document[_0x35e707(0x389)](pdfBackOverlayId)?.['classList'][_0x35e707(0x30f)](_0x35e707(0x2cf)),pdfBackOverlayId=null;try{liveSetActivity(_0x35e707(0x24e),{'view':currentViewName()});}catch(_0x3a3dd1){}return;}document[_0x35e707(0x389)]('notes-overlay')?.[_0x35e707(0x281)][_0x35e707(0x30f)](_0x35e707(0x2cf));try{liveSetActivity('Back\x20from\x20PDF',{'view':'NOTES','path':notesCurrentFolder||''});}catch(_0xe8c887){}}function escapeHTML(_0x5dd150){const _0x1778f7=_0x3511a3;return String(_0x5dd150)[_0x1778f7(0x29e)]('&','&amp;')[_0x1778f7(0x29e)]('<',_0x1778f7(0x2f6))[_0x1778f7(0x29e)]('>',_0x1778f7(0x28c))[_0x1778f7(0x29e)]('\x22',_0x1778f7(0x18f))['replaceAll']('\x27',_0x1778f7(0x2f8));}let quizBrowserBackMenuId=null,quizBrowserRootFolder=null,quizBrowserCurrentFolder=null,quizBrowserTitle=_0x3511a3(0x354);function isGlobalFolder(_0x3026e4){const _0x3cf07e=_0x3511a3,_0x1a4951=normalizePath(_0x3026e4)['toLowerCase']();return _0x1a4951==='global'||_0x1a4951[_0x3cf07e(0x1de)]('global/')||_0x1a4951===_0x3cf07e(0x3c0)||_0x1a4951[_0x3cf07e(0x1de)]('all/');}function openCustomQuizBrowser(_0x2dcf52,_0x180c12,_0x3df6cd){const _0x59a3a4=_0x3511a3;quizBrowserBackMenuId=_0x180c12,quizBrowserRootFolder=normalizePath(_0x2dcf52),quizBrowserCurrentFolder=quizBrowserRootFolder,quizBrowserTitle=_0x3df6cd||'QUIZ\x20SETS';if(_0x180c12)document[_0x59a3a4(0x389)](_0x180c12)?.[_0x59a3a4(0x281)][_0x59a3a4(0x16e)](_0x59a3a4(0x2cf));const _0x3deac9=document[_0x59a3a4(0x389)](_0x59a3a4(0x1b0));if(_0x3deac9)_0x3deac9[_0x59a3a4(0x152)]=quizBrowserTitle;renderQuizBrowser(),document[_0x59a3a4(0x389)]('quiz-browser-overlay')?.[_0x59a3a4(0x281)][_0x59a3a4(0x30f)]('hidden');try{liveSetActivity(_0x59a3a4(0x254),{'view':_0x59a3a4(0x1d8),'path':quizBrowserCurrentFolder||quizBrowserRootFolder||''});}catch(_0x76a4e5){}}function closeCustomQuizBrowser(){const _0x5585e8=_0x3511a3;document[_0x5585e8(0x389)](_0x5585e8(0x183))?.[_0x5585e8(0x281)][_0x5585e8(0x16e)](_0x5585e8(0x2cf));if(quizBrowserBackMenuId)document['getElementById'](quizBrowserBackMenuId)?.[_0x5585e8(0x281)][_0x5585e8(0x30f)](_0x5585e8(0x2cf));try{liveSetActivity(_0x5585e8(0x37a),{'view':currentViewName()});}catch(_0x5c5a7e){}quizBrowserBackMenuId=null,quizBrowserRootFolder=null,quizBrowserCurrentFolder=null,quizBrowserTitle=_0x5585e8(0x354);}function quizBrowserGoToFolder(_0x515273){const _0x2b44e6=_0x3511a3,_0x19a381=normalizePath(_0x515273);if(!_0x19a381)return;if(quizBrowserRootFolder&&!isUnderPath(_0x19a381,quizBrowserRootFolder))return;quizBrowserCurrentFolder=_0x19a381,renderQuizBrowser();try{liveSetActivity('Quiz\x20Browser:\x20Open\x20Folder',{'view':_0x2b44e6(0x1d8),'path':quizBrowserCurrentFolder||''});}catch(_0x5f35ac){}}function quizBrowserGoUp(){const _0x35d820=_0x3511a3,_0x5c41b4=normalizePath(quizBrowserRootFolder||''),_0x5798ec=normalizePath(quizBrowserCurrentFolder||_0x5c41b4);if(!_0x5798ec)return;if(samePath(_0x5798ec,_0x5c41b4))return;const _0x546006=parentPath(_0x5798ec);_0x5c41b4&&!isUnderPath(_0x546006,_0x5c41b4)?quizBrowserCurrentFolder=_0x5c41b4:quizBrowserCurrentFolder=_0x546006||_0x5c41b4;renderQuizBrowser();try{liveSetActivity('Quiz\x20Browser:\x20Go\x20Up',{'view':_0x35d820(0x1d8),'path':quizBrowserCurrentFolder||''});}catch(_0x4ac519){}}function quizBrowserBackOrClose(){const _0x1016b6=normalizePath(quizBrowserRootFolder||''),_0x5b5976=normalizePath(quizBrowserCurrentFolder||_0x1016b6);if(_0x1016b6&&_0x5b5976&&!samePath(_0x5b5976,_0x1016b6)){quizBrowserGoUp();return;}closeCustomQuizBrowser();}function renderQuizBrowser(){const _0x421654=_0x3511a3,_0x3edc45=document[_0x421654(0x389)]('quiz-browser-list');if(!_0x3edc45)return;const _0x18f137=normalizePath(quizBrowserRootFolder||''),_0x1b61de=normalizePath(quizBrowserCurrentFolder||_0x18f137||''),_0x50a604=document[_0x421654(0x389)](_0x421654(0x2b8));_0x50a604&&(_0x50a604[_0x421654(0x152)]='PATH:\x20'+(_0x1b61de||'ROOT'));const _0x4d2a7c=samePath(_0x1b61de,_0x18f137),_0x2d59de=getImmediateChildFolders(_0x1b61de)['filter'](_0xbf3d5f=>_0x18f137?isUnderPath(_0xbf3d5f['path'],_0x18f137):!![])[_0x421654(0x3af)](_0x2f8bed=>!samePath(_0x2f8bed[_0x421654(0x31f)],_0x1b61de)),_0x1514af=(library[_0x421654(0x1c0)]||[])[_0x421654(0x3af)](_0x4ac80c=>{const _0x3478ec=_0x421654;if(isGlobalFolder(_0x4ac80c[_0x3478ec(0x283)]))return _0x4d2a7c;return samePath(_0x4ac80c[_0x3478ec(0x283)],_0x1b61de);}),_0x2f297a=[];_0x2d59de[_0x421654(0x30d)](_0xef7079=>{const _0x1a64a3=_0x421654,_0x4674d7=(library['quizSets']||[])[_0x1a64a3(0x3af)](_0x5e2cd8=>isUnderPath(_0x5e2cd8['folder'],_0xef7079['path'])&&!isGlobalFolder(_0x5e2cd8['folder']))[_0x1a64a3(0x3bc)];_0x2f297a[_0x1a64a3(0x2a6)]('\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20text-center\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x22\x20onclick=\x22quizBrowserGoToFolder(\x27'+_0xef7079[_0x1a64a3(0x31f)][_0x1a64a3(0x17f)](/'/g,'\x5c\x27')+_0x1a64a3(0x32c)+escapeHTML(_0xef7079[_0x1a64a3(0x344)])+_0x1a64a3(0x287)+_0x4674d7+_0x1a64a3(0x35d)+(_0x4674d7===0x1?'':'s')+_0x1a64a3(0x37e));}),_0x1514af[_0x421654(0x396)]()[_0x421654(0x1c3)]((_0x287645,_0x334ac2)=>String(_0x287645[_0x421654(0x20a)]||'')[_0x421654(0x1f8)](String(_0x334ac2[_0x421654(0x20a)]||'')))['forEach'](_0x2ce99d=>{const _0x385174=_0x421654,_0x2d49b9=escapeHTML(_0x2ce99d['title']),_0x3124d9=Array[_0x385174(0x1a1)](_0x2ce99d[_0x385174(0x205)])?_0x2ce99d['questions'][_0x385174(0x3bc)]:0x0,_0x397d93=escapeHTML(isGlobalFolder(_0x2ce99d[_0x385174(0x283)])?_0x385174(0x35e):_0x2ce99d['folder']||'');_0x2f297a[_0x385174(0x2a6)](_0x385174(0x31a)+_0x2ce99d['id']['replace'](/'/g,'\x5c\x27')+'\x27,\x20\x27'+(quizBrowserBackMenuId||'')['replace'](/'/g,'\x5c\x27')+_0x385174(0x1bc)+_0x3124d9+_0x385174(0x23d)+_0x2d49b9+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-600\x20text-[10px]\x20font-mono\x20mt-3\x22>'+_0x397d93+_0x385174(0x2a9));});if(_0x2f297a[_0x421654(0x3bc)]===0x0){_0x3edc45['innerHTML']='\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20md:col-span-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-300\x20font-mono\x20text-sm\x22>No\x20custom\x20quiz\x20sets\x20found\x20in\x20<span\x20class=\x22text-[#00f3ff]\x22>'+escapeHTML(_0x1b61de||_0x421654(0x3a6))+_0x421654(0x3a8);return;}_0x3edc45[_0x421654(0x15a)]=_0x2f297a[_0x421654(0x373)]('');}let currentMode='review',currentQuestions=[],userAnswers={},practiceAttempts={},examSubmitted=![];const container=document[_0x3511a3(0x389)](_0x3511a3(0x1fa)),examDashboard=document[_0x3511a3(0x389)](_0x3511a3(0x342)),practiceDashboard=document[_0x3511a3(0x389)](_0x3511a3(0x3b8)),scoreDisplay=document['getElementById'](_0x3511a3(0x293)),examStatus=document['getElementById']('exam-status'),submitBtn=document[_0x3511a3(0x389)](_0x3511a3(0x246));function loadQuiz(_0x367d66){const _0x3daaab=_0x3511a3,_0x9c3600=document['getElementById'](_0x3daaab(0x2ed)),_0x1f4ef5=document[_0x3daaab(0x389)](_0x3daaab(0x1c6));let _0x12dd17='';if(_0x367d66==='math')currentQuestions=typeof mathData!==_0x3daaab(0x259)?[...mathData]:[],_0x1f4ef5&&(_0x1f4ef5['innerHTML']=_0x3daaab(0x330),_0x1f4ef5[_0x3daaab(0x17e)]=_0x3daaab(0x15b)),_0x12dd17=_0x3daaab(0x330),activeMenu=_0x3daaab(0x2c0);else{if(_0x367d66===_0x3daaab(0x189))currentQuestions=typeof esasData!=='undefined'?[...esasData]:[],_0x1f4ef5&&(_0x1f4ef5[_0x3daaab(0x15a)]=_0x3daaab(0x32e),_0x1f4ef5[_0x3daaab(0x17e)]=_0x3daaab(0x381)),_0x12dd17='ESAS',activeMenu=_0x3daaab(0x2c0);else{if(_0x367d66==='ug1')currentQuestions=typeof esasUG1Data!=='undefined'?[...esasUG1Data]:[],_0x1f4ef5&&(_0x1f4ef5[_0x3daaab(0x15a)]=_0x3daaab(0x24b),_0x1f4ef5[_0x3daaab(0x17e)]=_0x3daaab(0x15b)),_0x12dd17=_0x3daaab(0x24b),activeMenu=_0x3daaab(0x253);else{if(_0x367d66===_0x3daaab(0x1a0))currentQuestions=typeof esasUG2Data!=='undefined'?[...esasUG2Data]:[],_0x1f4ef5&&(_0x1f4ef5[_0x3daaab(0x15a)]='PAST\x20BOARD\x202',_0x1f4ef5[_0x3daaab(0x17e)]='text-[#00f3ff]'),_0x12dd17=_0x3daaab(0x163),activeMenu=_0x3daaab(0x253);else{if(_0x367d66===_0x3daaab(0x2b1))currentQuestions=typeof esasUG3Data!=='undefined'?[...esasUG3Data]:[],_0x1f4ef5&&(_0x1f4ef5[_0x3daaab(0x15a)]='PAST\x20BOARD\x203',_0x1f4ef5[_0x3daaab(0x17e)]='text-[#00f3ff]'),_0x12dd17=_0x3daaab(0x2a3),activeMenu=_0x3daaab(0x253);else{alert(_0x3daaab(0x195));return;}}}}}document[_0x3daaab(0x383)](_0x3daaab(0x27f))[_0x3daaab(0x30d)](_0x1f2f90=>_0x1f2f90['classList'][_0x3daaab(0x16e)]('hidden'));if(_0x9c3600)_0x9c3600[_0x3daaab(0x281)][_0x3daaab(0x30f)](_0x3daaab(0x2cf));currentMode=_0x3daaab(0x20d),resetExam(),resetPractice(),setMode('review');try{liveSetActivity(_0x3daaab(0x2ad),{'view':_0x3daaab(0x26d),'details':_0x12dd17||String(_0x367d66||'')['toUpperCase']()});}catch(_0x23400d){}setTimeout(()=>{const _0x422851=_0x3daaab;if(_0x9c3600)_0x9c3600[_0x422851(0x2e5)][_0x422851(0x28a)]='1';},0x64);}function loadQuizCustom(_0x2c03dd,_0x9371d){const _0x3df078=_0x3511a3,_0x6a5a1f=library['quizSets'][_0x3df078(0x231)](_0x4383f2=>_0x4383f2['id']===_0x2c03dd);if(!_0x6a5a1f){alert('Quiz\x20set\x20not\x20found\x20in\x20library.');return;}const _0x49af5b=document[_0x3df078(0x389)](_0x3df078(0x2ed)),_0x591e81=document[_0x3df078(0x389)](_0x3df078(0x1c6));currentQuestions=Array[_0x3df078(0x1a1)](_0x6a5a1f[_0x3df078(0x205)])?_0x6a5a1f[_0x3df078(0x205)][_0x3df078(0x201)](_0x519b41=>({'id':_0x519b41['id'],'key':_0x519b41[_0x3df078(0x1d9)],'topic':_0x519b41[_0x3df078(0x228)]||_0x3df078(0x1f6),'q':_0x519b41['q'],'options':_0x519b41[_0x3df078(0x215)]||{'a':'','b':'','c':'','d':''},'ans':_0x519b41[_0x3df078(0x1ef)]||(_0x519b41[_0x3df078(0x215)]&&_0x519b41[_0x3df078(0x1d9)]?_0x519b41[_0x3df078(0x215)][_0x519b41[_0x3df078(0x1d9)]]:''),'soln':_0x519b41[_0x3df078(0x190)]||'','caltech':_0x519b41[_0x3df078(0x2dd)]||null})):[];_0x591e81&&(_0x591e81[_0x3df078(0x15a)]=escapeHTML(_0x6a5a1f['title']||_0x3df078(0x3c2)),_0x591e81[_0x3df078(0x17e)]=_0x3df078(0x15b));activeMenu=_0x9371d||quizBrowserBackMenuId||'level-1-menu',document[_0x3df078(0x383)](_0x3df078(0x27f))[_0x3df078(0x30d)](_0x8028d0=>_0x8028d0[_0x3df078(0x281)][_0x3df078(0x16e)](_0x3df078(0x2cf)));if(_0x49af5b)_0x49af5b[_0x3df078(0x281)][_0x3df078(0x30f)]('hidden');currentMode=_0x3df078(0x20d),resetExam(),resetPractice(),setMode(_0x3df078(0x20d));try{liveSetActivity(_0x3df078(0x35b),{'view':_0x3df078(0x26d),'path':_0x6a5a1f['folder']||'','details':_0x6a5a1f[_0x3df078(0x20a)]||_0x3df078(0x3c2)});}catch(_0x49bd35){}setTimeout(()=>{const _0x145051=_0x3df078;if(_0x49af5b)_0x49af5b['style'][_0x145051(0x28a)]='1';},0x64);}function backToQuizMenu(){const _0x3b49d1=_0x3511a3,_0x24e34a=document[_0x3b49d1(0x389)](_0x3b49d1(0x2ed));if(!_0x24e34a)return;try{liveSetActivity(_0x3b49d1(0x19b),{'view':_0x3b49d1(0x153)});}catch(_0x26f234){}_0x24e34a[_0x3b49d1(0x2e5)]['opacity']='0',setTimeout(()=>{const _0x26bdfc=_0x3b49d1;_0x24e34a[_0x26bdfc(0x281)][_0x26bdfc(0x16e)]('hidden');const _0x440afd=document['getElementById'](activeMenu);if(_0x440afd)_0x440afd[_0x26bdfc(0x281)]['remove'](_0x26bdfc(0x2cf));else document[_0x26bdfc(0x389)](_0x26bdfc(0x207))?.[_0x26bdfc(0x281)][_0x26bdfc(0x30f)](_0x26bdfc(0x2cf));},0x1f4);}function setMode(_0x3f28a9){const _0x76b79f=_0x3511a3;currentMode=_0x3f28a9,['review',_0x76b79f(0x3ac),_0x76b79f(0x1d5)][_0x76b79f(0x30d)](_0x2509b7=>{const _0x5ccd92=_0x76b79f,_0xfe27a=document[_0x5ccd92(0x389)](_0x5ccd92(0x1bb)+_0x2509b7);if(_0xfe27a)_0xfe27a['className']='mode-btn\x20'+(_0x3f28a9===_0x2509b7?'active':_0x5ccd92(0x1aa));});if(examDashboard)examDashboard[_0x76b79f(0x281)][_0x76b79f(0x23a)](_0x76b79f(0x2cf),_0x3f28a9!==_0x76b79f(0x1d5));if(practiceDashboard)practiceDashboard[_0x76b79f(0x281)][_0x76b79f(0x23a)](_0x76b79f(0x2cf),_0x3f28a9!==_0x76b79f(0x3ac));renderQuestions();try{const _0x3176cd=String(document[_0x76b79f(0x389)]('active-module-title')?.[_0x76b79f(0x15c)]||'')[_0x76b79f(0x18e)](),_0x502245=_0x3176cd?_0x3176cd+_0x76b79f(0x1a8)+_0x3f28a9['toUpperCase']():_0x3f28a9['toUpperCase']();liveSetActivity(_0x76b79f(0x20c),{'view':_0x76b79f(0x26d),'details':_0x502245});}catch(_0x5dab28){}}function resetExam(){const _0x40f6a3=_0x3511a3;userAnswers={},examSubmitted=![];examStatus&&(examStatus['innerText']=_0x40f6a3(0x196),examStatus[_0x40f6a3(0x281)][_0x40f6a3(0x30f)](_0x40f6a3(0x1a7)),examStatus['classList'][_0x40f6a3(0x16e)](_0x40f6a3(0x375)));if(scoreDisplay)scoreDisplay[_0x40f6a3(0x15c)]='--';const _0xe90674=document['getElementById'](_0x40f6a3(0x26a));if(_0xe90674)_0xe90674[_0x40f6a3(0x15c)]=_0x40f6a3(0x336);submitBtn&&(submitBtn['classList'][_0x40f6a3(0x30f)](_0x40f6a3(0x295),'cursor-not-allowed'),submitBtn[_0x40f6a3(0x26b)]=![]),renderQuestions();}function resetPractice(){practiceAttempts={},renderQuestions();}function selectExamOption(_0x450953,_0x12a167){if(examSubmitted)return;userAnswers[_0x450953]=_0x12a167,renderQuestions();}function selectPracticeOption(_0x9ea7b,_0x2aa3e7){const _0x2d4656=_0x3511a3;if(practiceAttempts[_0x9ea7b])return;const _0x53556e=currentQuestions[_0x2d4656(0x231)](_0xf5ca42=>_0xf5ca42['id']===_0x9ea7b);if(!_0x53556e)return;practiceAttempts[_0x9ea7b]={'selected':_0x2aa3e7,'isCorrect':_0x2aa3e7===_0x53556e[_0x2d4656(0x1d9)]},renderQuestions();}function submitExam(){const _0x2a5f93=_0x3511a3;if(examSubmitted)return;examSubmitted=!![];let _0x4b2668=0x0;currentQuestions[_0x2a5f93(0x30d)](_0x1516e2=>{const _0x14bdbc=_0x2a5f93;if(userAnswers[_0x1516e2['id']]===_0x1516e2[_0x14bdbc(0x1d9)])_0x4b2668++;});if(scoreDisplay)scoreDisplay[_0x2a5f93(0x15c)]=String(_0x4b2668);try{liveSetActivity(_0x2a5f93(0x25a),{'view':_0x2a5f93(0x26d),'details':_0x2a5f93(0x232)+_0x4b2668+'/'+currentQuestions[_0x2a5f93(0x3bc)]});}catch(_0x12d56d){}const _0x20ccd7=document[_0x2a5f93(0x389)](_0x2a5f93(0x26a));if(_0x20ccd7)_0x20ccd7[_0x2a5f93(0x15c)]='/\x20'+currentQuestions['length'];examStatus&&(examStatus[_0x2a5f93(0x15c)]='COMPLETED',examStatus[_0x2a5f93(0x281)][_0x2a5f93(0x30f)](_0x2a5f93(0x375)),examStatus[_0x2a5f93(0x281)][_0x2a5f93(0x16e)](_0x2a5f93(0x1a7))),submitBtn&&(submitBtn[_0x2a5f93(0x281)]['add'](_0x2a5f93(0x295),'cursor-not-allowed'),submitBtn['disabled']=!![]),renderQuestions(),window[_0x2a5f93(0x2bb)]({'top':0x0,'behavior':_0x2a5f93(0x198)});}function renderQuestions(){const _0x27110e=_0x3511a3;if(!container)return;container[_0x27110e(0x15a)]='',currentQuestions['forEach'](_0x351caa=>{const _0x126cc0=_0x27110e,_0x780a99=currentMode==='exam',_0x3a1c31=currentMode===_0x126cc0(0x3ac),_0x1bb979=!!_0x351caa[_0x126cc0(0x2dd)];let _0x4a786f=_0x126cc0(0x363);if(_0x780a99&&examSubmitted){const _0x5b166c=userAnswers[_0x351caa['id']];if(_0x5b166c===_0x351caa[_0x126cc0(0x1d9)])_0x4a786f+='\x20correct';else{if(_0x5b166c)_0x4a786f+=_0x126cc0(0x2d1);}}if(_0x3a1c31&&practiceAttempts[_0x351caa['id']]){if(practiceAttempts[_0x351caa['id']][_0x126cc0(0x25b)])_0x4a786f+=_0x126cc0(0x3b2);else _0x4a786f+=_0x126cc0(0x2d1);}const _0x3a6972=_0x126cc0(0x157),_0x5dfd11=escapeHTML(_0x351caa[_0x126cc0(0x228)]||'');let _0x34d963=_0x126cc0(0x333)+_0x351caa['id']+_0x126cc0(0x353)+(_0x5dfd11?_0x126cc0(0x291)+_0x5dfd11+_0x126cc0(0x3c1):'')+_0x126cc0(0x26e)+(currentMode!=='exam'&&_0x1bb979?_0x3a6972:'')+_0x126cc0(0x2a4)+_0x351caa['q']+_0x126cc0(0x2b0);if(_0x780a99||_0x3a1c31){_0x34d963+=_0x126cc0(0x1ff),['a','b','c','d'][_0x126cc0(0x30d)](_0x1555f3=>{const _0x503d74=_0x126cc0;let _0x31784f=_0x503d74(0x2e0),_0x53283f='';if(_0x780a99){_0x53283f=_0x503d74(0x314)+_0x351caa['id']+_0x503d74(0x24a)+_0x1555f3+'\x27)';const _0x2a4d2c=userAnswers[_0x351caa['id']];if(examSubmitted){if(_0x1555f3===_0x351caa[_0x503d74(0x1d9)])_0x31784f+=_0x503d74(0x16c);else{if(_0x2a4d2c===_0x1555f3)_0x31784f+=_0x503d74(0x3ad);else _0x31784f+=_0x503d74(0x28e);}}else _0x2a4d2c===_0x1555f3&&(_0x31784f+='\x20selected');}else{if(_0x3a1c31){_0x53283f=_0x503d74(0x3b3)+_0x351caa['id']+_0x503d74(0x24a)+_0x1555f3+'\x27)';const _0x24bc6f=practiceAttempts[_0x351caa['id']];if(_0x24bc6f){if(_0x1555f3===_0x351caa[_0x503d74(0x1d9)])_0x31784f+='\x20correct-ans';else{if(_0x24bc6f[_0x503d74(0x1b9)]===_0x1555f3)_0x31784f+=_0x503d74(0x3ad);else _0x31784f+=_0x503d74(0x28e);}}}}_0x34d963+='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20onclick=\x22'+_0x53283f+_0x503d74(0x2ce)+_0x31784f+_0x503d74(0x221)+_0x1555f3['toUpperCase']()+_0x503d74(0x30a)+(_0x351caa['options']?.[_0x1555f3]||_0x503d74(0x33d)+_0x1555f3)+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20';}),_0x34d963+=_0x126cc0(0x27e);const _0x54d27d=_0x780a99&&examSubmitted||_0x3a1c31&&practiceAttempts[_0x351caa['id']];_0x54d27d&&(_0x34d963+=_0x126cc0(0x390)+(_0x351caa[_0x126cc0(0x190)]||_0x126cc0(0x352))+_0x126cc0(0x1b2)+(_0x351caa[_0x126cc0(0x2dd)]?_0x126cc0(0x22d)+_0x351caa[_0x126cc0(0x2dd)]+_0x126cc0(0x27e):'')+_0x126cc0(0x1cd));}else _0x34d963+=_0x126cc0(0x1ac)+(_0x351caa[_0x126cc0(0x1ef)]||'')+_0x126cc0(0x204)+(_0x351caa[_0x126cc0(0x1d9)]||'')[_0x126cc0(0x280)]()+_0x126cc0(0x2f2)+_0x351caa['id']+_0x126cc0(0x19c)+_0x351caa['id']+_0x126cc0(0x335)+(_0x351caa[_0x126cc0(0x190)]||'<span\x20class=\x22text-gray-500\x22>(no\x20solution\x20provided)</span>')+_0x126cc0(0x355)+(_0x351caa[_0x126cc0(0x2dd)]?'<div\x20class=\x22bg-[#1a1a24]\x20p-3\x20rounded\x20border\x20border-gray-700\x20font-mono\x20text-sm\x20text-gray-300\x20leading-8\x22>'+_0x351caa['caltech']+_0x126cc0(0x27e):'')+_0x126cc0(0x240);const _0xe3319=document[_0x126cc0(0x39b)](_0x126cc0(0x36f));_0xe3319['className']=_0x4a786f,_0xe3319[_0x126cc0(0x15a)]=_0x34d963,container['appendChild'](_0xe3319);});if(window[_0x27110e(0x1b6)])MathJax[_0x27110e(0x3ca)]();}let adminTab=_0x3511a3(0x31b),adminCreateType=_0x3511a3(0x2df),adminSelectedQuizSetId='';function openAdminPanel(){const _0xd76f7=_0x3511a3;if(session['role']!==_0xd76f7(0x1ce)){alert('Admin\x20access\x20only.');return;}document[_0xd76f7(0x383)](_0xd76f7(0x27f))[_0xd76f7(0x30d)](_0x560b72=>_0x560b72[_0xd76f7(0x281)]['add'](_0xd76f7(0x2cf)));const _0x235ed7=document[_0xd76f7(0x389)](_0xd76f7(0x2ed));_0x235ed7&&(_0x235ed7[_0xd76f7(0x281)][_0xd76f7(0x16e)](_0xd76f7(0x2cf)),_0x235ed7[_0xd76f7(0x2e5)]['opacity']='0');document[_0xd76f7(0x389)](_0xd76f7(0x174))?.[_0xd76f7(0x281)][_0xd76f7(0x30f)](_0xd76f7(0x2cf)),setAdminTab(_0xd76f7(0x31b));try{liveSetActivity(_0xd76f7(0x216),{'view':_0xd76f7(0x393)});}catch(_0x342aac){}try{liveRequestAdminRefresh();}catch(_0x58dfd3){}updateAdminLibraryStatus(),showLibraryHintIfNeeded(),adminRefreshAll();}function closeAdminPanel(){const _0x470afa=_0x3511a3;document['getElementById'](_0x470afa(0x174))?.['classList'][_0x470afa(0x16e)](_0x470afa(0x2cf)),document['getElementById'](_0x470afa(0x207))?.[_0x470afa(0x281)]['remove'](_0x470afa(0x2cf));try{liveSetActivity(_0x470afa(0x33c),{'view':_0x470afa(0x19d)});}catch(_0x58a958){}}function updateAdminLibraryStatus(){const _0x4825b1=_0x3511a3,_0x41c3ad=document['getElementById'](_0x4825b1(0x2d2));if(!_0x41c3ad)return;if(libraryLoadState['ok']){const _0x25f622=libraryLoadState['source'],_0x4e544a=_0x25f622==='repo'?LIBRARY_FILENAME:_0x25f622===_0x4825b1(0x3a5)?LIBRARY_JS_FILENAME:_0x25f622===_0x4825b1(0x394)?_0x4825b1(0x2ea):String(_0x25f622||_0x4825b1(0x360));_0x41c3ad[_0x4825b1(0x152)]='LIBRARY:\x20LOADED\x20('+_0x4e544a+')',_0x41c3ad['style'][_0x4825b1(0x3c5)]=_0x4825b1(0x169);}else _0x41c3ad[_0x4825b1(0x152)]=_0x4825b1(0x349),_0x41c3ad[_0x4825b1(0x2e5)]['borderColor']=_0x4825b1(0x25d);showLibraryHintIfNeeded();}function showLibraryHintIfNeeded(){const _0x3561c5=_0x3511a3,_0xf43d6f=document[_0x3561c5(0x389)](_0x3561c5(0x2ff));if(!_0xf43d6f)return;const _0x4f5333=window['location'][_0x3561c5(0x2c8)]===_0x3561c5(0x239),_0x50443c=libraryLoadState[_0x3561c5(0x398)];if(!libraryLoadState['ok']&&_0x4f5333){_0xf43d6f[_0x3561c5(0x281)][_0x3561c5(0x30f)]('hidden'),_0xf43d6f[_0x3561c5(0x152)]=_0x3561c5(0x1f3);return;}if(!libraryLoadState['ok']){_0xf43d6f[_0x3561c5(0x281)][_0x3561c5(0x30f)]('hidden'),_0xf43d6f[_0x3561c5(0x152)]='library.json\x20not\x20found\x20(or\x20invalid).\x20You\x20can\x20import\x20one\x20in\x20Backup\x20tab,\x20then\x20export\x20a\x20fresh\x20library.json.';return;}if(_0x4f5333&&(_0x50443c==='bundle'||_0x50443c===_0x3561c5(0x394))){_0xf43d6f[_0x3561c5(0x281)][_0x3561c5(0x30f)](_0x3561c5(0x2cf)),_0xf43d6f[_0x3561c5(0x152)]=_0x3561c5(0x167)+(_0x50443c==='bundle'?_0x3561c5(0x3bb):_0x3561c5(0x2ab))+_0x3561c5(0x29d);return;}_0xf43d6f['classList'][_0x3561c5(0x16e)](_0x3561c5(0x2cf));}function setAdminTab(_0x17ab93){const _0x2d502c=_0x3511a3;adminTab=_0x17ab93;const _0x53593e={'content':_0x2d502c(0x1f7),'accounts':_0x2d502c(0x177),'logs':_0x2d502c(0x3b6),'backup':_0x2d502c(0x399)};Object[_0x2d502c(0x2db)](_0x53593e)[_0x2d502c(0x30d)](([_0xeccfd5,_0x278990])=>{const _0x375165=_0x2d502c;document[_0x375165(0x389)](_0x278990)?.[_0x375165(0x281)][_0x375165(0x23a)](_0x375165(0x2cf),_0xeccfd5!==_0x17ab93);});const _0x5e647c={'content':_0x2d502c(0x2b4),'accounts':_0x2d502c(0x260),'logs':_0x2d502c(0x388),'backup':_0x2d502c(0x2d4)};Object['values'](_0x5e647c)['forEach'](_0x273c59=>document[_0x2d502c(0x389)](_0x273c59)?.[_0x2d502c(0x281)][_0x2d502c(0x30f)](_0x2d502c(0x2c1))),document[_0x2d502c(0x389)](_0x5e647c[_0x17ab93])?.[_0x2d502c(0x281)]['add'](_0x2d502c(0x2c1));try{_0x17ab93===_0x2d502c(0x1cc)&&(adminRefreshBackendUrlUI(),renderAdminOnlineUsers(),renderAdminLog(),liveRequestAdminRefresh()),_0x17ab93===_0x2d502c(0x1e3)&&adminRefreshServerAccounts();}catch(_0x47f830){}}async function adminRefreshServerAccounts(){const _0x248ac0=_0x3511a3,_0x2511fa=document['getElementById']('admin-server-accounts-list'),_0x12b6f5=document[_0x248ac0(0x389)]('admin-account-status');if(!_0x2511fa)return;if(session?.[_0x248ac0(0x151)]!==_0x248ac0(0x1ce)){_0x2511fa['innerHTML']=_0x248ac0(0x203);if(_0x12b6f5)_0x12b6f5['textContent']=_0x248ac0(0x306);return;}if(!liveIsEnabled()){_0x2511fa[_0x248ac0(0x15a)]='<div\x20class=\x22admin-help\x22>Backend\x20URL\x20not\x20set.</div>';if(_0x12b6f5)_0x12b6f5[_0x248ac0(0x152)]=_0x248ac0(0x364);return;}if(!liveAuthToken){_0x2511fa['innerHTML']=_0x248ac0(0x1d1);if(_0x12b6f5)_0x12b6f5[_0x248ac0(0x152)]=_0x248ac0(0x16a);return;}_0x2511fa[_0x248ac0(0x15a)]=_0x248ac0(0x17b);if(_0x12b6f5)_0x12b6f5[_0x248ac0(0x152)]=liveWsConnected?'Backend:\x20connected.':_0x248ac0(0x30c);try{const _0x2284da=await liveApiFetch(_0x248ac0(0x1a2),{'method':_0x248ac0(0x33f)}),_0x5c4dca=Array[_0x248ac0(0x1a1)](_0x2284da?.[_0x248ac0(0x1e3)])?_0x2284da['accounts']:Array[_0x248ac0(0x1a1)](_0x2284da)?_0x2284da:[];if(_0x5c4dca[_0x248ac0(0x3bc)]===0x0){_0x2511fa['innerHTML']=_0x248ac0(0x21c);if(_0x12b6f5)_0x12b6f5[_0x248ac0(0x152)]=_0x248ac0(0x248);return;}_0x2511fa[_0x248ac0(0x15a)]=_0x5c4dca[_0x248ac0(0x201)](_0x35f90d=>{const _0x35118c=_0x248ac0,_0xce9831=escapeHTML(_0x35f90d['username']||_0x35118c(0x155)),_0x3651c7=escapeHTML(_0x35f90d[_0x35118c(0x151)]||'user'),_0x48163b=_0x35f90d[_0x35118c(0x22b)]?new Date(_0x35f90d[_0x35118c(0x22b)])['toLocaleString']():'';return _0x35118c(0x310)+_0xce9831+_0x35118c(0x212)+_0x3651c7+(_0x48163b?'\x20•\x20Created:\x20'+escapeHTML(_0x48163b):'')+_0x35118c(0x1dc)+_0x3651c7+'</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20';})['join']('');if(_0x12b6f5)_0x12b6f5[_0x248ac0(0x152)]='Server\x20accounts:\x20'+_0x5c4dca['length'];}catch(_0x533b05){console[_0x248ac0(0x2e4)](_0x533b05),_0x2511fa[_0x248ac0(0x15a)]='<div\x20class=\x22admin-help\x22>Failed\x20to\x20load\x20accounts.\x20'+escapeHTML(String(_0x533b05?.[_0x248ac0(0x37c)]||_0x533b05))+'</div>';if(_0x12b6f5)_0x12b6f5['textContent']=_0x248ac0(0x27c);}}async function adminCreateAccountServer(){const _0xe2a582=_0x3511a3,_0x173043=document[_0xe2a582(0x389)](_0xe2a582(0x247));if(session?.[_0xe2a582(0x151)]!==_0xe2a582(0x1ce)){alert('Admin\x20only.');return;}if(!liveIsEnabled()){alert('Backend\x20URL\x20not\x20set.\x20Set\x20it\x20in\x20Admin\x20→\x20Online\x20&\x20Logs\x20(Backend\x20URL),\x20or\x20set\x20window.PADAYON_BACKEND_URL\x20in\x20index.html.');return;}if(!liveAuthToken){alert(_0xe2a582(0x31d));return;}const _0x4836f9=String(document['getElementById'](_0xe2a582(0x1a6))?.['value']||'')[_0xe2a582(0x18e)](),_0x81a765=String(document[_0xe2a582(0x389)]('admin-create-password')?.[_0xe2a582(0x357)]||''),_0x4242b4=String(document[_0xe2a582(0x389)](_0xe2a582(0x1c5))?.['value']||'user');if(!_0x4836f9||!_0x81a765){alert('Enter\x20username\x20and\x20password.');return;}try{if(_0x173043)_0x173043[_0xe2a582(0x152)]='Creating…';await liveApiFetch(_0xe2a582(0x1a2),{'method':'POST','body':{'username':_0x4836f9,'password':_0x81a765,'role':_0x4242b4===_0xe2a582(0x1ce)?'admin':_0xe2a582(0x155)}});const _0x13c827=document[_0xe2a582(0x389)](_0xe2a582(0x175));if(_0x13c827)_0x13c827[_0xe2a582(0x357)]='';if(_0x173043)_0x173043[_0xe2a582(0x152)]=_0xe2a582(0x35c)+_0x4836f9;await adminRefreshServerAccounts();}catch(_0x9b829e){console['warn'](_0x9b829e);if(_0x173043)_0x173043[_0xe2a582(0x152)]='Create\x20failed:\x20'+String(_0x9b829e?.[_0xe2a582(0x37c)]||_0x9b829e);alert('Create\x20failed:\x20'+String(_0x9b829e?.[_0xe2a582(0x37c)]||_0x9b829e));}}function setAdminCreateType(_0x5d76bf){const _0xfa19f9=_0x3511a3;adminCreateType=_0x5d76bf;const _0x2a3d71={'quiz':_0xfa19f9(0x2cd),'notes':_0xfa19f9(0x286),'folder':_0xfa19f9(0x368)};Object[_0xfa19f9(0x2db)](_0x2a3d71)[_0xfa19f9(0x30d)](([_0x3545f1,_0x3db40a])=>{const _0x519d11=_0xfa19f9;document[_0x519d11(0x389)](_0x3db40a)?.[_0x519d11(0x281)]['toggle'](_0x519d11(0x2c1),_0x3545f1===_0x5d76bf);const _0xd58879=document[_0x519d11(0x1dd)]('#'+_0x3db40a+'\x20.admin-type-dot');if(_0xd58879)_0xd58879[_0x519d11(0x281)][_0x519d11(0x23a)]('on',_0x3545f1===_0x5d76bf);}),document[_0xfa19f9(0x389)](_0xfa19f9(0x315))?.[_0xfa19f9(0x281)]['toggle']('hidden',_0x5d76bf!==_0xfa19f9(0x2df)),document[_0xfa19f9(0x389)](_0xfa19f9(0x270))?.[_0xfa19f9(0x281)][_0xfa19f9(0x23a)](_0xfa19f9(0x2cf),_0x5d76bf!==_0xfa19f9(0x3b7)),document[_0xfa19f9(0x389)](_0xfa19f9(0x2b9))?.[_0xfa19f9(0x281)][_0xfa19f9(0x23a)](_0xfa19f9(0x2cf),_0x5d76bf!==_0xfa19f9(0x283)),adminRefreshAll();}function getAdminTargetPath(){const _0x63db8d=_0x3511a3;return normalizePath(document[_0x63db8d(0x389)](_0x63db8d(0x350))?.[_0x63db8d(0x357)]||'');}function setAdminTargetPath(_0xb3f5ac){const _0xa6a0e3=_0x3511a3,_0x1472c0=document[_0xa6a0e3(0x389)](_0xa6a0e3(0x350)),_0x531be1=normalizePath(_0xb3f5ac);if(_0x1472c0)_0x1472c0[_0xa6a0e3(0x357)]=_0x531be1;if(_0x531be1){const _0x26de8f=ensureFolder(_0x531be1);if(_0x26de8f)touchLibrary();}}function adminComputePathVisibility(_0x44e552){const _0x26d123=_0x3511a3,_0x4ab410=normalizePath(_0x44e552),_0x5d8e8b=_0x4ab410[_0x26d123(0x3c6)]();if(!_0x4ab410)return[_0x26d123(0x370)];if(isGlobalFolder(_0x4ab410))return[_0x26d123(0x184)];const _0x1136c6=[],_0x4b27ab=(_0x49a824,_0xcd9b28)=>{const _0x88472d=_0x26d123;if(_0x5d8e8b[_0x88472d(0x1de)](_0x49a824[_0x88472d(0x3c6)]()))_0x1136c6['push'](_0xcd9b28);};return _0x4b27ab('UNDERGROUNDS/FORMULAS',_0x26d123(0x379)),_0x4b27ab(_0x26d123(0x21a),_0x26d123(0x31e)),_0x4b27ab(_0x26d123(0x1ee),_0x26d123(0x276)),_0x4b27ab(_0x26d123(0x36e),_0x26d123(0x1c1)),_0x4b27ab('EXHALE\x20FILE/PRACTICE\x20QUIZ',_0x26d123(0x263)),_0x4b27ab(_0x26d123(0x3aa),_0x26d123(0x2a0)),_0x4b27ab(_0x26d123(0x15e),_0x26d123(0x339)),_0x4b27ab(_0x26d123(0x2ec),_0x26d123(0x3cc)),_0x4b27ab(_0x26d123(0x199),_0x26d123(0x346)),_0x4b27ab('T-AY-PI',_0x26d123(0x32f)),_0x1136c6[_0x26d123(0x3bc)]===0x0&&_0x1136c6[_0x26d123(0x2a6)](_0x26d123(0x317)),_0x1136c6;}const ADMIN_QUICK_PICK_PRESETS=['GLOBAL',_0x3511a3(0x1d7),_0x3511a3(0x2fd),'EXHALE\x20FILE',_0x3511a3(0x33a),_0x3511a3(0x237),_0x3511a3(0x21a),'UNDERGROUNDS/PROBLEM\x20EXERCISES',_0x3511a3(0x3cd),_0x3511a3(0x14c),_0x3511a3(0x362),'T-AY-PI/EE',_0x3511a3(0x1e5),_0x3511a3(0x36e),_0x3511a3(0x275),'EXHALE\x20FILE/EXAM',_0x3511a3(0x15e),_0x3511a3(0x2ec),_0x3511a3(0x199)];let _cachedUiFolderPaths=null;function adminCollectUiFolderPaths(){const _0x5ba1d7=_0x3511a3;if(_cachedUiFolderPaths)return _cachedUiFolderPaths['slice']();const _0x3a09f1=new Set();try{const _0x542bfd=document[_0x5ba1d7(0x383)](_0x5ba1d7(0x22f)),_0x209fa4=/(openCustomQuizBrowser|openNotesFolder)\s*\(\s*(['"`])([^'"`]+?)\2/g;_0x542bfd['forEach'](_0x4404f6=>{const _0x132aba=_0x5ba1d7,_0x18dd03=String(_0x4404f6[_0x132aba(0x2bd)](_0x132aba(0x235))||'');let _0x123d38;while(_0x123d38=_0x209fa4['exec'](_0x18dd03)){const _0x39988f=normalizePath(_0x123d38[0x3]);if(_0x39988f)_0x3a09f1[_0x132aba(0x16e)](_0x39988f);}});}catch(_0x17602a){}return _cachedUiFolderPaths=Array[_0x5ba1d7(0x325)](_0x3a09f1),_cachedUiFolderPaths[_0x5ba1d7(0x396)]();}function expandWithAncestors(_0xda6359){const _0x22a98c=_0x3511a3,_0x55766f=new Set();for(const _0x53e32b of _0xda6359||[]){const _0x342f01=normalizePath(_0x53e32b);if(!_0x342f01)continue;const _0x2f0b12=_0x342f01[_0x22a98c(0x397)]('/')[_0x22a98c(0x3af)](Boolean);for(let _0x1348bd=0x1;_0x1348bd<=_0x2f0b12[_0x22a98c(0x3bc)];_0x1348bd++){_0x55766f[_0x22a98c(0x16e)](_0x2f0b12[_0x22a98c(0x396)](0x0,_0x1348bd)[_0x22a98c(0x373)]('/'));}}return Array['from'](_0x55766f);}function uniquePaths(_0x3858f3){const _0x44955b=_0x3511a3,_0x436387=[],_0x426b0f=new Set();for(const _0x253fdf of _0x3858f3||[]){const _0x3b7196=normalizePath(_0x253fdf);if(!_0x3b7196)continue;const _0x10a0bb=_0x3b7196[_0x44955b(0x3c6)]();if(_0x426b0f[_0x44955b(0x39a)](_0x10a0bb))continue;_0x426b0f[_0x44955b(0x16e)](_0x10a0bb),_0x436387[_0x44955b(0x2a6)](_0x3b7196);}return _0x436387;}function adminGetQuickPickPaths(){const _0x1d8e6a=_0x3511a3,_0x559d86=ADMIN_QUICK_PICK_PRESETS['map'](normalizePath)['filter'](Boolean),_0x515c9e=adminCollectUiFolderPaths()[_0x1d8e6a(0x201)](normalizePath)[_0x1d8e6a(0x3af)](Boolean),_0x34ad65=getAllFolderPaths(library)[_0x1d8e6a(0x201)](normalizePath)[_0x1d8e6a(0x3af)](Boolean);return uniquePaths(expandWithAncestors([..._0x559d86,..._0x515c9e,..._0x34ad65]));}function adminRefreshQuickPickOptions(){const _0x1f40a6=_0x3511a3,_0x8faa14=document[_0x1f40a6(0x389)](_0x1f40a6(0x2ae));if(!_0x8faa14)return;const _0xb14e18=getAdminTargetPath()||'',_0x3a780b=adminGetQuickPickPaths(),_0x3e606f=_0x3a780b['slice']()['sort']((_0x1258cf,_0x5d5b88)=>{const _0x1ca1c5=_0x1f40a6;if(_0x1258cf===_0x1ca1c5(0x35e))return-0x1;if(_0x5d5b88===_0x1ca1c5(0x35e))return 0x1;return _0x1258cf[_0x1ca1c5(0x1f8)](_0x5d5b88);});_0x8faa14[_0x1f40a6(0x15a)]='';const _0x134e6b=document[_0x1f40a6(0x39b)](_0x1f40a6(0x182));_0x134e6b[_0x1f40a6(0x357)]='',_0x134e6b[_0x1f40a6(0x152)]=_0x1f40a6(0x16d),_0x8faa14[_0x1f40a6(0x20b)](_0x134e6b);for(const _0x53a516 of _0x3e606f){const _0x3e8595=document[_0x1f40a6(0x39b)](_0x1f40a6(0x182));_0x3e8595['value']=_0x53a516;const _0x38bf4b=_0x53a516[_0x1f40a6(0x397)]('/')['filter'](Boolean)[_0x1f40a6(0x3bc)],_0xc17dbb='\u00a0\u00a0'[_0x1f40a6(0x172)](Math['max'](0x0,_0x38bf4b-0x1));_0x3e8595[_0x1f40a6(0x152)]=_0xc17dbb+_0x53a516,_0x8faa14[_0x1f40a6(0x20b)](_0x3e8595);}_0xb14e18&&Array[_0x1f40a6(0x325)](_0x8faa14['options'])[_0x1f40a6(0x2f0)](_0x1176bb=>samePath(_0x1176bb[_0x1f40a6(0x357)],_0xb14e18))?_0x8faa14['value']=_0xb14e18:_0x8faa14[_0x1f40a6(0x357)]='';}function adminUpdatePathHelpers(){const _0x3372e7=_0x3511a3,_0xda275a=getAdminTargetPath(),_0x4d8153=document[_0x3372e7(0x389)](_0x3372e7(0x261));if(_0x4d8153)_0x4d8153['textContent']=_0xda275a||'(root)';const _0x5f4e54=document['getElementById'](_0x3372e7(0x307));if(_0x5f4e54)_0x5f4e54[_0x3372e7(0x152)]=adminComputePathVisibility(_0xda275a)[_0x3372e7(0x373)]('\x20•\x20');}async function adminCopyTargetPath(){const _0x2e4e0b=_0x3511a3,_0x207cb2=getAdminTargetPath();if(!_0x207cb2){alert(_0x2e4e0b(0x35a));return;}try{if(navigator[_0x2e4e0b(0x168)]&&window[_0x2e4e0b(0x382)])await navigator['clipboard']['writeText'](_0x207cb2);else{const _0xb292cd=document[_0x2e4e0b(0x39b)](_0x2e4e0b(0x372));_0xb292cd['value']=_0x207cb2,_0xb292cd[_0x2e4e0b(0x2e5)][_0x2e4e0b(0x386)]=_0x2e4e0b(0x2eb),_0xb292cd[_0x2e4e0b(0x2e5)][_0x2e4e0b(0x2c7)]=_0x2e4e0b(0x206),document[_0x2e4e0b(0x24f)][_0x2e4e0b(0x20b)](_0xb292cd),_0xb292cd[_0x2e4e0b(0x2af)](),_0xb292cd[_0x2e4e0b(0x298)](),document[_0x2e4e0b(0x21d)](_0x2e4e0b(0x3b9)),_0xb292cd[_0x2e4e0b(0x30f)]();}alert('Copied\x20target\x20path.');}catch(_0x5bf5e0){console[_0x2e4e0b(0x2e4)](_0x5bf5e0),alert(_0x2e4e0b(0x356));}}function adminPreviewQuizSets(){const _0x5af84d=_0x3511a3,_0x54e0b6=getAdminTargetPath()||'';openCustomQuizBrowser(_0x54e0b6,_0x5af84d(0x174),_0x5af84d(0x1f5));}function adminPreviewPdfs(){const _0x4b95e1=_0x3511a3,_0x3dba14=getAdminTargetPath()||'';openNotesFolder(_0x3dba14,'PREVIEW\x20PDFs',_0x4b95e1(0x174),_0x4b95e1(0x3c0));}function adminRefreshAll(){adminRefreshQuickPickOptions(),adminUpdatePathHelpers(),adminRefreshFolderList(),adminRefreshQuizSetSelect(),adminRefreshPdfList(),adminUpdateQuestionCount();}function adminRefreshFolderList(){const _0x5855dc=_0x3511a3,_0x381153=document[_0x5855dc(0x389)](_0x5855dc(0x262));if(!_0x381153)return;const _0x39c32e=getAdminTargetPath(),_0x44b82b=getImmediateChildFolders(_0x39c32e);if(_0x44b82b[_0x5855dc(0x3bc)]===0x0){_0x381153[_0x5855dc(0x15a)]=_0x5855dc(0x238);return;}_0x381153[_0x5855dc(0x15a)]=_0x44b82b[_0x5855dc(0x201)](_0x2cfa59=>{const _0x1ad631=_0x5855dc,_0x5d6461=(library[_0x1ad631(0x1c0)]||[])[_0x1ad631(0x3af)](_0x47f508=>isUnderPath(_0x47f508['folder'],_0x2cfa59[_0x1ad631(0x31f)])&&!isGlobalFolder(_0x47f508[_0x1ad631(0x283)]))[_0x1ad631(0x3bc)],_0x42cae5=(library[_0x1ad631(0x255)]||[])[_0x1ad631(0x3af)](_0x320b54=>isUnderPath(_0x320b54[_0x1ad631(0x283)],_0x2cfa59[_0x1ad631(0x31f)])&&!isGlobalFolder(_0x320b54['folder']))[_0x1ad631(0x3bc)],_0x2cd81d=_0x5d6461+_0x1ad631(0x35d)+(_0x5d6461===0x1?'':'s')+_0x1ad631(0x1a8)+_0x42cae5+_0x1ad631(0x19e)+(_0x42cae5===0x1?'':'s');return _0x1ad631(0x224)+_0x2cfa59[_0x1ad631(0x31f)][_0x1ad631(0x17f)](/'/g,'\x5c\x27')+_0x1ad631(0x37b)+escapeHTML(_0x2cfa59[_0x1ad631(0x344)])+_0x1ad631(0x1eb)+escapeHTML(_0x2cfa59['path'])+_0x1ad631(0x1a8)+escapeHTML(_0x2cd81d)+_0x1ad631(0x181);})[_0x5855dc(0x373)]('');}function adminRefreshQuizSetSelect(){const _0x5284d8=_0x3511a3,_0x4e7ab4=document['getElementById'](_0x5284d8(0x156));if(!_0x4e7ab4)return;const _0x2783e7=adminSelectedQuizSetId;_0x4e7ab4[_0x5284d8(0x15a)]=_0x5284d8(0x1ca),library[_0x5284d8(0x1c0)][_0x5284d8(0x396)]()[_0x5284d8(0x1c3)]((_0x510845,_0x3da8c0)=>_0x510845['title']['localeCompare'](_0x3da8c0[_0x5284d8(0x20a)]))[_0x5284d8(0x30d)](_0x1c7332=>{const _0x14c8b1=_0x5284d8,_0x5866a8=document[_0x14c8b1(0x39b)](_0x14c8b1(0x182));_0x5866a8[_0x14c8b1(0x357)]=_0x1c7332['id'],_0x5866a8['textContent']=_0x1c7332[_0x14c8b1(0x20a)]+'\x20\x20['+_0x1c7332['folder']+']',_0x4e7ab4[_0x14c8b1(0x20b)](_0x5866a8);});if(_0x2783e7)_0x4e7ab4[_0x5284d8(0x357)]=_0x2783e7;}function adminGetSelectedSet(){if(!adminSelectedQuizSetId)return null;return library['quizSets']['find'](_0x5b7912=>_0x5b7912['id']===adminSelectedQuizSetId)||null;}function adminUpdateQuestionCount(){const _0xd68acb=_0x3511a3,_0x5d4abd=document[_0xd68acb(0x389)](_0xd68acb(0x313));if(!_0x5d4abd)return;const _0x12fa68=adminGetSelectedSet(),_0x5e137e=_0x12fa68?.[_0xd68acb(0x205)]?.[_0xd68acb(0x3bc)]||0x0;_0x5d4abd['textContent']=String(_0x5e137e);}function adminSelectQuizSet(_0x3f8bb6){const _0x157c68=_0x3511a3;adminSelectedQuizSetId=_0x3f8bb6||'';const _0xd7f6c3=document[_0x157c68(0x389)]('admin-quiz-select');if(_0xd7f6c3)_0xd7f6c3[_0x157c68(0x357)]=adminSelectedQuizSetId;adminUpdateQuestionCount();}function adminCreateQuizSet(){const _0x5584e6=_0x3511a3,_0x2bf05e=document[_0x5584e6(0x389)](_0x5584e6(0x2d8)),_0x52583d=String(_0x2bf05e?.[_0x5584e6(0x357)]||'')[_0x5584e6(0x18e)]();if(!_0x52583d){alert(_0x5584e6(0x211));return;}const _0x547853=getAdminTargetPath()||_0x5584e6(0x35e);ensureFolder(_0x547853);const _0xab45a6={'id':uid('qs'),'title':_0x52583d,'folder':_0x547853,'createdAt':nowISO(),'updatedAt':nowISO(),'questions':[]};library[_0x5584e6(0x1c0)]['push'](_0xab45a6),touchLibrary();if(_0x2bf05e)_0x2bf05e[_0x5584e6(0x357)]='';adminRefreshQuizSetSelect(),adminSelectQuizSet(_0xab45a6['id']),alert(_0x5584e6(0x332)+_0xab45a6['title']+_0x5584e6(0x3bd)+_0xab45a6[_0x5584e6(0x283)]+']');}function adminMoveSelectedQuizSet(){const _0x4d0bec=_0x3511a3,_0x51c3cb=adminGetSelectedSet();if(!_0x51c3cb){alert(_0x4d0bec(0x3ba));return;}const _0x222577=document[_0x4d0bec(0x389)](_0x4d0bec(0x3ce)),_0x6a8c66=String(_0x222577?.[_0x4d0bec(0x357)]||'')[_0x4d0bec(0x18e)](),_0x36f5ef=_0x6a8c66?normalizePath(_0x6a8c66):getAdminTargetPath();if(!_0x36f5ef){alert('Enter\x20a\x20folder\x20path\x20(or\x20set\x20Target\x20folder\x20path).');return;}ensureFolder(_0x36f5ef),_0x51c3cb[_0x4d0bec(0x283)]=_0x36f5ef,_0x51c3cb[_0x4d0bec(0x2bf)]=nowISO(),touchLibrary();if(_0x222577)_0x222577[_0x4d0bec(0x357)]='';adminRefreshQuizSetSelect(),adminSelectQuizSet(_0x51c3cb['id']),alert('Moved\x20quiz\x20set.');}function adminDeleteSelectedQuizSet(){const _0x282605=_0x3511a3,_0x34662f=adminGetSelectedSet();if(!_0x34662f){alert(_0x282605(0x3ba));return;}const _0x38fc03=!!document[_0x282605(0x389)](_0x282605(0x1cf))?.['checked'];if(!confirm('Delete\x20selected\x20quiz\x20set:\x20\x22'+_0x34662f[_0x282605(0x20a)]+'\x22?'))return;_0x38fc03?library[_0x282605(0x1c0)]=library[_0x282605(0x1c0)][_0x282605(0x3af)](_0x3c3653=>_0x3c3653['id']!==_0x34662f['id']):(_0x34662f[_0x282605(0x205)]=[],_0x34662f[_0x282605(0x2bf)]=nowISO()),touchLibrary(),adminSelectedQuizSetId='',adminRefreshQuizSetSelect(),adminUpdateQuestionCount(),alert('Deleted.');}function adminExportSelectedQuizSet(){const _0xd57ba4=_0x3511a3,_0x5a07c7=adminGetSelectedSet();if(!_0x5a07c7){alert('Select\x20a\x20quiz\x20set\x20first.');return;}const _0x3959a0={'format':_0xd57ba4(0x294),'title':_0x5a07c7[_0xd57ba4(0x20a)],'folder':_0x5a07c7[_0xd57ba4(0x283)],'exportedAt':nowISO(),'questions':Array[_0xd57ba4(0x1a1)](_0x5a07c7['questions'])?_0x5a07c7[_0xd57ba4(0x205)]:[]},_0x307530=_0x5a07c7[_0xd57ba4(0x20a)][_0xd57ba4(0x17f)](/[^a-z0-9\-\_]+/gi,'_');downloadJSON((_0x307530||_0xd57ba4(0x301))+_0xd57ba4(0x348),_0x3959a0);}function sanitizeQuestion(_0x350672,_0x3f0ec8){const _0x5e5dd0=_0x3511a3,_0x51c2ca=String(_0x350672[_0x5e5dd0(0x228)]||'')[_0x5e5dd0(0x18e)](),_0x40f228=String(_0x350672['q']||_0x350672[_0x5e5dd0(0x15f)]||'')[_0x5e5dd0(0x18e)](),_0x48fa25=_0x350672['options']||_0x350672['choices']||{},_0x88c87b=String(_0x48fa25['a']??_0x48fa25['A']??_0x350672['a']??'')[_0x5e5dd0(0x18e)](),_0x403702=String(_0x48fa25['b']??_0x48fa25['B']??_0x350672['b']??'')[_0x5e5dd0(0x18e)](),_0xd6c861=String(_0x48fa25['c']??_0x48fa25['C']??_0x350672['c']??'')[_0x5e5dd0(0x18e)](),_0x546c67=String(_0x48fa25['d']??_0x48fa25['D']??_0x350672['d']??'')['trim'](),_0x2d9465=String(_0x350672['key']||_0x350672[_0x5e5dd0(0x1e6)]||'')[_0x5e5dd0(0x18e)]()[_0x5e5dd0(0x3c6)](),_0x27b7af=['a','b','c','d'][_0x5e5dd0(0x3a0)](_0x2d9465)?_0x2d9465:'a',_0x27ac51={'a':_0x88c87b,'b':_0x403702,'c':_0xd6c861,'d':_0x546c67},_0x6e9783=String(_0x350672[_0x5e5dd0(0x1ef)]||_0x27ac51[_0x27b7af]||'')[_0x5e5dd0(0x18e)]();return{'id':Number['isFinite'](_0x350672['id'])?_0x350672['id']:_0x3f0ec8,'topic':_0x51c2ca||'Custom','q':_0x40f228,'options':_0x27ac51,'key':_0x27b7af,'ans':_0x6e9783,'soln':String(_0x350672[_0x5e5dd0(0x190)]||_0x350672[_0x5e5dd0(0x3c3)]||'')[_0x5e5dd0(0x18e)](),'caltech':_0x350672[_0x5e5dd0(0x2dd)]!=null?String(_0x350672[_0x5e5dd0(0x2dd)]):null};}async function adminImportQuestionsJson(){const _0x2cef29=_0x3511a3,_0x416c34=adminGetSelectedSet();if(!_0x416c34){alert('Select\x20a\x20quiz\x20set\x20first.');return;}const _0x15039a=document[_0x2cef29(0x389)](_0x2cef29(0x2d9)),_0x615344=_0x15039a?.['files']?.[0x0];if(!_0x615344){alert(_0x2cef29(0x225));return;}try{const _0x5608c8=await readFileAsText(_0x615344),_0x590a72=JSON['parse'](_0x5608c8);let _0x465fe1=[];if(Array[_0x2cef29(0x1a1)](_0x590a72))_0x465fe1=_0x590a72;else{if(_0x590a72&&Array['isArray'](_0x590a72[_0x2cef29(0x205)]))_0x465fe1=_0x590a72[_0x2cef29(0x205)];}if(!Array[_0x2cef29(0x1a1)](_0x465fe1)||_0x465fe1['length']===0x0){alert(_0x2cef29(0x289));return;}const _0x1a88a1=(_0x416c34[_0x2cef29(0x205)]||[])['reduce']((_0x577568,_0x560a14)=>Math[_0x2cef29(0x303)](_0x577568,Number(_0x560a14['id'])||0x0),0x0);let _0x2672c0=_0x1a88a1+0x1;const _0x240068=_0x465fe1[_0x2cef29(0x201)](_0x5b4b3b=>sanitizeQuestion(_0x5b4b3b,_0x2672c0++))[_0x2cef29(0x3af)](_0x5ea5fc=>_0x5ea5fc['q']);if(_0x240068['length']===0x0){alert(_0x2cef29(0x1d2));return;}_0x416c34[_0x2cef29(0x205)]=Array['isArray'](_0x416c34[_0x2cef29(0x205)])?_0x416c34[_0x2cef29(0x205)]['concat'](_0x240068):_0x240068,_0x416c34[_0x2cef29(0x2bf)]=nowISO(),touchLibrary();if(_0x15039a)_0x15039a[_0x2cef29(0x357)]='';adminUpdateQuestionCount(),alert(_0x2cef29(0x178)+_0x240068[_0x2cef29(0x3bc)]+'\x20question(s).');}catch(_0x5bb863){console['error'](_0x5bb863),alert(_0x2cef29(0x292));}}function adminClearQuestionBuilder(){const _0x491c80=_0x3511a3,_0x360dc0=[_0x491c80(0x316),_0x491c80(0x185),'admin-q-a',_0x491c80(0x233),_0x491c80(0x252),_0x491c80(0x27a),_0x491c80(0x170),_0x491c80(0x28d)];_0x360dc0[_0x491c80(0x30d)](_0x1bbe17=>{const _0x1e7e33=_0x491c80,_0x39fde4=document['getElementById'](_0x1bbe17);if(_0x39fde4)_0x39fde4[_0x1e7e33(0x357)]='';});const _0x16373e=document[_0x491c80(0x389)]('admin-q-correct');if(_0x16373e)_0x16373e['value']='a';}function adminAddQuestion(){const _0x5c42c0=_0x3511a3,_0x4c1f52=adminGetSelectedSet();if(!_0x4c1f52){alert('Select\x20a\x20quiz\x20set\x20first.');return;}const _0x30993b=String(document[_0x5c42c0(0x389)](_0x5c42c0(0x316))?.[_0x5c42c0(0x357)]||'')[_0x5c42c0(0x18e)](),_0x6ff3c2=String(document[_0x5c42c0(0x389)](_0x5c42c0(0x185))?.[_0x5c42c0(0x357)]||'')['trim'](),_0xde4156=String(document['getElementById'](_0x5c42c0(0x367))?.['value']||'')[_0x5c42c0(0x18e)](),_0x74b7fe=String(document['getElementById']('admin-q-b')?.['value']||'')[_0x5c42c0(0x18e)](),_0x2a0fd3=String(document[_0x5c42c0(0x389)]('admin-q-c')?.[_0x5c42c0(0x357)]||'')['trim'](),_0x569fc6=String(document[_0x5c42c0(0x389)](_0x5c42c0(0x27a))?.[_0x5c42c0(0x357)]||'')[_0x5c42c0(0x18e)](),_0x334013=String(document[_0x5c42c0(0x389)](_0x5c42c0(0x170))?.[_0x5c42c0(0x357)]||'')[_0x5c42c0(0x18e)](),_0x4d6de8=String(document[_0x5c42c0(0x389)](_0x5c42c0(0x28d))?.['value']||'')[_0x5c42c0(0x18e)](),_0x21af0c=String(document['getElementById']('admin-q-correct')?.['value']||'a')[_0x5c42c0(0x3c6)]();if(!_0x6ff3c2){alert(_0x5c42c0(0x1c8));return;}if(!_0xde4156||!_0x74b7fe||!_0x2a0fd3||!_0x569fc6){alert(_0x5c42c0(0x267));return;}const _0x27987a=(_0x4c1f52[_0x5c42c0(0x205)]||[])['reduce']((_0xd66e01,_0x18d38b)=>Math['max'](_0xd66e01,Number(_0x18d38b['id'])||0x0),0x0),_0x5d1c7a=_0x27987a+0x1,_0x2bed82={'id':_0x5d1c7a,'topic':_0x30993b||_0x5c42c0(0x1f6),'q':_0x6ff3c2,'options':{'a':_0xde4156,'b':_0x74b7fe,'c':_0x2a0fd3,'d':_0x569fc6},'key':['a','b','c','d'][_0x5c42c0(0x3a0)](_0x21af0c)?_0x21af0c:'a','ans':{'a':_0xde4156,'b':_0x74b7fe,'c':_0x2a0fd3,'d':_0x569fc6}[_0x21af0c]||_0xde4156,'soln':_0x334013,'caltech':_0x4d6de8||null};_0x4c1f52[_0x5c42c0(0x205)]=Array[_0x5c42c0(0x1a1)](_0x4c1f52[_0x5c42c0(0x205)])?_0x4c1f52[_0x5c42c0(0x205)][_0x5c42c0(0x14f)]([_0x2bed82]):[_0x2bed82],_0x4c1f52[_0x5c42c0(0x2bf)]=nowISO(),touchLibrary(),adminUpdateQuestionCount(),adminClearQuestionBuilder(),alert('Question\x20added.');}function adminGetPdfKind(){const _0x576fe6=_0x3511a3,_0x3a15a1=String(document['getElementById'](_0x576fe6(0x2b2))?.[_0x576fe6(0x357)]||_0x576fe6(0x3b7))['toLowerCase']();return _0x3a15a1===_0x576fe6(0x179)?'archive':'notes';}async function adminUploadPdf(_0x243ac8=_0x3511a3(0x3b7)){const _0x232206=_0x3511a3,_0x8cd40e=document[_0x232206(0x389)](_0x232206(0x16f)),_0x1837dc=_0x8cd40e?.[_0x232206(0x1d3)]?.[0x0];if(!_0x1837dc){alert(_0x232206(0x241));return;}const _0x2b5833=document[_0x232206(0x389)]('admin-pdf-title'),_0x3337b2=String(_0x2b5833?.[_0x232206(0x357)]||'')[_0x232206(0x18e)]()||_0x1837dc[_0x232206(0x344)],_0x54183e=getAdminTargetPath()||'GLOBAL';ensureFolder(_0x54183e);try{const _0x1d7505=await readFileAsDataURL(_0x1837dc);library[_0x232206(0x255)][_0x232206(0x2a6)]({'id':uid(_0x232206(0x17c)),'title':_0x3337b2,'folder':_0x54183e,'kind':_0x243ac8,'src':_0x1d7505,'createdAt':nowISO()});const _0x31c6c6=touchLibrary();if(_0x8cd40e)_0x8cd40e[_0x232206(0x357)]='';if(_0x2b5833)_0x2b5833[_0x232206(0x357)]='';const _0x36f715=document['getElementById'](_0x232206(0x319));if(_0x36f715)_0x36f715[_0x232206(0x357)]='';adminRefreshPdfList(),!_0x31c6c6?alert(_0x232206(0x366)):alert(_0x232206(0x1db));}catch(_0x354f25){console['error'](_0x354f25),alert('Failed\x20to\x20read\x20PDF\x20file.');}}function adminAttachPdfUrl(_0x389d62=_0x3511a3(0x3b7)){const _0x54410a=_0x3511a3,_0x335761=document[_0x54410a(0x389)]('admin-pdf-url'),_0x5f4b0a=String(_0x335761?.[_0x54410a(0x357)]||'')['trim']();if(!_0x5f4b0a){alert('Paste\x20a\x20PDF\x20URL/path\x20first.');return;}const _0x5f30ec=document[_0x54410a(0x389)](_0x54410a(0x2ca)),_0x4802b9=String(_0x5f30ec?.[_0x54410a(0x357)]||'')['trim']()||baseName(_0x5f4b0a)||_0x54410a(0x20f),_0xfe201a=getAdminTargetPath()||_0x54410a(0x35e);ensureFolder(_0xfe201a);const _0x195147=encodeURI(_0x5f4b0a);library['pdfs'][_0x54410a(0x2a6)]({'id':uid(_0x54410a(0x17c)),'title':_0x4802b9,'folder':_0xfe201a,'kind':_0x389d62,'src':_0x195147,'createdAt':nowISO()});const _0x10efe1=touchLibrary();if(_0x335761)_0x335761[_0x54410a(0x357)]='';if(_0x5f30ec)_0x5f30ec[_0x54410a(0x357)]='';adminRefreshPdfList(),!_0x10efe1?alert(_0x54410a(0x322)):alert(_0x54410a(0x1f0));}function adminRefreshPdfList(){const _0x34eb09=_0x3511a3,_0x559f91=document[_0x34eb09(0x389)](_0x34eb09(0x3a2));if(!_0x559f91)return;const _0x46df66=getAdminTargetPath(),_0x44c116=(library[_0x34eb09(0x255)]||[])[_0x34eb09(0x3af)](_0x210215=>{const _0x55baec=normalizePath(_0x210215['folder']||'');if(!_0x46df66)return isGlobalFolder(_0x55baec)||!_0x55baec;return isUnderPath(_0x55baec,_0x46df66);})[_0x34eb09(0x396)]()['sort']((_0x4951bb,_0x4b8040)=>String(_0x4951bb['title']||'')[_0x34eb09(0x1f8)](String(_0x4b8040[_0x34eb09(0x20a)]||'')));if(_0x44c116['length']===0x0){_0x559f91[_0x34eb09(0x15a)]='<div\x20class=\x22admin-help\x22>No\x20PDFs\x20attached.</div>';return;}_0x559f91['innerHTML']='',_0x44c116[_0x34eb09(0x30d)](_0x3d04fe=>{const _0x34f347=_0x34eb09,_0x3fd634=document['createElement'](_0x34f347(0x36f));_0x3fd634[_0x34f347(0x17e)]=_0x34f347(0x1da),_0x3fd634[_0x34f347(0x15a)]=_0x34f347(0x277)+escapeHTML(_0x3d04fe['title'])+_0x34f347(0x250)+escapeHTML(_0x3d04fe['kind'])+_0x34f347(0x1a8)+escapeHTML(_0x3d04fe['folder'])+_0x34f347(0x3c8);const [_0x239de1,_0x2b061a]=_0x3fd634[_0x34f347(0x383)](_0x34f347(0x28f));_0x239de1[_0x34f347(0x18c)](_0x34f347(0x2ee),()=>{openPdfOverlay(_0x3d04fe['id'],'admin-overlay');}),_0x2b061a[_0x34f347(0x18c)](_0x34f347(0x2ee),()=>{const _0x3fc497=_0x34f347;if(!confirm('Delete\x20PDF:\x20\x22'+_0x3d04fe['title']+'\x22?'))return;library['pdfs']=library[_0x3fc497(0x255)][_0x3fc497(0x3af)](_0x303464=>_0x303464['id']!==_0x3d04fe['id']),touchLibrary(),adminRefreshPdfList();}),_0x559f91[_0x34f347(0x20b)](_0x3fd634);});}function adminCreateFolder(){const _0x2fc096=_0x3511a3,_0x11ff33=String(document[_0x2fc096(0x389)](_0x2fc096(0x2f3))?.[_0x2fc096(0x357)]||'')[_0x2fc096(0x18e)]();if(!_0x11ff33){alert(_0x2fc096(0x2d0));return;}const _0x265435=getAdminTargetPath(),_0x1ff31c=['GLOBAL','UNDERGROUNDS',_0x2fc096(0x2fd),_0x2fc096(0x38d),_0x2fc096(0x33a)],_0x4f15c2=normalizePath(_0x11ff33),_0x209dfd=_0x4f15c2[_0x2fc096(0x397)]('/')[0x0]||'',_0x355c37=_0x1ff31c['some'](_0x4de327=>samePath(_0x209dfd,_0x4de327)),_0x59c9f5=normalizePath(_0x355c37?_0x4f15c2:_0x265435?_0x265435+'/'+_0x11ff33:_0x11ff33),_0x298172=ensureFolder(_0x59c9f5);if(_0x298172)touchLibrary();document[_0x2fc096(0x389)](_0x2fc096(0x2f3))['value']='',adminRefreshAll(),alert(_0x298172?_0x2fc096(0x249)+_0x59c9f5:'Folder\x20already\x20exists:\x20'+_0x59c9f5);}function adminOpenTarget(){const _0xf86de5=_0x3511a3,_0x7ec99c=getAdminTargetPath();alert(_0xf86de5(0x279)+(_0x7ec99c||'(root)'));}function adminRenameFolder(){const _0x2f59a1=_0x3511a3,_0x36f0df=String(document['getElementById'](_0x2f59a1(0x256))?.['value']||'')['trim']();if(!_0x36f0df){alert(_0x2f59a1(0x32d));return;}const _0x435714=getAdminTargetPath();if(!_0x435714){alert('Set\x20Target\x20folder\x20path\x20to\x20the\x20folder\x20you\x20want\x20to\x20rename.');return;}const _0x11ea0d=parentPath(_0x435714),_0x1934e7=normalizePath(_0x11ea0d?_0x11ea0d+'/'+_0x36f0df:_0x36f0df);adminMoveFolderInternal(_0x435714,_0x1934e7),document[_0x2f59a1(0x389)](_0x2f59a1(0x256))[_0x2f59a1(0x357)]='',setAdminTargetPath(_0x1934e7),adminRefreshAll(),alert(_0x2f59a1(0x2ba));}function adminMoveFolder(){const _0x247246=_0x3511a3,_0x1cfb7d=normalizePath(String(document['getElementById'](_0x247246(0x188))?.[_0x247246(0x357)]||'')[_0x247246(0x18e)]()),_0x20ac7d=getAdminTargetPath();if(!_0x20ac7d){alert(_0x247246(0x2ac));return;}if(!_0x1cfb7d){alert(_0x247246(0x2c6));return;}const _0x4357cd=normalizePath(_0x1cfb7d+'/'+baseName(_0x20ac7d));adminMoveFolderInternal(_0x20ac7d,_0x4357cd),document[_0x247246(0x389)](_0x247246(0x188))['value']='',setAdminTargetPath(_0x4357cd),adminRefreshAll(),alert(_0x247246(0x1c9));}function adminMoveFolderInternal(_0x528340,_0x278150){const _0xa75f2c=_0x3511a3,_0x2b0e8b=normalizePath(_0x528340),_0x2378d4=normalizePath(_0x278150);ensureFolder(parentPath(_0x2378d4)),ensureFolder(_0x2378d4),library['folders']=library[_0xa75f2c(0x209)][_0xa75f2c(0x201)](_0x394ed1=>{const _0x4425ab=_0xa75f2c;if(isUnderPath(_0x394ed1[_0x4425ab(0x31f)],_0x2b0e8b)){const _0x42810c=normalizePath(_0x394ed1[_0x4425ab(0x31f)])[_0x4425ab(0x396)](normalizePath(_0x2b0e8b)['length']),_0x23588f=_0x42810c[_0x4425ab(0x1de)]('/')?_0x42810c:_0x42810c?'/'+_0x42810c:'';return{..._0x394ed1,'path':normalizePath(_0x2378d4+_0x23588f)};}return _0x394ed1;})[_0xa75f2c(0x3af)]((_0x1616d3,_0x22ccb3,_0x130278)=>_0x130278[_0xa75f2c(0x285)](_0x54999c=>samePath(_0x54999c[_0xa75f2c(0x31f)],_0x1616d3[_0xa75f2c(0x31f)]))===_0x22ccb3),library[_0xa75f2c(0x1c0)]['forEach'](_0x12cd77=>{const _0x389b67=_0xa75f2c;if(isUnderPath(_0x12cd77[_0x389b67(0x283)],_0x2b0e8b)){const _0x365f17=normalizePath(_0x12cd77[_0x389b67(0x283)])['slice'](normalizePath(_0x2b0e8b)['length']),_0x13f1b3=_0x365f17[_0x389b67(0x1de)]('/')?_0x365f17:_0x365f17?'/'+_0x365f17:'';_0x12cd77['folder']=normalizePath(_0x2378d4+_0x13f1b3),_0x12cd77['updatedAt']=nowISO();}}),library[_0xa75f2c(0x255)][_0xa75f2c(0x30d)](_0x241691=>{const _0x3540b1=_0xa75f2c;if(isUnderPath(_0x241691[_0x3540b1(0x283)],_0x2b0e8b)){const _0x26b1ce=normalizePath(_0x241691[_0x3540b1(0x283)])[_0x3540b1(0x396)](normalizePath(_0x2b0e8b)[_0x3540b1(0x3bc)]),_0x2f7765=_0x26b1ce[_0x3540b1(0x1de)]('/')?_0x26b1ce:_0x26b1ce?'/'+_0x26b1ce:'';_0x241691[_0x3540b1(0x283)]=normalizePath(_0x2378d4+_0x2f7765);}}),touchLibrary();}function adminDeleteFolder(){const _0x57e137=_0x3511a3,_0x5ba96b=getAdminTargetPath();if(!_0x5ba96b){alert(_0x57e137(0x220));return;}const _0xe0d705=!!document[_0x57e137(0x389)](_0x57e137(0x29a))?.[_0x57e137(0x236)];if(!confirm(_0x57e137(0x1b5)+_0x5ba96b+_0x57e137(0x318)))return;const _0xb79f17=parentPath(_0x5ba96b);library['folders']=library[_0x57e137(0x209)][_0x57e137(0x3af)](_0x524bed=>!isUnderPath(_0x524bed[_0x57e137(0x31f)],_0x5ba96b)),_0xe0d705?(library[_0x57e137(0x1c0)]=library[_0x57e137(0x1c0)]['filter'](_0x1f2de3=>!isUnderPath(_0x1f2de3[_0x57e137(0x283)],_0x5ba96b)),library['pdfs']=library['pdfs']['filter'](_0x3d4bc0=>!isUnderPath(_0x3d4bc0[_0x57e137(0x283)],_0x5ba96b))):(library[_0x57e137(0x1c0)]['forEach'](_0x5907d5=>{const _0x1e1b01=_0x57e137;if(isUnderPath(_0x5907d5['folder'],_0x5ba96b))_0x5907d5[_0x1e1b01(0x283)]=_0xb79f17;}),library[_0x57e137(0x255)][_0x57e137(0x30d)](_0x20fbec=>{const _0x5e70a6=_0x57e137;if(isUnderPath(_0x20fbec[_0x5e70a6(0x283)],_0x5ba96b))_0x20fbec['folder']=_0xb79f17;})),touchLibrary(),adminRefreshAll(),alert(_0x57e137(0x1ed));}function adminHowItWorks(){const _0x5d7f11=_0x3511a3;alert('How\x20folders\x20work:\x0a\x0a'+_0x5d7f11(0x19a)+_0x5d7f11(0x1a4)+_0x5d7f11(0x30e));}async function importLibraryFromFile(_0x3a8503,{statusEl:statusEl=null}={}){const _0x43f9ea=_0x3511a3;if(!_0x3a8503)return![];const _0x218d9a=await readFileAsText(_0x3a8503),_0x5c0342=JSON[_0x43f9ea(0x39f)](_0x218d9a);library=normalizeIncomingLibrary(_0x5c0342),libraryLoadState={'ok':!![],'source':_0x43f9ea(0x1df),'error':null};const _0xeefb17=touchLibrary();return updateAdminLibraryStatus(),showLibraryHintIfNeeded(),refreshUiAfterLibraryChange(),statusEl&&(statusEl['textContent']=_0xeefb17?'Imported\x20'+_0x3a8503[_0x43f9ea(0x344)]+_0x43f9ea(0x2fb):_0x43f9ea(0x178)+_0x3a8503[_0x43f9ea(0x344)]+_0x43f9ea(0x274)),_0xeefb17;}async function adminQuickImportLibrary(){const _0x141ad0=_0x3511a3;if(session[_0x141ad0(0x151)]!==_0x141ad0(0x1ce)){alert('Admin\x20only.');return;}const _0x345be=document[_0x141ad0(0x389)](_0x141ad0(0x347)),_0x26985d=_0x345be?.['files']?.[0x0];if(!_0x26985d){alert(_0x141ad0(0x304));return;}try{const _0x55f211=await importLibraryFromFile(_0x26985d);alert(_0x55f211?'Library\x20imported\x20and\x20saved\x20to\x20cache.':'Library\x20imported,\x20but\x20could\x20not\x20save\x20to\x20cache\x20(storage\x20might\x20be\x20full).');}catch(_0x19558f){console[_0x141ad0(0x34a)](_0x19558f),alert(_0x141ad0(0x2de));}finally{if(_0x345be)_0x345be[_0x141ad0(0x357)]='';}}function userQuickImportLibrary(){const _0x4ed4fb=_0x3511a3,_0x4328d4=document[_0x4ed4fb(0x389)](_0x4ed4fb(0x22c));if(!_0x4328d4){alert('Import\x20control\x20not\x20found.');return;}_0x4328d4[_0x4ed4fb(0x357)]='',_0x4328d4[_0x4ed4fb(0x2bc)]=async()=>{const _0xcab3d0=_0x4ed4fb,_0x362062=_0x4328d4[_0xcab3d0(0x1d3)]?.[0x0];if(!_0x362062)return;const _0x182161=confirm(_0xcab3d0(0x197));if(!_0x182161){_0x4328d4[_0xcab3d0(0x357)]='';return;}try{const _0x249e73=await importLibraryFromFile(_0x362062);alert(_0x249e73?_0xcab3d0(0x21b):'Update\x20imported,\x20but\x20could\x20not\x20save\x20locally\x20(storage\x20may\x20be\x20full).');}catch(_0x1f7f36){console[_0xcab3d0(0x34a)](_0x1f7f36),alert(_0xcab3d0(0x2de));}finally{_0x4328d4[_0xcab3d0(0x357)]='';}},_0x4328d4[_0x4ed4fb(0x2ee)]();}async function adminImportLibrary(){const _0x1016fe=_0x3511a3,_0x2aa16a=document[_0x1016fe(0x389)]('admin-backup-import-file'),_0x11c429=document[_0x1016fe(0x389)](_0x1016fe(0x29c)),_0x4fdeed=_0x2aa16a?.['files']?.[0x0];if(!_0x4fdeed){alert(_0x1016fe(0x304));return;}try{const _0x537645=await importLibraryFromFile(_0x4fdeed,{'statusEl':_0x11c429});alert(_0x537645?_0x1016fe(0x38b):_0x1016fe(0x2da));}catch(_0x131719){console[_0x1016fe(0x34a)](_0x131719),alert('Invalid\x20library.json');}finally{if(_0x2aa16a)_0x2aa16a[_0x1016fe(0x357)]='';}}function adminExportLibrary(){const _0x1979d1=_0x3511a3;touchLibrary();const _0x120fb6={...library,'updatedAt':library[_0x1979d1(0x2bf)]||nowISO()};downloadJSON(LIBRARY_FILENAME,_0x120fb6);}function adminExportLibraryJS(){const _0x667706=_0x3511a3;touchLibrary();const _0x152658={...library,'updatedAt':library[_0x667706(0x2bf)]||nowISO()},_0x56ab9f=_0x667706(0x34d)+LIBRARY_GLOBAL_VAR+'\x20=\x20'+JSON['stringify'](_0x152658,null,0x2)+';\x0a';downloadText(LIBRARY_JS_FILENAME,_0x56ab9f,_0x667706(0x326));}function adminSearch(_0x2677fd){const _0x19eb89=_0x3511a3,_0x9deb45=String(_0x2677fd||'')[_0x19eb89(0x18e)]()[_0x19eb89(0x3c6)]();if(!_0x9deb45)return[];const _0x11a0a9=[];return library[_0x19eb89(0x209)]['forEach'](_0x449669=>{const _0x4a580a=_0x19eb89;_0x449669[_0x4a580a(0x31f)][_0x4a580a(0x3c6)]()[_0x4a580a(0x3a0)](_0x9deb45)&&_0x11a0a9[_0x4a580a(0x2a6)]({'type':_0x4a580a(0x283),'label':_0x449669[_0x4a580a(0x31f)],'value':_0x449669[_0x4a580a(0x31f)]});}),library[_0x19eb89(0x1c0)][_0x19eb89(0x30d)](_0x2ab378=>{const _0x22a374=_0x19eb89,_0x23c1c7=(_0x2ab378[_0x22a374(0x20a)]+'\x20'+_0x2ab378[_0x22a374(0x283)])[_0x22a374(0x3c6)]();_0x23c1c7['includes'](_0x9deb45)&&_0x11a0a9['push']({'type':'quiz','label':_0x2ab378[_0x22a374(0x20a)],'sub':_0x2ab378[_0x22a374(0x283)],'value':_0x2ab378['id']});}),library[_0x19eb89(0x255)][_0x19eb89(0x30d)](_0x4f5a6d=>{const _0x2a821d=_0x19eb89,_0x226cd1=(_0x4f5a6d[_0x2a821d(0x20a)]+'\x20'+_0x4f5a6d[_0x2a821d(0x283)])[_0x2a821d(0x3c6)]();_0x226cd1['includes'](_0x9deb45)&&_0x11a0a9[_0x2a821d(0x2a6)]({'type':_0x2a821d(0x17c),'label':_0x4f5a6d[_0x2a821d(0x20a)],'sub':_0x4f5a6d[_0x2a821d(0x283)],'value':_0x4f5a6d['id']});}),_0x11a0a9[_0x19eb89(0x396)](0x0,0x19);}function adminRenderSearchResults(_0x3f9d1a){const _0x4f0637=_0x3511a3,_0x32c804=document[_0x4f0637(0x389)]('admin-search-results');if(!_0x32c804)return;const _0x17b502=String(_0x3f9d1a||'')[_0x4f0637(0x18e)]();if(!_0x17b502){_0x32c804[_0x4f0637(0x281)][_0x4f0637(0x16e)](_0x4f0637(0x2cf)),_0x32c804[_0x4f0637(0x15a)]='';return;}const _0x1e04ff=adminSearch(_0x17b502);if(_0x1e04ff[_0x4f0637(0x3bc)]===0x0){_0x32c804['classList'][_0x4f0637(0x30f)](_0x4f0637(0x2cf)),_0x32c804[_0x4f0637(0x15a)]='<div\x20class=\x22admin-help\x22\x20style=\x22padding:12px;\x22>No\x20results.</div>';return;}_0x32c804[_0x4f0637(0x281)][_0x4f0637(0x30f)](_0x4f0637(0x2cf)),_0x32c804[_0x4f0637(0x15a)]='',_0x1e04ff[_0x4f0637(0x30d)](_0x165e93=>{const _0x4960e3=_0x4f0637,_0x19cd7f=document[_0x4960e3(0x39b)](_0x4960e3(0x36f));_0x19cd7f['className']=_0x4960e3(0x31c),_0x19cd7f['innerHTML']=_0x4960e3(0x384)+escapeHTML(_0x165e93[_0x4960e3(0x1ba)])+_0x4960e3(0x35f)+(_0x165e93[_0x4960e3(0x229)]?'<div\x20class=\x22admin-search-type\x22>'+escapeHTML(_0x165e93['sub'])+_0x4960e3(0x27e):_0x4960e3(0x2f9)+escapeHTML(_0x165e93[_0x4960e3(0x14a)][_0x4960e3(0x280)]())+_0x4960e3(0x27e))+'\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-search-type\x22>'+escapeHTML(_0x165e93[_0x4960e3(0x14a)]['toUpperCase']())+_0x4960e3(0x2b0),_0x19cd7f['addEventListener'](_0x4960e3(0x2ee),()=>{const _0x11c605=_0x4960e3;if(_0x165e93[_0x11c605(0x14a)]===_0x11c605(0x283))setAdminTargetPath(_0x165e93[_0x11c605(0x357)]),setAdminCreateType(_0x11c605(0x2df)),adminRefreshAll();else{if(_0x165e93[_0x11c605(0x14a)]==='quiz'){const _0x3a30a0=library[_0x11c605(0x1c0)][_0x11c605(0x231)](_0x53efb0=>_0x53efb0['id']===_0x165e93['value']);_0x3a30a0&&(setAdminTargetPath(_0x3a30a0[_0x11c605(0x283)]),setAdminCreateType('quiz'),adminRefreshAll(),adminSelectQuizSet(_0x3a30a0['id']));}else{if(_0x165e93[_0x11c605(0x14a)]===_0x11c605(0x17c)){const _0x400358=getPdfById(_0x165e93[_0x11c605(0x357)]);_0x400358&&(setAdminTargetPath(_0x400358[_0x11c605(0x283)]),setAdminCreateType(_0x11c605(0x3b7)),adminRefreshAll());}}}_0x32c804[_0x11c605(0x281)]['add'](_0x11c605(0x2cf)),_0x32c804['innerHTML']='';const _0x1ed0c0=document['getElementById'](_0x11c605(0x150));if(_0x1ed0c0)_0x1ed0c0[_0x11c605(0x357)]='';}),_0x32c804[_0x4960e3(0x20b)](_0x19cd7f);});}function initAdminUI(){const _0x246beb=_0x3511a3;document[_0x246beb(0x389)](_0x246beb(0x2b4))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),()=>setAdminTab('content')),document[_0x246beb(0x389)](_0x246beb(0x260))?.['addEventListener'](_0x246beb(0x2ee),()=>setAdminTab(_0x246beb(0x1e3))),document[_0x246beb(0x389)](_0x246beb(0x388))?.['addEventListener'](_0x246beb(0x2ee),()=>setAdminTab(_0x246beb(0x1cc))),document[_0x246beb(0x389)](_0x246beb(0x2d4))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),()=>setAdminTab(_0x246beb(0x2cb))),document[_0x246beb(0x389)](_0x246beb(0x2cc))?.['addEventListener'](_0x246beb(0x2ee),()=>{closeAdminPanel();}),document[_0x246beb(0x389)](_0x246beb(0x34b))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),()=>{adminSaveLibrary();}),document[_0x246beb(0x389)](_0x246beb(0x2cd))?.['addEventListener'](_0x246beb(0x2ee),()=>setAdminCreateType('quiz')),document[_0x246beb(0x389)](_0x246beb(0x286))?.['addEventListener'](_0x246beb(0x2ee),()=>setAdminCreateType(_0x246beb(0x3b7))),document[_0x246beb(0x389)]('admin-type-folder')?.[_0x246beb(0x18c)]('click',()=>setAdminCreateType(_0x246beb(0x283))),document['getElementById'](_0x246beb(0x2ae))?.[_0x246beb(0x18c)](_0x246beb(0x329),_0x5df9da=>{const _0x106f33=_0x246beb,_0x395543=normalizePath(_0x5df9da[_0x106f33(0x251)][_0x106f33(0x357)]||'');if(_0x395543)setAdminTargetPath(_0x395543);adminRefreshAll();}),document[_0x246beb(0x389)](_0x246beb(0x350))?.[_0x246beb(0x18c)](_0x246beb(0x17a),()=>{adminUpdatePathHelpers(),adminRefreshFolderList();if(adminCreateType==='notes')adminRefreshPdfList();}),document[_0x246beb(0x389)](_0x246beb(0x23f))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminCopyTargetPath),document[_0x246beb(0x389)]('admin-preview-quiz')?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminPreviewQuizSets),document['getElementById'](_0x246beb(0x1fb))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminPreviewPdfs),document[_0x246beb(0x389)](_0x246beb(0x2c4))?.['addEventListener']('click',adminCreateQuizSet),document['getElementById'](_0x246beb(0x156))?.['addEventListener'](_0x246beb(0x329),_0x291357=>{const _0x423667=_0x246beb;adminSelectQuizSet(_0x291357[_0x423667(0x251)][_0x423667(0x357)]);}),document[_0x246beb(0x389)](_0x246beb(0x1f1))?.['addEventListener']('click',()=>{const _0x1b2f4a=_0x246beb,_0x1c6b9f=document[_0x1b2f4a(0x389)](_0x1b2f4a(0x3ce));if(_0x1c6b9f)_0x1c6b9f['value']=getAdminTargetPath();}),document['getElementById'](_0x246beb(0x29b))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminMoveSelectedQuizSet),document[_0x246beb(0x389)](_0x246beb(0x227))?.['addEventListener'](_0x246beb(0x2ee),adminDeleteSelectedQuizSet),document[_0x246beb(0x389)](_0x246beb(0x1ad))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminImportQuestionsJson),document[_0x246beb(0x389)](_0x246beb(0x3b0))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminExportSelectedQuizSet),document[_0x246beb(0x389)](_0x246beb(0x380))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminAddQuestion),document[_0x246beb(0x389)](_0x246beb(0x358))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminClearQuestionBuilder),document['getElementById'](_0x246beb(0x39d))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),()=>adminUploadPdf(adminGetPdfKind())),document[_0x246beb(0x389)](_0x246beb(0x1b4))?.['addEventListener']('click',()=>adminAttachPdfUrl(adminGetPdfKind())),document[_0x246beb(0x389)](_0x246beb(0x2f1))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminCreateFolder),document[_0x246beb(0x389)](_0x246beb(0x1bd))?.['addEventListener'](_0x246beb(0x2ee),adminOpenTarget),document['getElementById']('admin-folder-rename-btn')?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminRenameFolder),document['getElementById'](_0x246beb(0x338))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminMoveFolder),document['getElementById'](_0x246beb(0x1a3))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminDeleteFolder),document[_0x246beb(0x389)](_0x246beb(0x36a))?.[_0x246beb(0x18c)]('click',adminHowItWorks),document[_0x246beb(0x389)]('admin-folder-root-btn')?.[_0x246beb(0x18c)](_0x246beb(0x2ee),()=>setAdminTargetPath('')),document[_0x246beb(0x389)](_0x246beb(0x150))?.[_0x246beb(0x18c)](_0x246beb(0x17a),_0x499154=>{const _0x372789=_0x246beb;adminRenderSearchResults(_0x499154[_0x372789(0x251)][_0x372789(0x357)]);}),document[_0x246beb(0x389)](_0x246beb(0x192))?.['addEventListener'](_0x246beb(0x2ee),()=>{const _0x4c5e44=_0x246beb,_0xc29179=document[_0x4c5e44(0x389)](_0x4c5e44(0x150));if(_0xc29179)_0xc29179[_0x4c5e44(0x357)]='';adminRenderSearchResults('');}),document['getElementById'](_0x246beb(0x194))?.['addEventListener'](_0x246beb(0x2ee),adminExportLibrary),document['getElementById'](_0x246beb(0x1b1))?.['addEventListener'](_0x246beb(0x2ee),adminExportLibraryJS),document['getElementById'](_0x246beb(0x32a))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminImportLibrary),document['getElementById'](_0x246beb(0x1c2))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminCreateAccountServer),document['getElementById'](_0x246beb(0x160))?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminRefreshServerAccounts),document['getElementById'](_0x246beb(0x331))?.['addEventListener'](_0x246beb(0x2ee),()=>{renderAdminOnlineUsers(),renderAdminLog(),liveRequestAdminRefresh();}),document['getElementById'](_0x246beb(0x320))?.['addEventListener'](_0x246beb(0x2ee),()=>{liveAdminLog=[],renderAdminLog();}),document[_0x246beb(0x389)]('admin-backend-url-save-btn')?.[_0x246beb(0x18c)](_0x246beb(0x2ee),adminSaveBackendUrlFromUI),document[_0x246beb(0x389)](_0x246beb(0x33e))?.[_0x246beb(0x18c)]('click',adminClearBackendUrlFromUI),document[_0x246beb(0x389)](_0x246beb(0x171))?.[_0x246beb(0x18c)](_0x246beb(0x3b4),_0x4f7ed2=>{const _0x5382d2=_0x246beb;_0x4f7ed2[_0x5382d2(0x1d9)]===_0x5382d2(0x387)&&(_0x4f7ed2[_0x5382d2(0x37f)](),adminSaveBackendUrlFromUI());}),setAdminCreateType(_0x246beb(0x2df));}document[_0x3511a3(0x18c)]('DOMContentLoaded',()=>{initAdminUI();try{adminRefreshBackendUrlUI();}catch(_0x1ed26d){}});function showLibraryHint(_0x2753ad){}try{window[_0x3511a3(0x282)]=function connectToBackend(){try{liveBackendUrl=getConfiguredBackendUrl();}catch(_0x1e8eb8){}try{liveAuthToken=getLiveToken();}catch(_0x389f3c){}try{liveConnect();}catch(_0x5cf6c1){}},window[_0x3511a3(0x165)]=window['connectToBackend'];}catch(_0xcad260){}
+/*
+  PADAYON PORTAL
+  - Quiz engine (built-in database.js)
+  - Admin Content Manager (library.json)
+  - Notes/PDF viewer
+
+  IMPORTANT:
+  This is a static site. Admin cannot push to GitHub automatically.
+  To share to friends: export library.json in Admin > Backup and commit it.
+*/
+
+// =========================
+// Accounts
+// =========================
+const ACCOUNTS = [
+  { username: 'admin', password: 'admin', role: 'admin' },
+  { username: 'saligao', password: 'carl', role: 'user' },
+  { username: 'ramos', password: 'carl', role: 'user' },
+  { username: 'fernandez', password: 'cristopher', role: 'user' },
+  { username: 'cortez', password: 'cyron', role: 'user' },
+  { username: 'castillo', password: 'gian', role: 'user' },
+  { username: 'maceda', password: 'mj', role: 'user' },
+  { username: 'quillopo', password: 'pj', role: 'user' },
+  { username: 'arcenas', password: 'rheygie', role: 'user' },
+  { username: 'felizarta', password: 'treb', role: 'user' },
+];
+
+let session = {
+  username: null,
+  role: null, // 'admin' | 'user'
+};
+
+let activeMenu = 'submenu-taypi'; // back target for quiz
+
+// =========================
+// Library (shared content)
+// =========================
+const LIBRARY_FILENAME = 'library.json';
+const LIBRARY_JS_FILENAME = 'library.js';
+const LIBRARY_CACHE_KEY = 'padayon_library_cache_v2';
+const LIBRARY_GLOBAL_VAR = 'PADAYON_LIBRARY';
+
+// Cross-tab live sync (admin uploads -> user view updates instantly in another tab)
+const LIBRARY_SYNC_CHANNEL = 'padayon_library_sync_v1';
+let librarySyncChannel = null;
+let librarySyncInitialized = false;
+let lastAppliedLibraryUpdatedAtMs = 0;
+
+// =========================
+// Live Backend (Render)
+// - Online users (presence)
+// - Live activity tracking (what screen users are on)
+// - Live library sync (admin edits instantly appear on clients)
+// =========================
+const LIVE_BACKEND_URL_KEY = 'padayon_backend_url';
+const LIVE_TOKEN_KEY = 'padayon_auth_token_v1';
+
+let liveBackendUrl = '';
+let liveAuthToken = '';
+let liveWs = null;
+let liveWsConnected = false;
+let liveReconnectTimer = null;
+let liveReconnectDelayMs = 1000;
+let liveClientId = null;
+
+let liveOnlinePublic = []; // [{ username, role }]
+let liveOnlineAdmin = [];  // [{ username, role, activity, path, view, connectedAt, lastSeen, clientId }]
+let liveAdminLog = [];     // [{ ts, username, message }]
+let liveLastPresenceHash = '';
+let liveLibraryPushTimer = null;
+let liveLastLibraryPushedAtMs = 0;
+
+function trimSlash(url) {
+  return String(url || '').trim().replace(/\/+$/, '');
+}
+
+function getConfiguredBackendUrl() {
+  // Priority: localStorage (admin can change without editing index.html), then window.PADAYON_BACKEND_URL.
+  let url = '';
+
+  try {
+    url = trimSlash(localStorage.getItem(LIVE_BACKEND_URL_KEY) || '');
+  } catch (_) {
+    url = '';
+  }
+
+  if (!url) {
+    try {
+      url = trimSlash(window.PADAYON_BACKEND_URL || '');
+    } catch (_) {
+      url = '';
+    }
+  }
+
+  // If user typed a domain without protocol, assume https.
+  if (url && !/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+  }
+
+  // Persist config into localStorage so you don't lose it.
+  try {
+    if (url) localStorage.setItem(LIVE_BACKEND_URL_KEY, url);
+  } catch (_) {}
+
+  return url;
+}
+
+function setConfiguredBackendUrl(url) {
+  let clean = trimSlash(url);
+  if (clean && !/^https?:\/\//i.test(clean)) clean = 'https://' + clean;
+
+  try {
+    if (clean) localStorage.setItem(LIVE_BACKEND_URL_KEY, clean);
+    else localStorage.removeItem(LIVE_BACKEND_URL_KEY);
+  } catch (_) {}
+
+  liveBackendUrl = clean;
+  updateLiveStatusUI();
+}
+
+// --- Admin UI: Backend URL (stored in localStorage) ---
+function adminRefreshBackendUrlUI() {
+  const inp = document.getElementById('admin-backend-url-input');
+  const status = document.getElementById('admin-backend-url-status');
+
+  const url = getConfiguredBackendUrl();
+
+  // Avoid overwriting while typing
+  if (inp && document.activeElement !== inp) {
+    inp.value = url || '';
+  }
+
+  if (status) {
+    status.textContent = 'Current: ' + (url || '(not set)');
+  }
+}
+
+async function liveReloginFromRememberIfPossible() {
+  if (!liveIsEnabled()) return { ok: false, reason: 'no_backend' };
+  if (!session?.username) return { ok: false, reason: 'no_session' };
+  if (liveAuthToken) return { ok: true, reason: 'has_token' };
+
+  // re-login without captcha is no longer allowed
+  return { ok: false, reason: 'captcha_required' };
+}
+
+
+async function adminSaveBackendUrlFromUI() {
+  const inp = document.getElementById('admin-backend-url-input');
+  if (!inp) return;
+
+  const prev = trimSlash(liveBackendUrl);
+  const nextRaw = String(inp.value || '').trim();
+
+  setConfiguredBackendUrl(nextRaw);
+  liveBackendUrl = getConfiguredBackendUrl();
+
+  const next = trimSlash(liveBackendUrl);
+
+  // If backend changed, clear token so we don't send a token for the wrong server.
+  if (prev !== next) {
+    setLiveToken('');
+  }
+
+  // Reconnect live presence
+  try { liveDisconnect(); } catch (_) {}
+
+  // Attempt to re-auth using Remember Me (optional)
+  try {
+    if (session?.username && liveIsEnabled()) {
+      liveAuthToken = getLiveToken();
+      await liveReloginFromRememberIfPossible();
+      liveAuthToken = getLiveToken();
+      liveConnect();
+      // Pull latest library immediately
+      loadLibraryFromBackend();
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  adminRefreshBackendUrlUI();
+}
+
+function adminClearBackendUrlFromUI() {
+  setConfiguredBackendUrl('');
+  setLiveToken('');
+
+  try { liveDisconnect(); } catch (_) {}
+
+  // Reset UI state
+  try {
+    liveOnlinePublic = [];
+    liveOnlineAdmin = [];
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    renderAdminLog();
+    updateLiveStatusUI();
+  } catch (_) {}
+
+  adminRefreshBackendUrlUI();
+}
+
+function getLiveToken() {
+  try {
+    return String(localStorage.getItem(LIVE_TOKEN_KEY) || '').trim();
+  } catch (_) {
+    return '';
+  }
+}
+
+function setLiveToken(token) {
+  const t = String(token || '').trim();
+  try {
+    if (t) localStorage.setItem(LIVE_TOKEN_KEY, t);
+    else localStorage.removeItem(LIVE_TOKEN_KEY);
+  } catch (_) {}
+  liveAuthToken = t;
+}
+
+function httpToWsUrl(httpUrl) {
+  const u = String(httpUrl || '').trim();
+  if (!u) return '';
+  if (u.startsWith('https://')) return 'wss://' + u.slice('https://'.length);
+  if (u.startsWith('http://')) return 'ws://' + u.slice('http://'.length);
+  // Default: assume https
+  return 'wss://' + u.replace(/^wss?:\/\//, '');
+}
+
+function liveIsEnabled() {
+  return !!(liveBackendUrl && liveBackendUrl.startsWith('http'));
+}
+
+async function liveApiFetch(path, { method = 'GET', body = null, headers = {} } = {}) {
+  if (!liveIsEnabled()) throw new Error('Backend URL not configured.');
+  const url = trimSlash(liveBackendUrl) + String(path || '');
+
+  const h = {
+    'Content-Type': 'application/json',
+    ...headers,
+  };
+  if (liveAuthToken) h['Authorization'] = 'Bearer ' + liveAuthToken;
+
+  const res = await fetch(url, {
+    method,
+    headers: h,
+    body: body ? JSON.stringify(body) : null,
+  });
+
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = null; }
+
+  if (!res.ok) {
+    const msg = (json && (json.error || json.message)) ? (json.error || json.message) : (text || `HTTP ${res.status}`);
+    throw new Error(msg);
+  }
+
+  return json;
+}
+
+async function liveTryBackendLogin(username, password, captchaToken) {
+  if (!liveIsEnabled()) return { ok: false, reason: 'no_backend' };
+
+  try {
+    const json = await liveApiFetch('/api/auth/login', {
+      method: 'POST',
+      body: {
+        username,
+        password,
+        captchaToken
+      },
+    });
+
+    if (json?.token) {
+      setLiveToken(json.token);
+      return {
+        ok: true,
+        token: json.token,
+        user: json.user || { username, role: 'user' }
+      };
+    }
+
+    return { ok: false, reason: 'no_token' };
+  } catch (err) {
+    return { ok: false, reason: 'error', error: err };
+  }
+}
+
+function liveConnect() {
+  if (!liveIsEnabled()) {
+    updateLiveStatusUI();
+    return;
+  }
+
+  if (!liveClientId) {
+    // Stable per-device id (helps admin see duplicates).
+    try {
+      const stored = localStorage.getItem('padayon_client_id_v1');
+      if (stored) liveClientId = stored;
+    } catch (_) {}
+    if (!liveClientId) {
+      liveClientId = uid('client');
+      try { localStorage.setItem('padayon_client_id_v1', liveClientId); } catch (_) {}
+    }
+  }
+
+  // Already connected/connecting
+  if (liveWs && (liveWs.readyState === WebSocket.OPEN || liveWs.readyState === WebSocket.CONNECTING)) {
+    updateLiveStatusUI();
+    return;
+  }
+
+  const wsUrl = httpToWsUrl(liveBackendUrl) + '/ws';
+  try {
+    liveWs = new WebSocket(wsUrl);
+  } catch (err) {
+    console.warn('Live WS init failed:', err);
+    liveWs = null;
+    scheduleLiveReconnect();
+    updateLiveStatusUI();
+    return;
+  }
+
+  liveWs.onopen = () => {
+    liveWsConnected = true;
+    liveReconnectDelayMs = 1000;
+    updateLiveStatusUI();
+
+    // Authenticate / identify.
+    safeLiveSend({
+      type: 'hello',
+      token: liveAuthToken || null,
+      username: session?.username || null,
+      role: session?.role || null,
+      clientId: liveClientId,
+      ua: navigator.userAgent,
+      ts: Date.now(),
+    });
+
+    // Send initial activity
+    try { liveSetActivity('Online', { view: currentViewName() }); } catch (_) {}
+  };
+
+  liveWs.onmessage = (ev) => {
+    const raw = String(ev?.data || '');
+    if (!raw) return;
+    let msg = null;
+    try { msg = JSON.parse(raw); } catch (_) { return; }
+    if (!msg || typeof msg !== 'object') return;
+    handleLiveMessage(msg);
+  };
+
+  liveWs.onclose = () => {
+    liveWsConnected = false;
+    updateLiveStatusUI();
+    scheduleLiveReconnect();
+  };
+
+  liveWs.onerror = () => {
+    // onclose will fire after
+    updateLiveStatusUI();
+  };
+
+  updateLiveStatusUI();
+}
+
+function liveDisconnect() {
+  try { if (liveReconnectTimer) clearTimeout(liveReconnectTimer); } catch (_) {}
+  liveReconnectTimer = null;
+  liveReconnectDelayMs = 1000;
+
+  try {
+    if (liveWs) liveWs.close();
+  } catch (_) {}
+
+  liveWs = null;
+  liveWsConnected = false;
+  updateLiveStatusUI();
+}
+
+function scheduleLiveReconnect() {
+  if (!liveIsEnabled()) return;
+  if (liveReconnectTimer) return;
+
+  const delay = Math.min(15000, Math.max(1000, liveReconnectDelayMs));
+  liveReconnectDelayMs = Math.min(15000, delay * 1.6);
+
+  liveReconnectTimer = setTimeout(() => {
+    liveReconnectTimer = null;
+    // Only reconnect if user is logged in
+    if (session?.username) liveConnect();
+  }, delay);
+}
+
+function safeLiveSend(obj) {
+  try {
+    if (!liveWs || liveWs.readyState !== WebSocket.OPEN) return false;
+    liveWs.send(JSON.stringify(obj));
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function currentViewName() {
+  // coarse view name for activity tracking
+  if (!session?.username) return 'LOGIN';
+  if (!document.getElementById('admin-overlay')?.classList.contains('hidden')) return 'ADMIN';
+  if (!document.getElementById('pdf-overlay')?.classList.contains('hidden')) return 'PDF_VIEWER';
+  if (!document.getElementById('notes-overlay')?.classList.contains('hidden')) return 'NOTES';
+  if (!document.getElementById('quiz-browser-overlay')?.classList.contains('hidden')) return 'QUIZ_BROWSER';
+  if (!document.getElementById('main-app')?.classList.contains('hidden')) return 'QUIZ_ENGINE';
+  if (!document.getElementById('level-1-menu')?.classList.contains('hidden')) return 'CATEGORIES';
+  // any submenu
+  return 'MENUS';
+}
+
+function liveSetActivity(activity, extra = {}) {
+  // Rate limit + avoid spamming identical state.
+  const now = Date.now();
+  const payload = {
+    type: 'activity',
+    activity: String(activity || '').slice(0, 180),
+    view: extra.view || currentViewName(),
+    path: extra.path || null,
+    details: extra.details || null,
+    ts: now,
+  };
+
+  // Only send if connected.
+  if (!liveWsConnected) return;
+
+  // Don't send too often.
+  if (liveSetActivity._lastSentAt && (now - liveSetActivity._lastSentAt) < 350) return;
+  liveSetActivity._lastSentAt = now;
+
+  safeLiveSend(payload);
+}
+
+function handleLiveMessage(msg) {
+  const t = String(msg.type || '');
+
+  if (t === 'force_logout') {
+  alert(msg.reason || 'This account was logged in on another device.');
+  logoutToLogin();
+  return;
+}
+
+  if (t === 'presence:public') {
+    liveOnlinePublic = Array.isArray(msg.users) ? msg.users : [];
+    renderOnlineUsersWidget();
+    return;
+  }
+
+  if (t === 'presence:admin') {
+    liveOnlineAdmin = Array.isArray(msg.users) ? msg.users : [];
+    // Derive a public list too so the Categories widget still works for admin.
+    liveOnlinePublic = liveOnlineAdmin.map(u => ({ username: u.username, role: u.role }));
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    return;
+  }
+
+  if (t === 'library:changed') {
+    const ms = Number(msg.ms || 0);
+    // Only fetch if newer than our current library.
+    if (ms && ms > getLibraryUpdatedAtMs(library)) {
+      loadLibraryFromBackend();
+    }
+    return;
+  }
+
+  if (t === 'log:batch') {
+    if (Array.isArray(msg.items)) {
+      liveAdminLog = msg.items.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'log:append') {
+    const item = msg.item;
+    if (item && typeof item === 'object') {
+      liveAdminLog.push(item);
+      if (liveAdminLog.length > 200) liveAdminLog = liveAdminLog.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'hello:ack') {
+    // Server acknowledged connection.
+    updateLiveStatusUI(msg);
+    // Ask for snapshots when admin.
+    if (session?.role === 'admin') {
+      safeLiveSend({ type: 'presence:request' });
+      safeLiveSend({ type: 'log:request' });
+    }
+    return;
+  }
+}
+
+function updateLiveStatusUI(serverHello = null) {
+  // Category widget subtitle
+  const sub = document.getElementById('online-users-sub');
+  if (sub) {
+    if (!session?.username) sub.textContent = 'Login to see online users.';
+    else if (!liveIsEnabled()) sub.textContent = 'Backend URL not set.';
+    else if (liveWsConnected) sub.textContent = 'Live connected.';
+    else sub.textContent = 'Connecting…';
+  }
+
+  // Admin tab status
+  const adminStatus = document.getElementById('admin-live-status');
+  if (adminStatus) {
+    if (!liveIsEnabled()) adminStatus.textContent = 'Backend: URL not set.';
+    else if (liveWsConnected) adminStatus.textContent = 'Backend: connected (live).';
+    else adminStatus.textContent = 'Backend: connecting…';
+  }
+
+  const acctStatus = document.getElementById('admin-account-status');
+  if (acctStatus) {
+    if (!liveIsEnabled()) acctStatus.textContent = 'Backend: URL not set.';
+    else if (!liveAuthToken) acctStatus.textContent = 'Backend: not authenticated (login required).';
+    else acctStatus.textContent = liveWsConnected ? 'Backend: authenticated + live connected.' : 'Backend: authenticated (connecting live)…';
+  }
+}
+
+function renderOnlineUsersWidget() {
+  const countEl = document.getElementById('online-users-count');
+  const listEl = document.getElementById('online-users-list');
+  if (!countEl || !listEl) return;
+
+  // Prefer public list (for users). Admin still sees public list here.
+  const users = Array.isArray(liveOnlinePublic) ? liveOnlinePublic : [];
+  countEl.textContent = String(users.length);
+
+  if (!session?.username) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(login required)</span>';
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(backend not configured)</span>';
+    return;
+  }
+
+  if (!liveWsConnected) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(connecting…)</span>';
+    return;
+  }
+
+  if (users.length === 0) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">No one online.</span>';
+    return;
+  }
+
+  // Pills
+  listEl.innerHTML = users.map(u => {
+    const name = escapeHTML(u?.username || 'user');
+    return `<span class="admin-pill">🟢 ${name}</span>`;
+  }).join('');
+}
+
+function renderAdminOnlineUsers() {
+  const box = document.getElementById('admin-online-users-list');
+  if (!box) return;
+
+  if (session?.role !== 'admin') {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    return;
+  }
+
+  if (!liveWsConnected) {
+    box.innerHTML = '<div class="admin-help">Connecting…</div>';
+    return;
+  }
+
+  const users = Array.isArray(liveOnlineAdmin) ? liveOnlineAdmin : [];
+  if (users.length === 0) {
+    box.innerHTML = '<div class="admin-help">No users online.</div>';
+    return;
+  }
+
+  box.innerHTML = users.map(u => {
+    const name = escapeHTML(u.username || 'user');
+    const role = escapeHTML(u.role || 'user');
+    const activity = escapeHTML(u.activity || 'Online');
+    const path = u.path ? escapeHTML(String(u.path)) : '';
+    const view = u.view ? escapeHTML(String(u.view)) : '';
+
+    const meta = [activity, view ? ('VIEW: ' + view) : null, path ? ('PATH: ' + path) : null].filter(Boolean).join(' • ');
+
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">🟢 ${name}</div>
+          <div class="admin-list-sub">${meta || ''}</div>
+        </div>
+        <div class="admin-list-right"><span class="admin-pill">${role}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAdminLog() {
+  const box = document.getElementById('admin-activity-log');
+  if (!box) return;
+  if (session?.role !== 'admin') {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    return;
+  }
+  if (!liveWsConnected) {
+    box.innerHTML = '<div class="admin-help">Connecting…</div>';
+    return;
+  }
+
+  const items = Array.isArray(liveAdminLog) ? liveAdminLog.slice(-120) : [];
+  if (items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No activity yet.</div>';
+    return;
+  }
+
+  box.innerHTML = items.slice().reverse().map(it => {
+    const ts = it?.ts ? new Date(it.ts).toLocaleString() : '';
+    const u = escapeHTML(it?.username || '');
+    const m = escapeHTML(it?.message || '');
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">${u ? (u + ' • ') : ''}${escapeHTML(ts)}</div>
+          <div class="admin-list-sub">${m}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function liveRequestAdminRefresh() {
+  if (session?.role !== 'admin') return;
+  safeLiveSend({ type: 'presence:request' });
+  safeLiveSend({ type: 'log:request' });
+}
+
+function scheduleLiveLibraryPush(immediate = false) {
+  if (session?.role !== 'admin') return;
+  if (!liveIsEnabled()) return;
+  if (!liveAuthToken) return;
+
+  const libMs = getLibraryUpdatedAtMs(library);
+  if (libMs <= liveLastLibraryPushedAtMs) return;
+
+  try { if (liveLibraryPushTimer) clearTimeout(liveLibraryPushTimer); } catch (_) {}
+  liveLibraryPushTimer = setTimeout(() => {
+    liveLibraryPushTimer = null;
+    livePushLibraryToBackend();
+  }, immediate ? 10 : 900);
+}
+
+async function livePushLibraryToBackend() {
+  if (session?.role !== 'admin') return;
+  if (!liveIsEnabled()) return;
+  if (!liveAuthToken) return;
+
+  const libMs = getLibraryUpdatedAtMs(library);
+  if (libMs <= liveLastLibraryPushedAtMs) return;
+
+  try {
+    // Don't mutate library.updatedAt here; touchLibrary() already did.
+    await liveApiFetch('/api/library', { method: 'PUT', body: library });
+    liveLastLibraryPushedAtMs = libMs;
+    // Let server broadcast to all clients; admin doesn't need special handling.
+  } catch (err) {
+    console.warn('Live library push failed:', err);
+  }
+}
+
+async function loadLibraryFromBackend() {
+  if (!liveIsEnabled()) return false;
+  try {
+    const json = await liveApiFetch('/api/library', { method: 'GET' });
+    const fetched = normalizeIncomingLibrary(json);
+
+    const fetchedMs = getLibraryUpdatedAtMs(fetched);
+    const currentMs = getLibraryUpdatedAtMs(library);
+    if (fetchedMs && fetchedMs > currentMs) {
+      library = fetched;
+      libraryLoadState = { ok: true, source: 'backend', error: null };
+      persistLibraryToCache();
+      lastAppliedLibraryUpdatedAtMs = fetchedMs;
+      try { refreshUiAfterLibraryChange(); } catch (_) {}
+      try { updateAdminLibraryStatus(); } catch (_) {}
+      return true;
+    }
+    return false;
+  } catch (err) {
+    // ignore
+    return false;
+  }
+}
+
+function emptyLibrary() {
+  return {
+    version: 2,
+    updatedAt: null,
+    folders: [], // array of { path: string, createdAt?: string }
+    quizSets: [], // array of { id, title, folder, createdAt, updatedAt, questions: [] }
+    pdfs: [], // array of { id, title, folder, kind: 'notes'|'archive', src: 'data:application/pdf;base64,...' or URL, createdAt }
+  };
+}
+
+let library = emptyLibrary();
+let libraryLoadState = { ok: false, source: 'empty', error: null };
+
+// Used to avoid overwriting local edits when an async fetch finishes.
+let libraryBootstrappedFromFallback = false;
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function uid(prefix) {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizePath(input) {
+  if (typeof input !== 'string') return '';
+  let p = input.replace(/\\/g, '/');
+  p = p.split('/').map(s => s.trim()).filter(Boolean).join('/');
+  return p;
+}
+
+function samePath(a, b) {
+  return normalizePath(a).toLowerCase() === normalizePath(b).toLowerCase();
+}
+
+function isUnderPath(child, parent) {
+  const c = normalizePath(child).toLowerCase();
+  const p = normalizePath(parent).toLowerCase();
+  if (!p) return true;
+  return c === p || c.startsWith(p + '/');
+}
+
+function parentPath(path) {
+  const p = normalizePath(path);
+  const parts = p.split('/').filter(Boolean);
+  if (parts.length <= 1) return '';
+  return parts.slice(0, -1).join('/');
+}
+
+function baseName(path) {
+  const p = normalizePath(path);
+  const parts = p.split('/').filter(Boolean);
+  return parts[parts.length - 1] || '';
+}
+
+function getAllFolderPaths() {
+  const map = new Map();
+  (library.folders || []).forEach(f => {
+    const p = normalizePath(f?.path || '');
+    if (p) map.set(p.toLowerCase(), p);
+  });
+  (library.quizSets || []).forEach(s => {
+    const p = normalizePath(s?.folder || '');
+    if (p) map.set(p.toLowerCase(), p);
+  });
+  (library.pdfs || []).forEach(p0 => {
+    const p = normalizePath(p0?.folder || '');
+    if (p) map.set(p.toLowerCase(), p);
+  });
+  return Array.from(map.values());
+}
+
+function getImmediateChildFolders(parent) {
+  const parentN = normalizePath(parent);
+  const parentLower = parentN.toLowerCase();
+  const candidates = getAllFolderPaths();
+  const out = new Map(); // lower child path -> {path,name}
+
+  candidates.forEach(fp0 => {
+    const fp = normalizePath(fp0);
+    if (!fp) return;
+    const fl = fp.toLowerCase();
+
+    if (!parentN) {
+      // Root: child is first segment
+      const seg = fp.split('/')[0];
+      if (!seg) return;
+      const child = normalizePath(seg);
+      out.set(child.toLowerCase(), { path: child, name: seg });
+      return;
+    }
+
+    if (fl === parentLower) return;
+    if (!fl.startsWith(parentLower + '/')) return;
+
+    const rest = fp.slice(parentN.length + 1);
+    const seg = rest.split('/')[0];
+    if (!seg) return;
+    const child = normalizePath(parentN + '/' + seg);
+    out.set(child.toLowerCase(), { path: child, name: seg });
+  });
+
+  return Array.from(out.values()).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function ensureFolder(path, lib = library) {
+  // Ensure the full folder path *and its ancestors* exist.
+  // This prevents child folders from appearing outside their parent category.
+  const p = normalizePath(path);
+  if (!p) return false;
+
+  const parts = p.split('/').filter(Boolean);
+  let cur = '';
+  let changed = false;
+
+  for (const part of parts) {
+    cur = cur ? `${cur}/${part}` : part;
+    const exists = lib.folders.some(f => samePath(f.path, cur));
+    if (!exists) {
+      lib.folders.push({ path: cur, createdAt: nowISO() });
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
+function persistLibraryToCache() {
+  try {
+    localStorage.setItem(LIBRARY_CACHE_KEY, JSON.stringify(library));
+    return true;
+  } catch (_) {
+    // ignore quota / private mode
+    return false;
+  }
+}
+
+function touchLibrary() {
+  library.updatedAt = nowISO();
+  const ok = persistLibraryToCache();
+  if (ok) {
+    lastAppliedLibraryUpdatedAtMs = getLibraryUpdatedAtMs(library);
+    broadcastLibraryUpdated();
+  }
+
+  // ✅ Live sync (if backend is configured): push updates to server so all clients update instantly.
+  // Debounced to avoid spamming.
+  try { scheduleLiveLibraryPush(false); } catch (_) {}
+
+  return ok;
+}
+
+function normalizeIncomingLibrary(data) {
+  // Accept v2 (preferred)
+  if (data && typeof data === 'object' && data.version === 2) {
+    const out = emptyLibrary();
+    out.updatedAt = data.updatedAt || null;
+    out.folders = Array.isArray(data.folders) ? data.folders.filter(Boolean).map(f => ({
+      path: normalizePath(f.path || ''),
+      createdAt: f.createdAt || null,
+    })).filter(f => f.path) : [];
+
+    out.quizSets = Array.isArray(data.quizSets) ? data.quizSets.map(s => ({
+      id: String(s.id || uid('qs')),
+      title: String(s.title || 'Untitled'),
+      folder: normalizePath(s.folder || 'GLOBAL'),
+      createdAt: s.createdAt || null,
+      updatedAt: s.updatedAt || null,
+      questions: Array.isArray(s.questions) ? s.questions : [],
+    })) : [];
+
+    out.pdfs = Array.isArray(data.pdfs) ? data.pdfs.map(p => ({
+      id: String(p.id || uid('pdf')),
+      title: String(p.title || 'PDF'),
+      folder: normalizePath(p.folder || 'GLOBAL'),
+      kind: (p.kind === 'archive' ? 'archive' : 'notes'),
+      src: String(p.src || ''),
+      createdAt: p.createdAt || null,
+    })) : [];
+
+    // Folders implied by content
+    out.quizSets.forEach(s => ensureFolder(s.folder, out));
+    out.pdfs.forEach(p => ensureFolder(p.folder, out));
+    return out;
+  }
+
+  // Accept old v1 (from earlier drafts): { quizSets:[], notes:[], archives:[], folders:{...} }
+  if (data && typeof data === 'object' && data.version === 1) {
+    const out = emptyLibrary();
+    out.updatedAt = data.updatedAt || null;
+
+    if (Array.isArray(data.quizSets)) {
+      out.quizSets = data.quizSets.map(s => ({
+        id: String(s.id || uid('qs')),
+        title: String(s.title || 'Untitled'),
+        folder: normalizePath(s.folder || 'GLOBAL'),
+        createdAt: s.createdAt || null,
+        updatedAt: s.updatedAt || null,
+        questions: Array.isArray(s.questions) ? s.questions : [],
+      }));
+    }
+
+    const pdfs = [];
+    if (Array.isArray(data.notes)) {
+      data.notes.forEach(p => pdfs.push({ ...p, kind: 'notes' }));
+    }
+    if (Array.isArray(data.archives)) {
+      data.archives.forEach(p => pdfs.push({ ...p, kind: 'archive' }));
+    }
+
+    out.pdfs = pdfs.map(p => ({
+      id: String(p.id || uid('pdf')),
+      title: String(p.title || 'PDF'),
+      folder: normalizePath(p.folder || 'GLOBAL'),
+      kind: (p.kind === 'archive' ? 'archive' : 'notes'),
+      src: String(p.src || p.dataUrl || p.url || ''),
+      createdAt: p.createdAt || null,
+    }));
+
+    // folders
+    out.quizSets.forEach(s => ensureFolder(s.folder, out));
+    out.pdfs.forEach(p => ensureFolder(p.folder, out));
+    return out;
+  }
+
+  // fallback
+  return emptyLibrary();
+}
+
+function getLibraryUpdatedAtMs(lib) {
+  const t = Date.parse(String(lib?.updatedAt || ''));
+  return Number.isFinite(t) ? t : 0;
+}
+
+function readLibraryCache() {
+  try {
+    const raw = localStorage.getItem(LIBRARY_CACHE_KEY);
+    if (!raw) return null;
+    const json = JSON.parse(raw);
+    return normalizeIncomingLibrary(json);
+  } catch (_) {
+    return null;
+  }
+}
+
+function isOverlayOpen(id) {
+  const el = document.getElementById(id);
+  return !!el && !el.classList.contains('hidden');
+}
+
+function refreshUiAfterLibraryChange() {
+  // Admin panel
+  if (isOverlayOpen('admin-overlay')) {
+    try { updateAdminLibraryStatus(); } catch (_) {}
+    try { adminRefreshAll(); } catch (_) {}
+  }
+
+  // Quiz browser overlay
+  if (isOverlayOpen('quiz-browser-overlay')) {
+    try { renderQuizBrowser(); } catch (_) {}
+  }
+
+  // Notes overlay
+  if (isOverlayOpen('notes-overlay')) {
+    try { renderNotesOverlayList(notesCurrentFolder); } catch (_) {}
+  }
+}
+
+function maybeReloadLibraryFromCache(reason = 'cache') {
+  const cached = readLibraryCache();
+  if (!cached) return false;
+
+  const cachedMs = getLibraryUpdatedAtMs(cached);
+  const currentMs = getLibraryUpdatedAtMs(library);
+  if (cachedMs <= currentMs) return false;
+
+  library = normalizeIncomingLibrary(cached);
+  libraryLoadState = { ok: true, source: 'cache', error: null };
+  lastAppliedLibraryUpdatedAtMs = cachedMs;
+
+  // Keep the UI in sync (user tab should see admin uploads instantly)
+  try { refreshUiAfterLibraryChange(); } catch (_) {}
+  return true;
+}
+
+function broadcastLibraryUpdated() {
+  // localStorage setItem already triggers the `storage` event on other tabs.
+  // BroadcastChannel is used as an extra fast-path.
+  if (!librarySyncChannel) return;
+  try {
+    librarySyncChannel.postMessage({
+      type: 'LIBRARY_UPDATED',
+      updatedAt: library?.updatedAt || null,
+      ms: getLibraryUpdatedAtMs(library),
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
+function initLibraryLiveSync() {
+  if (librarySyncInitialized) return;
+  librarySyncInitialized = true;
+
+  // BroadcastChannel (best) + storage event (fallback)
+  try {
+    librarySyncChannel = new BroadcastChannel(LIBRARY_SYNC_CHANNEL);
+    librarySyncChannel.onmessage = (ev) => {
+      if (ev?.data?.type !== 'LIBRARY_UPDATED') return;
+      // Apply only if it is newer
+      maybeReloadLibraryFromCache('broadcast');
+    };
+  } catch (_) {
+    librarySyncChannel = null;
+  }
+
+  // This fires in *other* tabs when localStorage changes.
+  window.addEventListener('storage', (e) => {
+    if (e?.key !== LIBRARY_CACHE_KEY) return;
+    maybeReloadLibraryFromCache('storage');
+  });
+
+  // When the user returns to the tab, refresh once.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) maybeReloadLibraryFromCache('visibility');
+  });
+}
+
+function loadLibraryFromFallbacks() {
+  const candidates = [];
+
+  // 1) Offline cache (latest local edits)
+  try {
+    const raw = localStorage.getItem(LIBRARY_CACHE_KEY);
+    if (raw) {
+      const json = JSON.parse(raw);
+      const norm = normalizeIncomingLibrary(json);
+      candidates.push({ source: 'cache', lib: norm, ms: getLibraryUpdatedAtMs(norm) });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  // 2) Bundled library.js (offline fallback file)
+  try {
+    const bundled = window[LIBRARY_GLOBAL_VAR];
+    if (bundled && typeof bundled === 'object') {
+      const norm = normalizeIncomingLibrary(bundled);
+      candidates.push({ source: 'bundle', lib: norm, ms: getLibraryUpdatedAtMs(norm) });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  if (candidates.length === 0) return false;
+
+  // Pick newest by updatedAt; tie-breaker: prefer cache (unsaved work).
+  candidates.sort((a, b) => {
+    if (b.ms !== a.ms) return b.ms - a.ms;
+    if (a.source === b.source) return 0;
+    return a.source === 'cache' ? -1 : 1;
+  });
+
+  const best = candidates[0];
+  library = best.lib;
+  libraryLoadState = { ok: true, source: best.source, error: null };
+  libraryBootstrappedFromFallback = true;
+  return true;
+}
+
+async function loadLibraryFromRepo() {
+  const isFile = window.location.protocol === 'file:';
+
+  // Bootstrap from fallbacks first so the UI has *something* immediately.
+  // This also prevents async fetch() from overwriting newer local edits.
+  if (!libraryBootstrappedFromFallback) {
+    loadLibraryFromFallbacks();
+  }
+
+  // If you're running via file:// the browser blocks fetch() for local JSON.
+  // In that case: use offline fallbacks (cache + bundled library.js).
+  if (isFile) {
+    const ok = loadLibraryFromFallbacks();
+    if (!ok) {
+      library = emptyLibrary();
+      libraryLoadState = { ok: false, source: 'empty', error: new Error('file:// cannot fetch library.json') };
+    } else {
+      persistLibraryToCache();
+    }
+
+    updateAdminLibraryStatus();
+    if (!document.getElementById('admin-overlay')?.classList.contains('hidden')) adminRefreshAll();
+    return;
+  }
+
+  // Normal (http/https) load
+  try {
+    const res = await fetch(LIBRARY_FILENAME, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const fetched = normalizeIncomingLibrary(json);
+
+    // If we already have a (newer) cache/bundle edit, keep it.
+    const fetchedMs = getLibraryUpdatedAtMs(fetched);
+    const currentMs = getLibraryUpdatedAtMs(library);
+
+    if (!libraryLoadState.ok || fetchedMs > currentMs) {
+      library = fetched;
+      libraryLoadState = { ok: true, source: 'repo', error: null };
+      persistLibraryToCache();
+    } else {
+      // Keep local copy (cache/bundle/import) because it's newer.
+      libraryLoadState = { ok: true, source: libraryLoadState.source || 'cache', error: null };
+    }
+  } catch (err) {
+    console.warn('Library not found or invalid. Trying offline fallbacks…', err);
+
+    const ok = loadLibraryFromFallbacks();
+    if (!ok) {
+      library = emptyLibrary();
+      libraryLoadState = { ok: false, source: 'empty', error: err };
+      console.warn('Library not found or invalid. Using empty library.', err);
+    } else {
+      persistLibraryToCache();
+    }
+  }
+
+  // Track current version so cross-tab sync can compare properly
+  lastAppliedLibraryUpdatedAtMs = getLibraryUpdatedAtMs(library);
+
+  // Update admin status pill if admin panel exists
+  updateAdminLibraryStatus();
+
+  // Update any open overlay lists
+  if (!document.getElementById('admin-overlay')?.classList.contains('hidden')) {
+    adminRefreshAll();
+  }
+}
+
+function downloadJSON(filename, obj) {
+  const content = JSON.stringify(obj, null, 2);
+  const blob = new Blob([content], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadText(filename, text, mime = 'text/plain') {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Admin “Save” = export current library.json (so it can be uploaded/committed to GitHub)
+function adminSaveLibrary() {
+  if (session.role !== 'admin') {
+    alert('Admin only.');
+    return;
+  }
+
+  // Ensure a fresh updatedAt timestamp for the export.
+  touchLibrary();
+
+  // ✅ Also push to backend (if configured) so clients update instantly.
+  try { scheduleLiveLibraryPush(true); } catch (_) {}
+
+  // Download the JSON (same as Backup → Export library.json)
+  adminExportLibrary();
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// =========================
+// Login / Session
+// =========================
+function findAccount(usernameRaw, passwordRaw) {
+  const u = String(usernameRaw || '').trim();
+  const p = String(passwordRaw || '');
+  return ACCOUNTS.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p) || null;
+}
+
+function showLoginError() {
+  const msg = document.getElementById('login-msg');
+  if (msg) {
+    msg.classList.remove('hidden');
+    msg.classList.add('animate-pulse');
+  }
+}
+
+function hideLoginError() {
+  const msg = document.getElementById('login-msg');
+  if (msg) msg.classList.add('hidden');
+}
+
+function setRememberMe(username, password) {
+  const chk = document.getElementById('rememberMe');
+  if (!chk) return;
+
+  if (chk.checked) {
+    const payload = { username, password };
+    localStorage.setItem('padayon_remember', JSON.stringify(payload));
+  } else {
+    localStorage.removeItem('padayon_remember');
+  }
+}
+
+function initRememberMe() {
+  try {
+    const raw = localStorage.getItem('padayon_remember');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data) return;
+
+    const u = document.getElementById('username');
+    const p = document.getElementById('password');
+    const chk = document.getElementById('rememberMe');
+
+    if (u && typeof data.username === 'string') u.value = data.username;
+    if (p && typeof data.password === 'string') p.value = data.password;
+    if (chk) chk.checked = true;
+  } catch {
+    // ignore
+  }
+}
+
+// === LOGIN LOGIC (called by HTML) ===
+async function verifyLogin() {
+  const userIn = String(document.getElementById('username')?.value || '').trim();
+  const passIn = String(document.getElementById('password')?.value || '');
+
+  const loginPage = document.getElementById('login-page');
+  const landingPage = document.getElementById('landing-page');
+  const msg = document.getElementById('login-msg');
+
+  // Reset any stale backend token from an older login.
+  setLiveToken('');
+
+  if (!userIn || !passIn) {
+    if (msg) {
+      msg.textContent = 'PLEASE ENTER USERNAME AND PASSWORD';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  // Read reCAPTCHA token from the checkbox widget.
+  // Google supports getting the token with grecaptcha.getResponse().
+const captchaToken =
+    (window.grecaptcha && typeof grecaptcha.getResponse === 'function')
+      ? grecaptcha.getResponse()
+      : '';
+
+  if (!captchaToken) {
+    if (msg) {
+      msg.textContent = 'PLEASE CONFIRM YOU ARE NOT A ROBOT';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  let acct = null;
+
+  // IMPORTANT:
+  // Secure login should go through backend verification.
+  // Backend must verify captchaToken with Google using the secret key.
+  if (liveIsEnabled()) {
+    const res = await liveTryBackendLogin(userIn, passIn, captchaToken);
+
+    if (res?.ok) {
+      acct = {
+        username: res.user?.username || userIn,
+        role: res.user?.role || 'user',
+      };
+    } else {
+      if (msg) {
+        msg.textContent = (res?.error?.message || 'INVALID CREDENTIALS OR CAPTCHA FAILED').toUpperCase();
+        msg.classList.remove('hidden');
+      }
+
+      const pw = document.getElementById('password');
+      if (pw) pw.value = '';
+
+      if (window.grecaptcha && typeof grecaptcha.reset === 'function') {
+        grecaptcha.reset();
+      }
+
+      updateLiveStatusUI();
+      return;
+    }
+  } else {
+  if (msg) {
+    msg.textContent = 'BACKEND NOT AVAILABLE';
+    msg.classList.remove('hidden');
+  }
+  return;
+}
+
+  if (msg) msg.classList.add('hidden');
+
+  hideLoginError();
+  session = { username: acct.username, role: acct.role };
+  setRememberMe(userIn, passIn);
+
+  try {
+    liveBackendUrl = getConfiguredBackendUrl();
+    liveAuthToken = getLiveToken();
+    updateLiveStatusUI();
+    liveConnect();
+  } catch (_) {
+    // ignore
+  }
+
+  if (loginPage) {
+    loginPage.style.opacity = '0';
+    loginPage.style.transition = 'opacity 0.5s';
+  }
+
+  setTimeout(() => {
+    if (loginPage) loginPage.style.display = 'none';
+
+    const adminCard = document.getElementById('admin-card');
+    if (adminCard) adminCard.classList.toggle('hidden', session.role !== 'admin');
+
+    const adminQuickImport = document.getElementById('admin-quick-import');
+    if (adminQuickImport) adminQuickImport.classList.toggle('hidden', session.role !== 'admin');
+
+    if (landingPage) landingPage.classList.remove('hidden');
+
+    try { liveSetActivity('Landing', { view: 'LANDING' }); } catch (_) {}
+  }, 500);
+}
+
+function logoutToLogin() {
+  try { liveSetActivity('Logout', { view: 'LOGIN' }); } catch (_) {}
+
+  // Disconnect live backend presence
+  try { liveDisconnect(); } catch (_) {}
+  try { setLiveToken(''); } catch (_) {}
+
+  session = { username: null, role: null };
+
+  // Reset online UI
+  try {
+    liveOnlinePublic = [];
+    liveOnlineAdmin = [];
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    updateLiveStatusUI();
+  } catch (_) {}
+
+  // hide landing page
+  document.getElementById('landing-page')?.classList.add('hidden');
+
+  // hide everything
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+
+  // hide admin overlay
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+
+  // show login
+  const loginPage = document.getElementById('login-page');
+  if (loginPage) {
+    loginPage.style.display = 'block';
+    loginPage.style.opacity = '1';
+  }
+}
+
+// Enter key triggers login
+document.addEventListener('DOMContentLoaded', () => {
+  initRememberMe();
+
+  const pw = document.getElementById('password');
+  if (pw) {
+    pw.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        verifyLogin();
+      }
+    });
+  }
+
+  // Forgot password
+  const forgotLink = document.getElementById('forgotPassLink');
+  if (forgotLink) {
+    forgotLink.addEventListener('click', () => {
+      document.getElementById('forgot-modal')?.classList.remove('hidden');
+      document.getElementById('forgot-username')?.focus();
+    });
+  }
+
+  // Click backdrop to close modal
+  const forgotModal = document.getElementById('forgot-modal');
+  if (forgotModal) {
+    forgotModal.addEventListener('click', (e) => {
+      if (e.target === forgotModal) closeForgotModal();
+    });
+  }
+
+  // Load library as soon as DOM is ready
+  initLibraryLiveSync();
+  loadLibraryFromRepo();
+
+  // Live backend (Render) settings
+  liveBackendUrl = getConfiguredBackendUrl();
+  liveAuthToken = getLiveToken();
+  updateLiveStatusUI();
+
+  // If backend is configured, try loading library from there too.
+  // (This enables true live updates without importing/exporting.)
+  loadLibraryFromBackend();
+});
+
+function closeForgotModal() {
+  document.getElementById('forgot-modal')?.classList.add('hidden');
+}
+
+function sendForgotEmail() {
+  const u = String(document.getElementById('forgot-username')?.value || '').trim();
+  const lp = String(document.getElementById('forgot-lastpass')?.value || '').trim();
+
+  if (!u || !lp) {
+    alert('Please enter username and last password you remember.');
+    return;
+  }
+
+  const subject = encodeURIComponent('PADAYON PORTAL - Forgot Password');
+  const body = encodeURIComponent(
+    `Hi Admin,\n\nI forgot my password.\n\nUsername: ${u}\nLast password I remember: ${lp}\n\nThanks!`
+  );
+
+  // Opens default email client (static site cannot send directly)
+  window.location.href = `mailto:bartnu137@gmail.com?subject=${subject}&body=${body}`;
+
+  closeForgotModal();
+}
+
+// =========================
+// Navigation
+// =========================
+function goToLevel1() {
+  document.getElementById('landing-page')?.setAttribute('style', 'display:none;');
+  document.getElementById('level-1-menu')?.classList.remove('hidden');
+  try { liveSetActivity('Browsing Categories', { view: 'CATEGORIES' }); } catch (_) {}
+}
+
+function goToLevel2(category) {
+  document.getElementById('level-1-menu')?.classList.add('hidden');
+  ['submenu-undergrounds', 'submenu-taypi', 'submenu-exhale', 'submenu-pawer'].forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+  document.getElementById('submenu-' + category)?.classList.remove('hidden');
+  try { liveSetActivity('Open Category', { view: 'MENUS', details: String(category || '').toUpperCase() }); } catch (_) {}
+}
+
+function backToLevel1() {
+  ['submenu-undergrounds', 'submenu-taypi', 'submenu-exhale', 'submenu-pawer'].forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+  document.getElementById('level-1-menu')?.classList.remove('hidden');
+  try { liveSetActivity('Back to Categories', { view: 'CATEGORIES' }); } catch (_) {}
+}
+
+function openTermsMenu() {
+  document.getElementById('submenu-undergrounds')?.classList.add('hidden');
+  document.getElementById('submenu-terms')?.classList.remove('hidden');
+  try { liveSetActivity('Open Terms & Objectives', { view: 'MENUS', details: 'UNDERGROUNDS/TERMS & OBJECTIVES' }); } catch (_) {}
+}
+
+function closeTermsMenu() {
+  document.getElementById('submenu-terms')?.classList.add('hidden');
+  document.getElementById('submenu-undergrounds')?.classList.remove('hidden');
+  try { liveSetActivity('Back to UNDERGROUNDS', { view: 'MENUS' }); } catch (_) {}
+}
+
+function openPastBoardList() {
+  document.getElementById('submenu-terms')?.classList.add('hidden');
+  document.getElementById('submenu-past-board-list')?.classList.remove('hidden');
+  try { liveSetActivity('Open Past Board List', { view: 'MENUS' }); } catch (_) {}
+}
+
+function closePastBoardList() {
+  document.getElementById('submenu-past-board-list')?.classList.add('hidden');
+  document.getElementById('submenu-terms')?.classList.remove('hidden');
+  try { liveSetActivity('Back to Terms List', { view: 'MENUS' }); } catch (_) {}
+}
+
+function callAdminNotice(moduleName) {
+  alert(`${moduleName} is empty.\n\nCall admin to put something here.`);
+}
+
+// =========================
+// Notes / PDF viewer
+// =========================
+let notesBackMenuId = null;
+let notesRootFolder = null;
+let notesCurrentFolder = null;
+let notesCurrentKind = null; // 'notes'|'archive'|'all'
+let notesOverlayTitle = 'NOTES';
+
+function openNotesFolder(folderPath, title, backMenuId, kind = 'notes') {
+  notesBackMenuId = backMenuId;
+  notesRootFolder = normalizePath(folderPath);
+  notesCurrentFolder = notesRootFolder;
+  notesCurrentKind = kind;
+  notesOverlayTitle = title || 'NOTES';
+
+  // Hide back menu
+  if (backMenuId) document.getElementById(backMenuId)?.classList.add('hidden');
+
+  // Render list
+  const titleEl = document.getElementById('notes-overlay-title');
+  if (titleEl) titleEl.textContent = notesOverlayTitle;
+  renderNotesOverlayList();
+
+  document.getElementById('notes-overlay')?.classList.remove('hidden');
+
+  try {
+    const k = (kind === 'archive') ? 'ARCHIVE' : (kind === 'all' ? 'PDFs' : 'NOTES');
+    liveSetActivity('Open ' + k, { view: 'NOTES', path: notesCurrentFolder || notesRootFolder || '' });
+  } catch (_) {}
+}
+
+function closeNotesOverlay() {
+  document.getElementById('notes-overlay')?.classList.add('hidden');
+  if (notesBackMenuId) document.getElementById(notesBackMenuId)?.classList.remove('hidden');
+
+  try { liveSetActivity('Close Notes', { view: currentViewName() }); } catch (_) {}
+
+  notesBackMenuId = null;
+  notesRootFolder = null;
+  notesCurrentFolder = null;
+  notesCurrentKind = null;
+  notesOverlayTitle = 'NOTES';
+}
+
+function notesGoToFolder(folderPath) {
+  const dest = normalizePath(folderPath);
+  if (!dest) return;
+  // Restrict browsing to the root folder passed to openNotesFolder
+  if (notesRootFolder && !isUnderPath(dest, notesRootFolder)) return;
+  notesCurrentFolder = dest;
+  renderNotesOverlayList();
+
+  try { liveSetActivity('Notes: Open Folder', { view: 'NOTES', path: notesCurrentFolder || '' }); } catch (_) {}
+}
+
+function notesGoUp() {
+  const root = normalizePath(notesRootFolder || '');
+  const cur = normalizePath(notesCurrentFolder || root);
+  if (!cur) return;
+  if (samePath(cur, root)) return;
+
+  const parent = parentPath(cur);
+  if (root && !isUnderPath(parent, root)) {
+    notesCurrentFolder = root;
+  } else {
+    notesCurrentFolder = parent || root;
+  }
+  renderNotesOverlayList();
+
+  try { liveSetActivity('Notes: Go Up', { view: 'NOTES', path: notesCurrentFolder || '' }); } catch (_) {}
+}
+
+// BACK button behaviour for Notes:
+// - If inside a subfolder: go up to parent folder
+// - If at the notes root: close the overlay
+function notesBrowserBackOrClose() {
+  const root = normalizePath(notesRootFolder || '');
+  const cur = normalizePath(notesCurrentFolder || root);
+  if (root && cur && !samePath(cur, root)) {
+    notesGoUp();
+    return;
+  }
+  closeNotesOverlay();
+}
+
+function renderNotesOverlayList() {
+  const list = document.getElementById('notes-overlay-list');
+  if (!list) return;
+
+  const root = normalizePath(notesRootFolder || '');
+  const folder = normalizePath(notesCurrentFolder || root || '');
+  const kind = notesCurrentKind || 'notes'; // 'notes' | 'archive' | 'all'
+
+  // path label
+  const pathEl = document.getElementById('notes-overlay-path');
+  if (pathEl) {
+    pathEl.textContent = `PATH: ${folder || 'ROOT'}`;
+  }
+
+  const atRoot = samePath(folder, root);
+
+  const folders = getImmediateChildFolders(folder)
+    .filter(f => (root ? isUnderPath(f.path, root) : true))
+    .filter(f => !samePath(f.path, folder));
+
+  const pdfsHere = (library.pdfs || [])
+    .filter(p => (kind === 'all' ? true : p.kind === kind))
+    .filter(p => {
+      if (isGlobalFolder(p.folder)) return atRoot;
+
+      // IMPORTANT: show PDFs ONLY in the folder they were attached to.
+      // (Previously root view showed PDFs from all subfolders, which caused “duplicate” PDFs
+      // to appear both outside and inside the target folder.)
+      return samePath(p.folder, folder);
+    });
+
+  const cards = [];
+
+  // Folder cards
+  folders.forEach(f => {
+    const pdfCount = (library.pdfs || [])
+      .filter(p => (kind === 'all' ? true : p.kind === kind))
+      .filter(p => isUnderPath(p.folder, f.path)).length;
+
+    cards.push(`
+      <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] transition-all" onclick="notesGoToFolder('${f.path.replace(/'/g, "\\'")}')">
+        <div class="text-4xl mb-4 text-[#00f3ff]">📁</div>
+        <div class="font-bold text-lg">${escapeHTML(f.name)}</div>
+        <div class="text-gray-500 text-xs font-mono mt-2">${pdfCount} PDF${pdfCount === 1 ? '' : 's'}</div>
+      </div>
+    `);
+  });
+
+  // PDF cards
+  pdfsHere.forEach(p => {
+    const safeTitle = escapeHTML(p.title || 'PDF');
+    const sub = escapeHTML(isGlobalFolder(p.folder) ? 'GLOBAL' : (p.folder || 'ROOT'));
+    cards.push(`
+      <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] transition-all" onclick="openPdfOverlay('${p.id.replace(/'/g, "\\'")}')">
+        <div class="text-4xl mb-4 text-[#00f3ff]">📄</div>
+        <div class="font-bold text-lg">${safeTitle}</div>
+        <div class="text-gray-500 text-xs font-mono mt-2">${sub}</div>
+      </div>
+    `);
+  });
+
+  if (cards.length === 0) {
+    list.innerHTML = `
+      <div class="cyber-card p-6 rounded-lg md:col-span-3">
+        <div class="text-gray-300 font-mono text-sm">No PDFs or folders found in <span class="text-[#00f3ff]">${escapeHTML(folder || 'ROOT')}</span>.</div>
+        <div class="text-gray-500 font-mono text-xs mt-2">Ask admin to upload PDFs in Admin Panel → Notes (PDF), or create folders in Admin Panel → Archive Folder.</div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = cards.join('');
+}
+
+function getPdfById(id) {
+  return library.pdfs.find(p => p.id === id) || null;
+}
+
+// If opened from admin, we want to return to admin overlay instead of notes overlay.
+let pdfBackOverlayId = null;
+
+function openPdfOverlay(pdfId, backOverlayId = null) {
+  const pdf = getPdfById(pdfId);
+  if (!pdf) {
+    alert('PDF not found in library.');
+    return;
+  }
+
+  pdfBackOverlayId = backOverlayId;
+
+  // Hide whoever opened it
+  if (backOverlayId) {
+    document.getElementById(backOverlayId)?.classList.add('hidden');
+  }
+
+  // Hide notes overlay too (if it was the opener)
+  document.getElementById('notes-overlay')?.classList.add('hidden');
+
+  const titleEl = document.getElementById('pdf-overlay-title');
+  if (titleEl) titleEl.textContent = pdf.title || 'PDF';
+
+  const frame = document.getElementById('pdf-frame');
+  if (frame) frame.src = pdf.src;
+
+  const dl = document.getElementById('pdf-download');
+  if (dl) {
+    dl.href = pdf.src;
+    const filename = (pdf.title || 'notes').replace(/[^a-z0-9\-\_]+/gi, '_') + '.pdf';
+    dl.setAttribute('download', filename);
+  }
+
+  document.getElementById('pdf-overlay')?.classList.remove('hidden');
+
+  try {
+    liveSetActivity('Open PDF', {
+      view: 'PDF_VIEWER',
+      path: pdf.folder || '',
+      details: pdf.title || 'PDF',
+    });
+  } catch (_) {}
+}
+
+function closePdfOverlay() {
+  document.getElementById('pdf-overlay')?.classList.add('hidden');
+
+  const frame = document.getElementById('pdf-frame');
+  if (frame) frame.src = '';
+
+  if (pdfBackOverlayId) {
+    document.getElementById(pdfBackOverlayId)?.classList.remove('hidden');
+    pdfBackOverlayId = null;
+
+    try { liveSetActivity('Back from PDF', { view: currentViewName() }); } catch (_) {}
+    return;
+  }
+
+  document.getElementById('notes-overlay')?.classList.remove('hidden');
+
+  try { liveSetActivity('Back from PDF', { view: 'NOTES', path: notesCurrentFolder || '' }); } catch (_) {}
+}
+
+function escapeHTML(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+// =========================
+// Custom Quiz Sets Browser
+// =========================
+let quizBrowserBackMenuId = null;
+let quizBrowserRootFolder = null;
+let quizBrowserCurrentFolder = null;
+let quizBrowserTitle = 'QUIZ SETS';
+
+function isGlobalFolder(path) {
+  const p = normalizePath(path).toLowerCase();
+  return p === 'global' || p.startsWith('global/') || p === 'all' || p.startsWith('all/');
+}
+
+function openCustomQuizBrowser(prefixPath, backMenuId, title) {
+  quizBrowserBackMenuId = backMenuId;
+  quizBrowserRootFolder = normalizePath(prefixPath);
+  quizBrowserCurrentFolder = quizBrowserRootFolder;
+  quizBrowserTitle = title || 'QUIZ SETS';
+
+  if (backMenuId) document.getElementById(backMenuId)?.classList.add('hidden');
+
+  const titleEl = document.getElementById('quiz-browser-title');
+  if (titleEl) titleEl.textContent = quizBrowserTitle;
+
+  renderQuizBrowser();
+  document.getElementById('quiz-browser-overlay')?.classList.remove('hidden');
+
+  try {
+    liveSetActivity('Open Quiz Browser', { view: 'QUIZ_BROWSER', path: quizBrowserCurrentFolder || quizBrowserRootFolder || '' });
+  } catch (_) {}
+}
+
+function closeCustomQuizBrowser() {
+  document.getElementById('quiz-browser-overlay')?.classList.add('hidden');
+  if (quizBrowserBackMenuId) document.getElementById(quizBrowserBackMenuId)?.classList.remove('hidden');
+
+  try { liveSetActivity('Close Quiz Browser', { view: currentViewName() }); } catch (_) {}
+
+  quizBrowserBackMenuId = null;
+  quizBrowserRootFolder = null;
+  quizBrowserCurrentFolder = null;
+  quizBrowserTitle = 'QUIZ SETS';
+}
+
+function quizBrowserGoToFolder(folderPath) {
+  const dest = normalizePath(folderPath);
+  if (!dest) return;
+  if (quizBrowserRootFolder && !isUnderPath(dest, quizBrowserRootFolder)) return;
+  quizBrowserCurrentFolder = dest;
+  renderQuizBrowser();
+
+  try { liveSetActivity('Quiz Browser: Open Folder', { view: 'QUIZ_BROWSER', path: quizBrowserCurrentFolder || '' }); } catch (_) {}
+}
+
+function quizBrowserGoUp() {
+  const root = normalizePath(quizBrowserRootFolder || '');
+  const cur = normalizePath(quizBrowserCurrentFolder || root);
+  if (!cur) return;
+  if (samePath(cur, root)) return;
+
+  const parent = parentPath(cur);
+  if (root && !isUnderPath(parent, root)) {
+    quizBrowserCurrentFolder = root;
+  } else {
+    quizBrowserCurrentFolder = parent || root;
+  }
+  renderQuizBrowser();
+
+  try { liveSetActivity('Quiz Browser: Go Up', { view: 'QUIZ_BROWSER', path: quizBrowserCurrentFolder || '' }); } catch (_) {}
+}
+
+// BACK button behaviour for Quiz Browser:
+// - If inside a subfolder: go up to parent folder
+// - If at the category root: close the browser
+function quizBrowserBackOrClose() {
+  const root = normalizePath(quizBrowserRootFolder || '');
+  const cur = normalizePath(quizBrowserCurrentFolder || root);
+  if (root && cur && !samePath(cur, root)) {
+    quizBrowserGoUp();
+    return;
+  }
+  closeCustomQuizBrowser();
+}
+
+function renderQuizBrowser() {
+  const grid = document.getElementById('quiz-browser-list');
+  if (!grid) return;
+
+  const root = normalizePath(quizBrowserRootFolder || '');
+  const folder = normalizePath(quizBrowserCurrentFolder || root || '');
+
+  const pathEl = document.getElementById('quiz-browser-path');
+  if (pathEl) {
+    pathEl.textContent = `PATH: ${folder || 'ROOT'}`;
+  }
+
+  const atRoot = samePath(folder, root);
+
+  const folders = getImmediateChildFolders(folder)
+    .filter(f => (root ? isUnderPath(f.path, root) : true))
+    .filter(f => !samePath(f.path, folder));
+
+  // Show only sets directly inside the current folder.
+  // (GLOBAL sets are shown only at the category root.)
+  const setsHere = (library.quizSets || [])
+    .filter(s => {
+      if (isGlobalFolder(s.folder)) return atRoot;
+      return samePath(s.folder, folder);
+    });
+
+  const cards = [];
+
+  // Folder cards
+  folders.forEach(f => {
+    const setCount = (library.quizSets || []).filter(s => isUnderPath(s.folder, f.path) && !isGlobalFolder(s.folder)).length;
+    cards.push(`
+      <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] transition-all" onclick="quizBrowserGoToFolder('${f.path.replace(/'/g, "\\'")}')">
+        <div class="text-4xl mb-4 text-[#00f3ff]">📁</div>
+        <div class="font-bold text-lg">${escapeHTML(f.name)}</div>
+        <div class="text-gray-500 text-xs font-mono mt-2">${setCount} set${setCount === 1 ? '' : 's'}</div>
+      </div>
+    `);
+  });
+
+  // Set cards
+  setsHere
+    .slice()
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')))
+    .forEach(s => {
+      const title = escapeHTML(s.title);
+      const count = Array.isArray(s.questions) ? s.questions.length : 0;
+      const folderLabel = escapeHTML(isGlobalFolder(s.folder) ? 'GLOBAL' : (s.folder || ''));
+      cards.push(`
+        <div class="cyber-card p-6 rounded-lg cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="loadQuizCustom('${s.id.replace(/'/g, "\\'")}', '${(quizBrowserBackMenuId || '').replace(/'/g, "\\'")}')">
+          <div class="flex items-center justify-between">
+            <div class="text-3xl text-[#00f3ff]">🧠</div>
+            <div class="text-gray-500 text-xs font-mono">${count} Q</div>
+          </div>
+          <div class="mt-4 font-bold text-lg text-white group-hover:text-[#00f3ff] transition-colors">${title}</div>
+          <div class="text-gray-600 text-[10px] font-mono mt-3">${folderLabel}</div>
+        </div>
+      `);
+    });
+
+  if (cards.length === 0) {
+    grid.innerHTML = `
+      <div class="cyber-card p-6 rounded-lg md:col-span-3">
+        <div class="text-gray-300 font-mono text-sm">No custom quiz sets found in <span class="text-[#00f3ff]">${escapeHTML(folder || 'ROOT')}</span>.</div>
+        <div class="text-gray-500 font-mono text-xs mt-2">Ask admin to create quiz sets in Admin Panel → Quiz Set.</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = cards.join('');
+}
+
+// =========================
+// Quiz Engine
+// =========================
+let currentMode = 'review';
+let currentQuestions = [];
+let userAnswers = {};
+let practiceAttempts = {};
+let examSubmitted = false;
+
+const container = document.getElementById('questions-container');
+const examDashboard = document.getElementById('exam-dashboard');
+const practiceDashboard = document.getElementById('practice-dashboard');
+const scoreDisplay = document.getElementById('score-display');
+const examStatus = document.getElementById('exam-status');
+const submitBtn = document.getElementById('submit-btn');
+
+function loadQuiz(type) {
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+
+  let liveTitle = '';
+
+  if (type === 'math') {
+    currentQuestions = typeof mathData !== 'undefined' ? [...mathData] : [];
+    if (title) {
+      title.innerHTML = 'MATHEMATICS';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'MATHEMATICS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'esas') {
+    currentQuestions = typeof esasData !== 'undefined' ? [...esasData] : [];
+    if (title) {
+      title.innerHTML = 'ESAS';
+      title.className = 'text-[#ff00ff]';
+    }
+    liveTitle = 'ESAS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'ug1') {
+    currentQuestions = typeof esasUG1Data !== 'undefined' ? [...esasUG1Data] : [];
+    if (title) {
+      title.innerHTML = 'PAST BOARD 1';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 1';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug2') {
+    currentQuestions = typeof esasUG2Data !== 'undefined' ? [...esasUG2Data] : [];
+    if (title) {
+      title.innerHTML = 'PAST BOARD 2';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 2';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug3') {
+    currentQuestions = typeof esasUG3Data !== 'undefined' ? [...esasUG3Data] : [];
+    if (title) {
+      title.innerHTML = 'PAST BOARD 3';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 3';
+    activeMenu = 'submenu-past-board-list';
+  } else {
+    alert('Module Under Construction');
+    return;
+  }
+
+  // Hide all overlays (including notes/quiz browser)
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+
+  try {
+    liveSetActivity('Start Built-in Quiz', {
+      view: 'QUIZ_ENGINE',
+      details: liveTitle || String(type || '').toUpperCase(),
+    });
+  } catch (_) {}
+
+  setTimeout(() => {
+    if (app) app.style.opacity = '1';
+  }, 100);
+}
+
+function loadQuizCustom(setId, backMenuId) {
+  const set = library.quizSets.find(s => s.id === setId);
+  if (!set) {
+    alert('Quiz set not found in library.');
+    return;
+  }
+
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+
+  // Deep clone to avoid accidental edits
+  currentQuestions = Array.isArray(set.questions) ? set.questions.map(q => ({
+    id: q.id,
+    key: q.key,
+    topic: q.topic || 'Custom',
+    q: q.q,
+    options: q.options || { a: '', b: '', c: '', d: '' },
+    ans: q.ans || ((q.options && q.key) ? q.options[q.key] : ''),
+    soln: q.soln || '',
+    caltech: q.caltech || null,
+  })) : [];
+
+  if (title) {
+    title.innerHTML = escapeHTML(set.title || 'CUSTOM SET');
+    title.className = 'text-[#00f3ff]';
+  }
+
+  // Set active menu back location
+  activeMenu = backMenuId || quizBrowserBackMenuId || 'level-1-menu';
+
+  // Hide all overlays
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+
+  try {
+    liveSetActivity('Start Custom Quiz', {
+      view: 'QUIZ_ENGINE',
+      path: set.folder || '',
+      details: set.title || 'CUSTOM SET',
+    });
+  } catch (_) {}
+
+  setTimeout(() => {
+    if (app) app.style.opacity = '1';
+  }, 100);
+}
+
+function backToQuizMenu() {
+  const app = document.getElementById('main-app');
+  if (!app) return;
+
+  try { liveSetActivity('Exit Quiz', { view: 'MENUS' }); } catch (_) {}
+
+  app.style.opacity = '0';
+  setTimeout(() => {
+    app.classList.add('hidden');
+    const menu = document.getElementById(activeMenu);
+    if (menu) menu.classList.remove('hidden');
+    else document.getElementById('level-1-menu')?.classList.remove('hidden');
+  }, 500);
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  ['review', 'practice', 'exam'].forEach(m => {
+    const btn = document.getElementById(`btn-${m}`);
+    if (btn) btn.className = `mode-btn ${mode === m ? 'active' : 'inactive'}`;
+  });
+  if (examDashboard) examDashboard.classList.toggle('hidden', mode !== 'exam');
+  if (practiceDashboard) practiceDashboard.classList.toggle('hidden', mode !== 'practice');
+  renderQuestions();
+
+  try {
+    const t = String(document.getElementById('active-module-title')?.innerText || '').trim();
+    const label = t ? (t + ' • ' + mode.toUpperCase()) : mode.toUpperCase();
+    liveSetActivity('Mode Change', { view: 'QUIZ_ENGINE', details: label });
+  } catch (_) {}
+}
+
+function resetExam() {
+  userAnswers = {};
+  examSubmitted = false;
+
+  if (examStatus) {
+    examStatus.innerText = 'RUNNING';
+    examStatus.classList.remove('text-[#00ff9d]');
+    examStatus.classList.add('text-yellow-500');
+  }
+
+  if (scoreDisplay) scoreDisplay.innerText = '--';
+
+  const totalDisplay = document.getElementById('total-score');
+  if (totalDisplay) totalDisplay.innerText = '/ --';
+
+  if (submitBtn) {
+    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    submitBtn.disabled = false;
+  }
+
+  renderQuestions();
+}
+
+function resetPractice() {
+  practiceAttempts = {};
+  renderQuestions();
+}
+
+function selectExamOption(qId, option) {
+  if (examSubmitted) return;
+  userAnswers[qId] = option;
+  renderQuestions();
+}
+
+function selectPracticeOption(qId, option) {
+  if (practiceAttempts[qId]) return;
+  const q = currentQuestions.find(item => item.id === qId);
+  if (!q) return;
+  practiceAttempts[qId] = { selected: option, isCorrect: option === q.key };
+  renderQuestions();
+}
+
+function submitExam() {
+  if (examSubmitted) return;
+  examSubmitted = true;
+
+  let score = 0;
+  currentQuestions.forEach(q => {
+    if (userAnswers[q.id] === q.key) score++;
+  });
+
+  if (scoreDisplay) scoreDisplay.innerText = String(score);
+
+  try {
+    liveSetActivity('Submit Exam', {
+      view: 'QUIZ_ENGINE',
+      details: `Score: ${score}/${currentQuestions.length}`,
+    });
+  } catch (_) {}
+
+  const totalDisplay = document.getElementById('total-score');
+  if (totalDisplay) totalDisplay.innerText = '/ ' + currentQuestions.length;
+
+  if (examStatus) {
+    examStatus.innerText = 'COMPLETED';
+    examStatus.classList.remove('text-yellow-500');
+    examStatus.classList.add('text-[#00ff9d]');
+  }
+
+  if (submitBtn) {
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    submitBtn.disabled = true;
+  }
+
+  renderQuestions();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestions() {
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  currentQuestions.forEach(item => {
+    const isExam = currentMode === 'exam';
+    const isPractice = currentMode === 'practice';
+    const hasCalTech = !!item.caltech;
+
+    let cardClass = 'cyber-card rounded-lg p-6 flex flex-col gap-4';
+    if (isExam && examSubmitted) {
+      const sel = userAnswers[item.id];
+      if (sel === item.key) cardClass += ' correct';
+      else if (sel) cardClass += ' wrong';
+    }
+    if (isPractice && practiceAttempts[item.id]) {
+      if (practiceAttempts[item.id].isCorrect) cardClass += ' correct';
+      else cardClass += ' wrong';
+    }
+
+    const caltechBadge = `<span class="bg-gray-800 border border-[#00f3ff] text-[#00f3ff] text-xs px-2 py-1 rounded font-mono flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse"></span> CALTECH</span>`;
+
+    const topicText = escapeHTML(item.topic || '');
+
+    let html = `
+      <div class="flex justify-between items-start">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl font-bold text-gray-700 font-mono">#${item.id}</span>
+          ${topicText ? `<span class="text-xs text-[#ff00ff] border border-[#ff00ff] px-2 rounded uppercase tracking-wider">${topicText}</span>` : ''}
+        </div>
+        ${(currentMode !== 'exam' && hasCalTech) ? caltechBadge : ''}
+      </div>
+      <div class="text-lg font-medium text-gray-200">${item.q}</div>
+    `;
+
+    if (isExam || isPractice) {
+      html += `<div class="opt-container">`;
+      ['a', 'b', 'c', 'd'].forEach(key => {
+        let btnClass = 'opt-btn';
+        let onclick = '';
+
+        if (isExam) {
+          onclick = `selectExamOption(${item.id}, '${key}')`;
+          const sel = userAnswers[item.id];
+          if (examSubmitted) {
+            if (key === item.key) btnClass += ' correct-ans';
+            else if (sel === key) btnClass += ' wrong-ans';
+            else btnClass += ' dimmed';
+          } else if (sel === key) {
+            btnClass += ' selected';
+          }
+        } else if (isPractice) {
+          onclick = `selectPracticeOption(${item.id}, '${key}')`;
+          const attempt = practiceAttempts[item.id];
+          if (attempt) {
+            if (key === item.key) btnClass += ' correct-ans';
+            else if (attempt.selected === key) btnClass += ' wrong-ans';
+            else btnClass += ' dimmed';
+          }
+        }
+
+        html += `
+          <div onclick="${onclick}" class="${btnClass}">
+            <div class="opt-letter">${key.toUpperCase()}</div>
+            <div class="flex-1">${item.options?.[key] || ('Option ' + key)}</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+
+      const showSoln = (isExam && examSubmitted) || (isPractice && practiceAttempts[item.id]);
+      if (showSoln) {
+        html += `
+          <div class="mt-4 pt-4 border-t border-gray-800 text-sm animate-fade-in">
+            <div class="text-gray-300 bg-gray-900/80 p-3 rounded border-l-2 border-[#00ff9d]">
+              <div class="text-[#00ff9d] text-xs font-bold mb-1">SOLUTION:</div>
+              ${item.soln || '<span class="text-gray-500">(no solution provided)</span>'}
+            </div>
+            ${item.caltech ? `<div class="mt-2 bg-[#1a1a24] p-2 rounded border border-gray-700 font-mono text-xs text-gray-400">⌨️ ${item.caltech}</div>` : ''}
+          </div>
+        `;
+      }
+    } else {
+      html += `
+        <div class="mt-2 p-3 bg-black/40 border-l-2 border-yellow-500 text-yellow-500 font-mono text-sm">
+          ANSWER: ${item.ans || ''} <span class="text-gray-500 text-xs ml-2">[Option ${(item.key || '').toUpperCase()}]</span>
+        </div>
+        <button onclick="document.getElementById('soln-${item.id}').classList.toggle('hidden')" 
+          class="mt-auto w-full py-2 bg-[#1f1f2e] hover:bg-[#2d2d3a] text-gray-300 text-sm font-bold uppercase tracking-widest transition-colors border-t border-gray-700 flex justify-center items-center gap-2">
+          <span>View Protocol</span>
+        </button>
+        <div id="soln-${item.id}" class="hidden pt-4 border-t border-gray-800 space-y-4">
+          <div class="text-gray-400 text-sm">
+            <strong class="text-[#00f3ff]">SOLUTION:</strong><br>
+            <div class="mt-2">${item.soln || '<span class="text-gray-500">(no solution provided)</span>'}</div>
+          </div>
+          ${item.caltech ? `<div class="bg-[#1a1a24] p-3 rounded border border-gray-700 font-mono text-sm text-gray-300 leading-8">${item.caltech}</div>` : ''}
+        </div>
+      `;
+    }
+
+    const el = document.createElement('div');
+    el.className = cardClass;
+    el.innerHTML = html;
+    container.appendChild(el);
+  });
+
+  if (window.MathJax) MathJax.typesetPromise();
+}
+
+// =========================
+// Admin Panel
+// =========================
+let adminTab = 'content';
+let adminCreateType = 'quiz'; // quiz|notes|folder
+let adminSelectedQuizSetId = '';
+
+function openAdminPanel() {
+  if (session.role !== 'admin') {
+    alert('Admin access only.');
+    return;
+  }
+
+  // Hide all menus and quiz app
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+
+  // Show admin
+  document.getElementById('admin-overlay')?.classList.remove('hidden');
+  setAdminTab('content');
+
+  try { liveSetActivity('Open Admin Panel', { view: 'ADMIN' }); } catch (_) {}
+  try { liveRequestAdminRefresh(); } catch (_) {}
+
+  updateAdminLibraryStatus();
+  showLibraryHintIfNeeded();
+  adminRefreshAll();
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+  document.getElementById('level-1-menu')?.classList.remove('hidden');
+
+  try { liveSetActivity('Close Admin Panel', { view: 'CATEGORIES' }); } catch (_) {}
+}
+
+function updateAdminLibraryStatus() {
+  const pill = document.getElementById('admin-library-status');
+  if (!pill) return;
+
+  if (libraryLoadState.ok) {
+    const src = libraryLoadState.source;
+    const srcLabel =
+      src === 'repo' ? LIBRARY_FILENAME :
+      src === 'bundle' ? LIBRARY_JS_FILENAME :
+      src === 'cache' ? 'OFFLINE CACHE' :
+      String(src || 'UNKNOWN');
+    pill.textContent = `LIBRARY: LOADED (${srcLabel})`;
+    pill.style.borderColor = 'rgba(0, 255, 157, 0.55)';
+  } else {
+    pill.textContent = 'LIBRARY: EMPTY (import in Backup)';
+    pill.style.borderColor = 'rgba(255, 0, 85, 0.55)';
+  }
+
+  showLibraryHintIfNeeded();
+}
+
+function showLibraryHintIfNeeded() {
+  const hint = document.getElementById('admin-library-hint');
+  if (!hint) return;
+
+  const isFile = window.location.protocol === 'file:';
+  const src = libraryLoadState.source;
+
+  if (!libraryLoadState.ok && isFile) {
+    hint.classList.remove('hidden');
+    hint.textContent = "You're opening via file://, so the browser blocks fetch() for library.json. Use a local server (VSCode Live Server / python -m http.server) OR use library.js (offline bundle).";
+    return;
+  }
+
+  if (!libraryLoadState.ok) {
+    hint.classList.remove('hidden');
+    hint.textContent = "library.json not found (or invalid). You can import one in Backup tab, then export a fresh library.json.";
+    return;
+  }
+
+  // If we loaded from offline bundle/cache, show a helpful note.
+  if (isFile && (src === 'bundle' || src === 'cache')) {
+    hint.classList.remove('hidden');
+    hint.textContent = "Offline mode: loaded library from " + (src === 'bundle' ? "library.js" : "offline cache") + ". To share on GitHub Pages: export library.json and commit it.";
+    return;
+  }
+
+  hint.classList.add('hidden');
+}
+
+function setAdminTab(tab) {
+  adminTab = tab;
+
+  // tabs
+  const tabs = {
+    content: 'admin-tab-content',
+    accounts: 'admin-tab-accounts',
+    logs: 'admin-tab-logs',
+    backup: 'admin-tab-backup',
+  };
+
+  Object.entries(tabs).forEach(([k, id]) => {
+    document.getElementById(id)?.classList.toggle('hidden', k !== tab);
+  });
+
+  // nav active
+  const navMap = {
+    content: 'admin-nav-content',
+    accounts: 'admin-nav-accounts',
+    logs: 'admin-nav-logs',
+    backup: 'admin-nav-backup',
+  };
+  Object.values(navMap).forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(navMap[tab])?.classList.add('active');
+
+  // ✅ Live backend tab refresh
+  try {
+    if (tab === 'logs') {
+      adminRefreshBackendUrlUI();
+      renderAdminOnlineUsers();
+      renderAdminLog();
+      liveRequestAdminRefresh();
+    }
+    if (tab === 'accounts') {
+      adminRefreshServerAccounts();
+    }
+  } catch (_) {
+    // ignore
+  }
+}
+
+// =========================
+// Admin: Server Accounts (Render backend)
+// =========================
+async function adminRefreshServerAccounts() {
+  const box = document.getElementById('admin-server-accounts-list');
+  const status = document.getElementById('admin-account-status');
+
+  if (!box) return;
+
+  if (session?.role !== 'admin') {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    if (status) status.textContent = 'Admin only.';
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    box.innerHTML = '<div class="admin-help">Backend URL not set.</div>';
+    if (status) status.textContent = 'Backend: URL not set.';
+    return;
+  }
+
+  if (!liveAuthToken) {
+    box.innerHTML = '<div class="admin-help">Login to backend required (no token).</div>';
+    if (status) status.textContent = 'Backend: not authenticated (login required).';
+    return;
+  }
+
+  box.innerHTML = '<div class="admin-help">Loading…</div>';
+  if (status) status.textContent = liveWsConnected ? 'Backend: connected.' : 'Backend: authenticated (loading accounts)…';
+
+  try {
+    const json = await liveApiFetch('/api/accounts', { method: 'GET' });
+    const accounts = Array.isArray(json?.accounts) ? json.accounts : (Array.isArray(json) ? json : []);
+
+    if (accounts.length === 0) {
+      box.innerHTML = '<div class="admin-help">No server accounts yet.</div>';
+      if (status) status.textContent = 'Server accounts: 0';
+      return;
+    }
+
+    box.innerHTML = accounts.map(a => {
+      const u = escapeHTML(a.username || 'user');
+      const r = escapeHTML(a.role || 'user');
+      const created = a.createdAt ? new Date(a.createdAt).toLocaleString() : '';
+      return `
+        <div class="admin-list-item">
+          <div class="admin-list-left">
+            <div class="admin-list-title">${u}</div>
+            <div class="admin-list-sub">Role: ${r}${created ? (' • Created: ' + escapeHTML(created)) : ''}</div>
+          </div>
+          <div class="admin-list-right"><span class="admin-pill">${r}</span></div>
+        </div>
+      `;
+    }).join('');
+
+    if (status) status.textContent = `Server accounts: ${accounts.length}`;
+  } catch (err) {
+    console.warn(err);
+    box.innerHTML = `<div class="admin-help">Failed to load accounts. ${escapeHTML(String(err?.message || err))}</div>`;
+    if (status) status.textContent = 'Failed to load server accounts.';
+  }
+}
+
+async function adminCreateAccountServer() {
+  const status = document.getElementById('admin-account-status');
+
+  if (session?.role !== 'admin') {
+    alert('Admin only.');
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    alert('Backend URL not set. Set it in Admin → Online & Logs (Backend URL), or set window.PADAYON_BACKEND_URL in index.html.');
+    return;
+  }
+
+  if (!liveAuthToken) {
+    alert('Backend login required (no token). Login again while backend is configured.');
+    return;
+  }
+
+  const u = String(document.getElementById('admin-create-username')?.value || '').trim();
+  const p = String(document.getElementById('admin-create-password')?.value || '');
+  const r = String(document.getElementById('admin-create-role')?.value || 'user');
+
+  if (!u || !p) {
+    alert('Enter username and password.');
+    return;
+  }
+
+  try {
+    if (status) status.textContent = 'Creating…';
+    await liveApiFetch('/api/accounts', {
+      method: 'POST',
+      body: { username: u, password: p, role: (r === 'admin' ? 'admin' : 'user') },
+    });
+
+    // Clear password
+    const pw = document.getElementById('admin-create-password');
+    if (pw) pw.value = '';
+
+    if (status) status.textContent = `Created account: ${u}`;
+    await adminRefreshServerAccounts();
+  } catch (err) {
+    console.warn(err);
+    if (status) status.textContent = 'Create failed: ' + String(err?.message || err);
+    alert('Create failed: ' + String(err?.message || err));
+  }
+}
+
+function setAdminCreateType(type) {
+  adminCreateType = type;
+
+  // highlight type cards
+  const cards = {
+    quiz: 'admin-type-quiz',
+    notes: 'admin-type-notes',
+    folder: 'admin-type-folder',
+  };
+
+  Object.entries(cards).forEach(([t, id]) => {
+    document.getElementById(id)?.classList.toggle('active', t === type);
+    // dot
+    const dot = document.querySelector(`#${id} .admin-type-dot`);
+    if (dot) dot.classList.toggle('on', t === type);
+  });
+
+  // show/hide panels
+  document.getElementById('admin-panel-quiz')?.classList.toggle('hidden', type !== 'quiz');
+  document.getElementById('admin-panel-notes')?.classList.toggle('hidden', type !== 'notes');
+  document.getElementById('admin-panel-folder')?.classList.toggle('hidden', type !== 'folder');
+
+  // refresh lists for the active panel
+  adminRefreshAll();
+}
+
+function getAdminTargetPath() {
+  return normalizePath(document.getElementById('admin-target-path')?.value || '');
+}
+
+function setAdminTargetPath(path) {
+  const el = document.getElementById('admin-target-path');
+  const p = normalizePath(path);
+  if (el) el.value = p;
+
+  // If an admin selects/types a nested path that doesn't exist yet,
+  // create the folder chain so it stays inside the correct category.
+  // (No-op if it already exists.)
+  if (p) {
+    const changed = ensureFolder(p);
+    if (changed) touchLibrary();
+  }
+}
+
+function adminComputePathVisibility(path) {
+  const p = normalizePath(path);
+  const pl = p.toLowerCase();
+  if (!p) return ['ROOT (not linked to a menu)'];
+  if (isGlobalFolder(p)) return ['GLOBAL (shows in all quiz browsers & notes roots)'];
+
+  const vis = [];
+  const add = (prefix, label) => {
+    if (pl.startsWith(prefix.toLowerCase())) vis.push(label);
+  };
+
+  add('UNDERGROUNDS/FORMULAS', 'UNDERGROUNDS → FORMULAS (Notes)');
+  add('UNDERGROUNDS/CALCULATOR TECHNIQUES', 'UNDERGROUNDS → CALCULATOR TECHNIQUES (Notes)');
+  add('UNDERGROUNDS/PROBLEM EXERCISES', 'UNDERGROUNDS → PROBLEM EXERCISES (Quiz Sets)');
+
+  // EXHALE FILE (separate roots)
+  add('EXHALE FILE/NOTES', 'EXHALE FILE → NOTES (PDF Notes)');
+  add('EXHALE FILE/PRACTICE QUIZ', 'EXHALE FILE → PRACTICE QUIZ (Quiz Sets)');
+  add('EXHALE FILE/EXAM', 'EXHALE FILE → EXAM (Quiz Sets)');
+
+  // PAWER-LAYN FILE (separate roots)
+  add('PAWER-LAYN FILE/NOTES', 'PAWER-LAYN FILE → NOTES (PDF Notes)');
+  add('PAWER-LAYN FILE/PRACTICE QUIZ', 'PAWER-LAYN FILE → PRACTICE QUIZ (Quiz Sets)');
+  add('PAWER-LAYN FILE/EXAM', 'PAWER-LAYN FILE → EXAM (Quiz Sets)');
+
+  // T-AY-PI custom quiz-set browser
+  add('T-AY-PI', 'T-AY-PI (Quiz Sets)');
+
+  if (vis.length === 0) {
+    vis.push('Custom path (not linked in UI yet)');
+  }
+  return vis;
+}
+
+// Admin "Quick Pick" should include categories + subcategories, and stay up-to-date
+// when new folders are created.
+const ADMIN_QUICK_PICK_PRESETS = [
+  'GLOBAL',
+
+  // Main menu categories
+  'UNDERGROUNDS',
+  'T-AY-PI',
+  'EXHALE FILE',
+  'PAWER-LAYN FILE',
+
+  // UnderGrounds (notes + quiz sets)
+  'UNDERGROUNDS/FORMULAS',
+  'UNDERGROUNDS/CALCULATOR TECHNIQUES',
+  'UNDERGROUNDS/PROBLEM EXERCISES',
+  'UNDERGROUNDS/TERMS & OBJECTIVES',
+
+  // T-AY-PI (notes + quiz sets)
+  'T-AY-PI/MATHEMATICS',
+  'T-AY-PI/ESAS',
+  'T-AY-PI/EE',
+  'T-AY-PI/OTHERS',
+
+  // EXHALE FILES (notes + quiz sets)
+  'EXHALE FILE/NOTES',
+  'EXHALE FILE/PRACTICE QUIZ',
+  'EXHALE FILE/EXAM',
+
+  // PAWER-LAYN FILES (notes + quiz sets)
+  'PAWER-LAYN FILE/NOTES',
+  'PAWER-LAYN FILE/PRACTICE QUIZ',
+  'PAWER-LAYN FILE/EXAM',
+];
+
+// Extract every built-in category/subcategory path already linked in the UI.
+// This keeps the Quick Pick complete without having to manually maintain a giant list.
+let _cachedUiFolderPaths = null;
+function adminCollectUiFolderPaths() {
+  if (_cachedUiFolderPaths) return _cachedUiFolderPaths.slice();
+
+  const out = new Set();
+  try {
+    const nodes = document.querySelectorAll('[onclick]');
+    const re = /(openCustomQuizBrowser|openNotesFolder)\s*\(\s*(['"`])([^'"`]+?)\2/g;
+
+    nodes.forEach(el => {
+      const code = String(el.getAttribute('onclick') || '');
+      let m;
+      while ((m = re.exec(code))) {
+        const p = normalizePath(m[3]);
+        if (p) out.add(p);
+      }
+    });
+  } catch (e) {
+    // ignore
+  }
+
+  _cachedUiFolderPaths = Array.from(out);
+  return _cachedUiFolderPaths.slice();
+}
+
+function expandWithAncestors(paths) {
+  const out = new Set();
+  for (const p of paths || []) {
+    const n = normalizePath(p);
+    if (!n) continue;
+    const parts = n.split('/').filter(Boolean);
+    for (let i = 1; i <= parts.length; i++) {
+      out.add(parts.slice(0, i).join('/'));
+    }
+  }
+  return Array.from(out);
+}
+
+function uniquePaths(paths) {
+  const out = [];
+  const seen = new Set();
+  for (const p of paths || []) {
+    const n = normalizePath(p);
+    if (!n) continue;
+    const k = n.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(n);
+  }
+  return out;
+}
+
+function adminGetQuickPickPaths() {
+  const presets = ADMIN_QUICK_PICK_PRESETS.map(normalizePath).filter(Boolean);
+  const fromUI = adminCollectUiFolderPaths().map(normalizePath).filter(Boolean);
+  const fromLibrary = getAllFolderPaths(library).map(normalizePath).filter(Boolean);
+
+  // Include category + subcategory levels automatically by adding all ancestor paths.
+  return uniquePaths(expandWithAncestors([...presets, ...fromUI, ...fromLibrary]));
+}
+
+function adminRefreshQuickPickOptions() {
+  const sel = document.getElementById('admin-quick-pick');
+  if (!sel) return;
+
+  const current = getAdminTargetPath() || '';
+  const all = adminGetQuickPickPaths();
+
+  // Prefer GLOBAL at the top; keep everything else alphabetically.
+  const sorted = all.slice().sort((a, b) => {
+    if (a === 'GLOBAL') return -1;
+    if (b === 'GLOBAL') return 1;
+    return a.localeCompare(b);
+  });
+
+  sel.innerHTML = '';
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Quick pick: choose a folder…';
+  sel.appendChild(placeholder);
+
+  for (const p of sorted) {
+    const opt = document.createElement('option');
+    opt.value = p;
+    const depth = p.split('/').filter(Boolean).length;
+    const indent = '\u00A0\u00A0'.repeat(Math.max(0, depth - 1));
+    opt.textContent = indent + p;
+    sel.appendChild(opt);
+  }
+
+  // Restore selection if possible.
+  if (current && Array.from(sel.options).some(o => samePath(o.value, current))) {
+    sel.value = current;
+  } else {
+    sel.value = '';
+  }
+}
+
+function adminUpdatePathHelpers() {
+  const p = getAdminTargetPath();
+
+  const normEl = document.getElementById('admin-path-normalized');
+  if (normEl) normEl.textContent = p || '(root)';
+
+  const visEl = document.getElementById('admin-path-visibility');
+  if (visEl) visEl.textContent = adminComputePathVisibility(p).join(' • ');
+}
+
+async function adminCopyTargetPath() {
+  const p = getAdminTargetPath();
+  if (!p) {
+    alert('Target path is empty.');
+    return;
+  }
+
+  // Clipboard API needs secure context; fall back to textarea copy.
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(p);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = p;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    alert('Copied target path.');
+  } catch (err) {
+    console.warn(err);
+    alert('Copy failed. You can manually select and copy the Target path input.');
+  }
+}
+
+function adminPreviewQuizSets() {
+  const p = getAdminTargetPath() || '';
+  openCustomQuizBrowser(p, 'admin-overlay', 'PREVIEW QUIZ SETS');
+}
+
+function adminPreviewPdfs() {
+  const p = getAdminTargetPath() || '';
+  openNotesFolder(p, 'PREVIEW PDFs', 'admin-overlay', 'all');
+}
+
+function adminRefreshAll() {
+  adminRefreshQuickPickOptions();
+  adminUpdatePathHelpers();
+  adminRefreshFolderList();
+  adminRefreshQuizSetSelect();
+  adminRefreshPdfList();
+  adminUpdateQuestionCount();
+}
+
+function adminRefreshFolderList() {
+  const box = document.getElementById('admin-folder-list');
+  if (!box) return;
+
+  const base = getAdminTargetPath();
+  const children = getImmediateChildFolders(base);
+
+  if (children.length === 0) {
+    box.innerHTML = '<div class="admin-list-item"><div class="admin-list-left"><div class="admin-list-title">No subfolders</div><div class="admin-list-sub">Create one above, or type a deeper Target path.</div></div></div>';
+    return;
+  }
+
+  box.innerHTML = children.map(f => {
+    const sets = (library.quizSets || []).filter(s => isUnderPath(s.folder, f.path) && !isGlobalFolder(s.folder)).length;
+    const pdfs = (library.pdfs || []).filter(p => isUnderPath(p.folder, f.path) && !isGlobalFolder(p.folder)).length;
+    const meta = `${sets} set${sets === 1 ? '' : 's'} • ${pdfs} pdf${pdfs === 1 ? '' : 's'}`;
+    return `
+      <div class="admin-list-item" onclick="setAdminTargetPath('${f.path.replace(/'/g, "\\'")}'); adminRefreshAll();">
+        <div class="admin-list-left">
+          <div class="admin-list-title">📁 ${escapeHTML(f.name)}</div>
+          <div class="admin-list-sub">${escapeHTML(f.path)} • ${escapeHTML(meta)}</div>
+        </div>
+        <div class="admin-list-right"><span class="admin-pill">OPEN</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function adminRefreshQuizSetSelect() {
+  const sel = document.getElementById('admin-quiz-select');
+  if (!sel) return;
+
+  const current = adminSelectedQuizSetId;
+
+  // rebuild options
+  sel.innerHTML = '<option value="">-- Select existing set --</option>';
+  library.quizSets
+    .slice()
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `${s.title}  [${s.folder}]`;
+      sel.appendChild(opt);
+    });
+
+  if (current) sel.value = current;
+}
+
+function adminGetSelectedSet() {
+  if (!adminSelectedQuizSetId) return null;
+  return library.quizSets.find(s => s.id === adminSelectedQuizSetId) || null;
+}
+
+function adminUpdateQuestionCount() {
+  const countEl = document.getElementById('admin-q-count');
+  if (!countEl) return;
+
+  const set = adminGetSelectedSet();
+  const n = set?.questions?.length || 0;
+  countEl.textContent = String(n);
+}
+
+function adminSelectQuizSet(setId) {
+  adminSelectedQuizSetId = setId || '';
+  const sel = document.getElementById('admin-quiz-select');
+  if (sel) sel.value = adminSelectedQuizSetId;
+  adminUpdateQuestionCount();
+}
+
+function adminCreateQuizSet() {
+  const titleEl = document.getElementById('admin-quiz-title');
+  const title = String(titleEl?.value || '').trim();
+  if (!title) {
+    alert('Enter a quiz set title.');
+    return;
+  }
+
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  const set = {
+    id: uid('qs'),
+    title,
+    folder,
+    createdAt: nowISO(),
+    updatedAt: nowISO(),
+    questions: [],
+  };
+
+  library.quizSets.push(set);
+  touchLibrary();
+
+  if (titleEl) titleEl.value = '';
+
+  adminRefreshQuizSetSelect();
+  adminSelectQuizSet(set.id);
+
+  alert(`Quiz set created: ${set.title}  [${set.folder}]`);
+}
+
+function adminMoveSelectedQuizSet() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const movePathEl = document.getElementById('admin-quiz-move-path');
+  const raw = String(movePathEl?.value || '').trim();
+  const target = raw ? normalizePath(raw) : getAdminTargetPath();
+
+  if (!target) {
+    alert('Enter a folder path (or set Target folder path).');
+    return;
+  }
+
+  ensureFolder(target);
+
+  set.folder = target;
+  set.updatedAt = nowISO();
+  touchLibrary();
+
+  if (movePathEl) movePathEl.value = '';
+  adminRefreshQuizSetSelect();
+  adminSelectQuizSet(set.id);
+
+  alert('Moved quiz set.');
+}
+
+function adminDeleteSelectedQuizSet() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const alsoQuestions = !!document.getElementById('admin-quiz-delete-questions')?.checked;
+
+  if (!confirm(`Delete selected quiz set: "${set.title}"?`)) return;
+
+  if (alsoQuestions) {
+    // remove entire set
+    library.quizSets = library.quizSets.filter(s => s.id !== set.id);
+  } else {
+    // keep set, clear questions
+    set.questions = [];
+    set.updatedAt = nowISO();
+  }
+
+  touchLibrary();
+
+  adminSelectedQuizSetId = '';
+  adminRefreshQuizSetSelect();
+  adminUpdateQuestionCount();
+
+  alert('Deleted.');
+}
+
+function adminExportSelectedQuizSet() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const payload = {
+    format: 'PADAYON_QUIZSET_V1',
+    title: set.title,
+    folder: set.folder,
+    exportedAt: nowISO(),
+    questions: Array.isArray(set.questions) ? set.questions : [],
+  };
+
+  const safe = set.title.replace(/[^a-z0-9\-\_]+/gi, '_');
+  downloadJSON(`${safe || 'quiz_set'}.json`, payload);
+}
+
+function sanitizeQuestion(q, nextId) {
+  const topic = String(q.topic || '').trim();
+  const text = String(q.q || q.question || '').trim();
+  const opts = q.options || q.choices || {};
+
+  const a = String(opts.a ?? opts.A ?? q.a ?? '').trim();
+  const b = String(opts.b ?? opts.B ?? q.b ?? '').trim();
+  const c = String(opts.c ?? opts.C ?? q.c ?? '').trim();
+  const d = String(opts.d ?? opts.D ?? q.d ?? '').trim();
+
+  const keyRaw = String(q.key || q.correct || '').trim().toLowerCase();
+  const key = ['a', 'b', 'c', 'd'].includes(keyRaw) ? keyRaw : 'a';
+
+  const options = { a, b, c, d };
+  const ans = String(q.ans || options[key] || '').trim();
+
+  return {
+    id: Number.isFinite(q.id) ? q.id : nextId,
+    topic: topic || 'Custom',
+    q: text,
+    options,
+    key,
+    ans,
+    soln: String(q.soln || q.solution || '').trim(),
+    caltech: q.caltech != null ? String(q.caltech) : null,
+  };
+}
+
+async function adminImportQuestionsJson() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const fileEl = document.getElementById('admin-import-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a JSON file first.');
+    return;
+  }
+
+  try {
+    const text = await readFileAsText(file);
+    const json = JSON.parse(text);
+
+    let questions = [];
+    if (Array.isArray(json)) questions = json;
+    else if (json && Array.isArray(json.questions)) questions = json.questions;
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      alert('No questions found in JSON.');
+      return;
+    }
+
+    const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
+    let nextId = maxExistingId + 1;
+
+    const sanitized = questions
+      .map(q => sanitizeQuestion(q, nextId++))
+      .filter(q => q.q);
+
+    if (sanitized.length === 0) {
+      alert('Questions imported, but all were empty after sanitizing.');
+      return;
+    }
+
+    set.questions = Array.isArray(set.questions) ? set.questions.concat(sanitized) : sanitized;
+    set.updatedAt = nowISO();
+    touchLibrary();
+
+    if (fileEl) fileEl.value = '';
+
+    adminUpdateQuestionCount();
+    alert(`Imported ${sanitized.length} question(s).`);
+  } catch (err) {
+    console.error(err);
+    alert('Invalid JSON file.');
+  }
+}
+
+function adminClearQuestionBuilder() {
+  const ids = ['admin-q-topic', 'admin-q-text', 'admin-q-a', 'admin-q-b', 'admin-q-c', 'admin-q-d', 'admin-q-soln', 'admin-q-caltech'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const correct = document.getElementById('admin-q-correct');
+  if (correct) correct.value = 'a';
+}
+
+function adminAddQuestion() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const topic = String(document.getElementById('admin-q-topic')?.value || '').trim();
+  const text = String(document.getElementById('admin-q-text')?.value || '').trim();
+  const a = String(document.getElementById('admin-q-a')?.value || '').trim();
+  const b = String(document.getElementById('admin-q-b')?.value || '').trim();
+  const c = String(document.getElementById('admin-q-c')?.value || '').trim();
+  const d = String(document.getElementById('admin-q-d')?.value || '').trim();
+  const soln = String(document.getElementById('admin-q-soln')?.value || '').trim();
+  const caltech = String(document.getElementById('admin-q-caltech')?.value || '').trim();
+  const key = String(document.getElementById('admin-q-correct')?.value || 'a').toLowerCase();
+
+  if (!text) {
+    alert('Question text is required.');
+    return;
+  }
+  if (!a || !b || !c || !d) {
+    alert('Please fill Options A, B, C, and D.');
+    return;
+  }
+
+  const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
+  const id = maxExistingId + 1;
+
+  const q = {
+    id,
+    topic: topic || 'Custom',
+    q: text,
+    options: { a, b, c, d },
+    key: ['a', 'b', 'c', 'd'].includes(key) ? key : 'a',
+    ans: { a, b, c, d }[key] || a,
+    soln,
+    caltech: caltech || null,
+  };
+
+  set.questions = Array.isArray(set.questions) ? set.questions.concat([q]) : [q];
+  set.updatedAt = nowISO();
+  touchLibrary();
+
+  adminUpdateQuestionCount();
+  adminClearQuestionBuilder();
+
+  alert('Question added.');
+}
+
+function adminGetPdfKind() {
+  const val = String(document.getElementById('admin-pdf-kind')?.value || 'notes').toLowerCase();
+  return val === 'archive' ? 'archive' : 'notes';
+}
+
+async function adminUploadPdf(kind = 'notes') {
+  const fileEl = document.getElementById('admin-pdf-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a PDF file first.');
+    return;
+  }
+
+  const titleEl = document.getElementById('admin-pdf-title');
+  const displayTitle = String(titleEl?.value || '').trim() || file.name;
+
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  try {
+    const dataUrl = await readFileAsDataURL(file);
+
+    library.pdfs.push({
+      id: uid('pdf'),
+      title: displayTitle,
+      folder,
+      kind,
+      src: dataUrl,
+      createdAt: nowISO(),
+    });
+
+    const saved = touchLibrary();
+
+    if (fileEl) fileEl.value = '';
+    if (titleEl) titleEl.value = '';
+    const urlEl = document.getElementById('admin-pdf-url');
+    if (urlEl) urlEl.value = '';
+
+    adminRefreshPdfList();
+
+    if (!saved) {
+      alert('PDF attached, but browser storage is full (PDF embed can be very large).\n\n✅ It will still work right now.\n👉 To share/persist: use Backup → Export library.json, or attach by URL (recommended for GitHub).');
+    } else {
+      alert('PDF attached. (Export library.json in Backup to share)');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to read PDF file.');
+  }
+}
+
+function adminAttachPdfUrl(kind = 'notes') {
+  const urlEl = document.getElementById('admin-pdf-url');
+  const rawUrl = String(urlEl?.value || '').trim();
+  if (!rawUrl) {
+    alert('Paste a PDF URL/path first.');
+    return;
+  }
+
+  const titleEl = document.getElementById('admin-pdf-title');
+  const displayTitle = String(titleEl?.value || '').trim() || baseName(rawUrl) || 'PDF';
+
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  const safeSrc = encodeURI(rawUrl);
+
+  library.pdfs.push({
+    id: uid('pdf'),
+    title: displayTitle,
+    folder,
+    kind,
+    src: safeSrc,
+    createdAt: nowISO(),
+  });
+
+  const saved = touchLibrary();
+
+  if (urlEl) urlEl.value = '';
+  if (titleEl) titleEl.value = '';
+
+  adminRefreshPdfList();
+
+  if (!saved) {
+    alert('PDF URL attached, but browser storage is blocked/full.\n\n👉 To persist/share: use Backup → Export library.json.');
+  } else {
+    alert('PDF URL attached. (Export library.json in Backup to share)');
+  }
+}
+
+function adminRefreshPdfList() {
+  const list = document.getElementById('admin-pdf-list');
+  if (!list) return;
+
+  const folder = getAdminTargetPath();
+
+  // In admin we show PDFs *under* the target path (recursive), so it's easy
+  // to confirm uploads even when you attach them in subfolders.
+  // If target path is empty (root), show GLOBAL PDFs.
+  const items = (library.pdfs || [])
+    .filter(p => {
+      const pf = normalizePath(p.folder || '');
+      if (!folder) return isGlobalFolder(pf) || !pf;
+      return isUnderPath(pf, folder);
+    })
+    .slice()
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="admin-help">No PDFs attached.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  items.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'admin-list-item';
+    row.innerHTML = `
+      <div>
+        <div class="admin-list-title">${escapeHTML(p.title)}</div>
+        <div class="admin-list-sub">${escapeHTML(p.kind)} • ${escapeHTML(p.folder)}</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="admin-mini-btn" type="button">VIEW</button>
+        <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);">DELETE</button>
+      </div>
+    `;
+
+    const [viewBtn, delBtn] = row.querySelectorAll('button');
+
+    viewBtn.addEventListener('click', () => {
+      // menu overlays are behind admin (z-index). Hide admin while previewing.
+      openPdfOverlay(p.id, 'admin-overlay');
+    });
+
+    delBtn.addEventListener('click', () => {
+      if (!confirm(`Delete PDF: "${p.title}"?`)) return;
+      library.pdfs = library.pdfs.filter(x => x.id !== p.id);
+      touchLibrary();
+      adminRefreshPdfList();
+    });
+
+    list.appendChild(row);
+  });
+}
+
+function adminCreateFolder() {
+  const name = String(document.getElementById('admin-folder-name')?.value || '').trim();
+  if (!name) {
+    alert('Enter folder name.');
+    return;
+  }
+
+  const parent = getAdminTargetPath();
+
+  // If the user pasted a full path starting with a known root category,
+  // treat it as an absolute path (avoid accidentally creating
+  // "GLOBAL/UNDERGROUNDS/..." etc).
+  const roots = ['GLOBAL', 'UNDERGROUNDS', 'T-AY-PI', 'EXHALE FILE', 'PAWER-LAYN FILE'];
+  const nameNorm = normalizePath(name);
+  const top = (nameNorm.split('/')[0] || '');
+  const isAbsolute = roots.some(r => samePath(top, r));
+
+  const full = normalizePath(isAbsolute ? nameNorm : (parent ? `${parent}/${name}` : name));
+
+  const changed = ensureFolder(full);
+  if (changed) touchLibrary();
+
+  document.getElementById('admin-folder-name').value = '';
+
+  adminRefreshAll();
+
+  alert(changed ? `Folder created: ${full}` : `Folder already exists: ${full}`);
+}
+
+function adminOpenTarget() {
+  const p = getAdminTargetPath();
+  alert(`Target folder path:\n${p || '(root)'}`);
+}
+
+function adminRenameFolder() {
+  const newName = String(document.getElementById('admin-folder-rename')?.value || '').trim();
+  if (!newName) {
+    alert('Enter new folder name.');
+    return;
+  }
+
+  const from = getAdminTargetPath();
+  if (!from) {
+    alert('Set Target folder path to the folder you want to rename.');
+    return;
+  }
+
+  const parent = parentPath(from);
+  const to = normalizePath(parent ? `${parent}/${newName}` : newName);
+
+  adminMoveFolderInternal(from, to);
+
+  document.getElementById('admin-folder-rename').value = '';
+  setAdminTargetPath(to);
+
+  adminRefreshAll();
+
+  alert('Folder renamed.');
+}
+
+function adminMoveFolder() {
+  const newParent = normalizePath(String(document.getElementById('admin-folder-move-parent')?.value || '').trim());
+  const from = getAdminTargetPath();
+
+  if (!from) {
+    alert('Set Target folder path to the folder you want to move.');
+    return;
+  }
+  if (!newParent) {
+    alert('Enter a new parent path.');
+    return;
+  }
+
+  const to = normalizePath(`${newParent}/${baseName(from)}`);
+  adminMoveFolderInternal(from, to);
+
+  document.getElementById('admin-folder-move-parent').value = '';
+  setAdminTargetPath(to);
+
+  adminRefreshAll();
+
+  alert('Folder moved.');
+}
+
+function adminMoveFolderInternal(from, to) {
+  const fromN = normalizePath(from);
+  const toN = normalizePath(to);
+
+  // ensure destination folder and parent
+  ensureFolder(parentPath(toN));
+  ensureFolder(toN);
+
+  // Update folders list (replace prefix)
+  library.folders = library.folders
+    .map(f => {
+      if (isUnderPath(f.path, fromN)) {
+        const suffix = normalizePath(f.path).slice(normalizePath(fromN).length);
+        const cleanSuffix = suffix.startsWith('/') ? suffix : (suffix ? '/' + suffix : '');
+        return { ...f, path: normalizePath(toN + cleanSuffix) };
+      }
+      return f;
+    })
+    .filter((f, idx, arr) => arr.findIndex(x => samePath(x.path, f.path)) === idx);
+
+  // Update quiz sets
+  library.quizSets.forEach(s => {
+    if (isUnderPath(s.folder, fromN)) {
+      const suffix = normalizePath(s.folder).slice(normalizePath(fromN).length);
+      const cleanSuffix = suffix.startsWith('/') ? suffix : (suffix ? '/' + suffix : '');
+      s.folder = normalizePath(toN + cleanSuffix);
+      s.updatedAt = nowISO();
+    }
+  });
+
+  // Update pdfs
+  library.pdfs.forEach(p => {
+    if (isUnderPath(p.folder, fromN)) {
+      const suffix = normalizePath(p.folder).slice(normalizePath(fromN).length);
+      const cleanSuffix = suffix.startsWith('/') ? suffix : (suffix ? '/' + suffix : '');
+      p.folder = normalizePath(toN + cleanSuffix);
+    }
+  });
+
+  touchLibrary();
+}
+
+function adminDeleteFolder() {
+  const target = getAdminTargetPath();
+  if (!target) {
+    alert('Set Target folder path to the folder you want to delete.');
+    return;
+  }
+
+  const alsoDelete = !!document.getElementById('admin-folder-delete-contents')?.checked;
+
+  if (!confirm(`Delete folder (recursive):\n${target}\n\nThis will affect subfolders and content inside.`)) return;
+
+  const parent = parentPath(target);
+
+  // Remove folder entries under target
+  library.folders = library.folders.filter(f => !isUnderPath(f.path, target));
+
+  if (alsoDelete) {
+    library.quizSets = library.quizSets.filter(s => !isUnderPath(s.folder, target));
+    library.pdfs = library.pdfs.filter(p => !isUnderPath(p.folder, target));
+  } else {
+    // move content to parent folder
+    library.quizSets.forEach(s => {
+      if (isUnderPath(s.folder, target)) s.folder = parent;
+    });
+    library.pdfs.forEach(p => {
+      if (isUnderPath(p.folder, target)) p.folder = parent;
+    });
+  }
+
+  touchLibrary();
+  adminRefreshAll();
+
+  alert('Folder deleted.');
+}
+
+function adminHowItWorks() {
+  alert(
+    'How folders work:\n\n' +
+    '• Target folder path = where quiz sets/PDFs are attached.\n' +
+    '• Archive Folder tool edits the folder in Target folder path.\n' +
+    '• Export library.json in Backup tab and COMMIT it to GitHub so everyone can see the updates.'
+  );
+}
+
+async function importLibraryFromFile(file, { statusEl = null } = {}) {
+  if (!file) return false;
+  const text = await readFileAsText(file);
+  const json = JSON.parse(text);
+
+  library = normalizeIncomingLibrary(json);
+  libraryLoadState = { ok: true, source: 'import', error: null };
+
+  // Persist to local cache so other tabs (user view) can see it instantly.
+  const persisted = touchLibrary();
+
+  updateAdminLibraryStatus();
+  showLibraryHintIfNeeded();
+  refreshUiAfterLibraryChange();
+
+  if (statusEl) {
+    statusEl.textContent = persisted
+      ? `Imported ${file.name} (saved to cache).`
+      : `Imported ${file.name} (in-memory only; cache/storage may be full).`;
+  }
+
+  return persisted;
+}
+
+async function adminQuickImportLibrary() {
+  if (session.role !== 'admin') {
+    alert('Admin only.');
+    return;
+  }
+
+  const fileEl = document.getElementById('admin-quick-import-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a library.json file first.');
+    return;
+  }
+
+  try {
+    const persisted = await importLibraryFromFile(file);
+    alert(persisted
+      ? 'Library imported and saved to cache.'
+      : 'Library imported, but could not save to cache (storage might be full).'
+    );
+  } catch (err) {
+    console.error(err);
+    alert('Invalid library.json');
+  } finally {
+    // allow importing the same file again
+    if (fileEl) fileEl.value = '';
+  }
+}
+
+// USER quick import (landing page button)
+// Allows non-admin users to load a library.json update/backup locally.
+function userQuickImportLibrary() {
+  const fileEl = document.getElementById('user-import-file');
+  if (!fileEl) {
+    alert('Import control not found.');
+    return;
+  }
+
+  // Reset so the same file can be selected again.
+  fileEl.value = '';
+
+  fileEl.onchange = async () => {
+    const file = fileEl.files?.[0];
+    if (!file) return;
+
+    const ok = confirm(
+      'Import library.json?\n\nThis will replace your current local quiz/notes library on this device.'
+    );
+    if (!ok) {
+      fileEl.value = '';
+      return;
+    }
+
+    try {
+      const persisted = await importLibraryFromFile(file);
+      alert(persisted
+        ? 'Update imported and saved locally.'
+        : 'Update imported, but could not save locally (storage may be full).'
+      );
+    } catch (err) {
+      console.error(err);
+      alert('Invalid library.json');
+    } finally {
+      fileEl.value = '';
+    }
+  };
+
+  fileEl.click();
+}
+
+async function adminImportLibrary() {
+  const fileEl = document.getElementById('admin-backup-import-file');
+  const status = document.getElementById('admin-backup-status');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a library.json file first.');
+    return;
+  }
+
+  try {
+    const persisted = await importLibraryFromFile(file, { statusEl: status });
+    alert(persisted
+      ? 'Imported library.json and saved to cache. Export + commit to GitHub to share with friends.'
+      : 'Imported library.json, but could not save to cache (storage might be full). You can still Export + commit to GitHub.'
+    );
+  } catch (err) {
+    console.error(err);
+    alert('Invalid library.json');
+  } finally {
+    if (fileEl) fileEl.value = '';
+  }
+}
+
+function adminExportLibrary() {
+  // Update timestamps
+  touchLibrary();
+  const payload = { ...library, updatedAt: library.updatedAt || nowISO() };
+  downloadJSON(LIBRARY_FILENAME, payload);
+}
+
+function adminExportLibraryJS() {
+  // Update timestamps
+  touchLibrary();
+  const payload = { ...library, updatedAt: library.updatedAt || nowISO() };
+  const js = `// Auto-generated by PADAYON Admin\n// Offline fallback for file:// mode (fetching library.json is blocked by the browser).\nwindow.${LIBRARY_GLOBAL_VAR} = ${JSON.stringify(payload, null, 2)};\n`;
+  downloadText(LIBRARY_JS_FILENAME, js, 'application/javascript');
+}
+
+function adminSearch(query) {
+  const q = String(query || '').trim().toLowerCase();
+  if (!q) return [];
+
+  const results = [];
+
+  // folders
+  library.folders.forEach(f => {
+    if (f.path.toLowerCase().includes(q)) {
+      results.push({ type: 'folder', label: f.path, value: f.path });
+    }
+  });
+
+  // sets
+  library.quizSets.forEach(s => {
+    const hay = `${s.title} ${s.folder}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({ type: 'quiz', label: s.title, sub: s.folder, value: s.id });
+    }
+  });
+
+  // pdfs
+  library.pdfs.forEach(p => {
+    const hay = `${p.title} ${p.folder}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({ type: 'pdf', label: p.title, sub: p.folder, value: p.id });
+    }
+  });
+
+  return results.slice(0, 25);
+}
+
+function adminRenderSearchResults(query) {
+  const box = document.getElementById('admin-search-results');
+  if (!box) return;
+
+  const q = String(query || '').trim();
+  if (!q) {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  const results = adminSearch(q);
+  if (results.length === 0) {
+    box.classList.remove('hidden');
+    box.innerHTML = '<div class="admin-help" style="padding:12px;">No results.</div>';
+    return;
+  }
+
+  box.classList.remove('hidden');
+  box.innerHTML = '';
+
+  results.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'admin-search-item';
+
+    row.innerHTML = `
+      <div>
+        <div class="admin-search-label">${escapeHTML(r.label)}</div>
+        ${r.sub ? `<div class="admin-search-type">${escapeHTML(r.sub)}</div>` : `<div class="admin-search-type">${escapeHTML(r.type.toUpperCase())}</div>`}
+      </div>
+      <div class="admin-search-type">${escapeHTML(r.type.toUpperCase())}</div>
+    `;
+
+    row.addEventListener('click', () => {
+      // act on click
+      if (r.type === 'folder') {
+        setAdminTargetPath(r.value);
+        setAdminCreateType('quiz');
+        adminRefreshAll();
+      } else if (r.type === 'quiz') {
+        // select set
+        const set = library.quizSets.find(s => s.id === r.value);
+        if (set) {
+          setAdminTargetPath(set.folder);
+          setAdminCreateType('quiz');
+          adminRefreshAll();
+          adminSelectQuizSet(set.id);
+        }
+      } else if (r.type === 'pdf') {
+        const pdf = getPdfById(r.value);
+        if (pdf) {
+          setAdminTargetPath(pdf.folder);
+          setAdminCreateType('notes');
+          adminRefreshAll();
+        }
+      }
+
+      box.classList.add('hidden');
+      box.innerHTML = '';
+
+      const inp = document.getElementById('admin-search-input');
+      if (inp) inp.value = '';
+    });
+
+    box.appendChild(row);
+  });
+}
+
+function initAdminUI() {
+  // Sidebar
+  document.getElementById('admin-nav-content')?.addEventListener('click', () => setAdminTab('content'));
+  document.getElementById('admin-nav-accounts')?.addEventListener('click', () => setAdminTab('accounts'));
+  document.getElementById('admin-nav-logs')?.addEventListener('click', () => setAdminTab('logs'));
+  document.getElementById('admin-nav-backup')?.addEventListener('click', () => setAdminTab('backup'));
+
+  document.getElementById('admin-close')?.addEventListener('click', () => {
+    closeAdminPanel();
+  });
+
+  document.getElementById('admin-save')?.addEventListener('click', () => {
+    adminSaveLibrary();
+  });
+
+  // Create type
+  document.getElementById('admin-type-quiz')?.addEventListener('click', () => setAdminCreateType('quiz'));
+  document.getElementById('admin-type-notes')?.addEventListener('click', () => setAdminCreateType('notes'));
+  document.getElementById('admin-type-folder')?.addEventListener('click', () => setAdminCreateType('folder'));
+
+  // Quick pick
+  document.getElementById('admin-quick-pick')?.addEventListener('change', (e) => {
+    const val = normalizePath(e.target.value || '');
+    if (val) setAdminTargetPath(val);
+    adminRefreshAll();
+  });
+
+  // Target path updates should refresh pdf list
+  document.getElementById('admin-target-path')?.addEventListener('input', () => {
+    adminUpdatePathHelpers();
+    adminRefreshFolderList();
+    // only refresh if notes tab visible
+    if (adminCreateType === 'notes') adminRefreshPdfList();
+  });
+
+  // Copy path
+  document.getElementById('admin-copy-path')?.addEventListener('click', adminCopyTargetPath);
+  document.getElementById('admin-preview-quiz')?.addEventListener('click', adminPreviewQuizSets);
+  document.getElementById('admin-preview-pdfs')?.addEventListener('click', adminPreviewPdfs);
+
+  // Quiz set create/select
+  document.getElementById('admin-quiz-create-btn')?.addEventListener('click', adminCreateQuizSet);
+  document.getElementById('admin-quiz-select')?.addEventListener('change', (e) => {
+    adminSelectQuizSet(e.target.value);
+  });
+
+  // Move tools
+  document.getElementById('admin-quiz-use-target-btn')?.addEventListener('click', () => {
+    const move = document.getElementById('admin-quiz-move-path');
+    if (move) move.value = getAdminTargetPath();
+  });
+  document.getElementById('admin-quiz-move-btn')?.addEventListener('click', adminMoveSelectedQuizSet);
+  document.getElementById('admin-quiz-delete-btn')?.addEventListener('click', adminDeleteSelectedQuizSet);
+
+  // Import/export
+  document.getElementById('admin-import-btn')?.addEventListener('click', adminImportQuestionsJson);
+  document.getElementById('admin-export-btn')?.addEventListener('click', adminExportSelectedQuizSet);
+
+  // Question builder
+  document.getElementById('admin-q-add-btn')?.addEventListener('click', adminAddQuestion);
+  document.getElementById('admin-q-clear-btn')?.addEventListener('click', adminClearQuestionBuilder);
+
+  // Notes
+  document.getElementById('admin-pdf-upload-btn')?.addEventListener('click', () => adminUploadPdf(adminGetPdfKind()));
+  document.getElementById('admin-pdf-attach-url-btn')?.addEventListener('click', () => adminAttachPdfUrl(adminGetPdfKind()));
+
+  // Folder tools
+  document.getElementById('admin-folder-create-btn')?.addEventListener('click', adminCreateFolder);
+  document.getElementById('admin-folder-open-btn')?.addEventListener('click', adminOpenTarget);
+  document.getElementById('admin-folder-rename-btn')?.addEventListener('click', adminRenameFolder);
+  document.getElementById('admin-folder-move-btn')?.addEventListener('click', adminMoveFolder);
+  document.getElementById('admin-folder-delete-btn')?.addEventListener('click', adminDeleteFolder);
+  document.getElementById('admin-folder-how-btn')?.addEventListener('click', adminHowItWorks);
+  document.getElementById('admin-folder-root-btn')?.addEventListener('click', () => setAdminTargetPath(''));
+
+  // Search
+  document.getElementById('admin-search-input')?.addEventListener('input', (e) => {
+    adminRenderSearchResults(e.target.value);
+  });
+  document.getElementById('admin-search-clear')?.addEventListener('click', () => {
+    const inp = document.getElementById('admin-search-input');
+    if (inp) inp.value = '';
+    adminRenderSearchResults('');
+  });
+
+  // Backup
+  document.getElementById('admin-backup-export')?.addEventListener('click', adminExportLibrary);
+  document.getElementById('admin-backup-export-js')?.addEventListener('click', adminExportLibraryJS);
+  document.getElementById('admin-backup-import-btn')?.addEventListener('click', adminImportLibrary);
+
+  // ✅ Live backend (accounts + online/logs)
+  document.getElementById('admin-create-account-btn')?.addEventListener('click', adminCreateAccountServer);
+  document.getElementById('admin-refresh-accounts-btn')?.addEventListener('click', adminRefreshServerAccounts);
+  document.getElementById('admin-refresh-online-btn')?.addEventListener('click', () => {
+    renderAdminOnlineUsers();
+    renderAdminLog();
+    liveRequestAdminRefresh();
+  });
+  document.getElementById('admin-clear-log-btn')?.addEventListener('click', () => {
+    liveAdminLog = [];
+    renderAdminLog();
+  });
+
+  // ✅ Backend URL setting (no need to edit index.html)
+  document.getElementById('admin-backend-url-save-btn')?.addEventListener('click', adminSaveBackendUrlFromUI);
+  document.getElementById('admin-backend-url-clear-btn')?.addEventListener('click', adminClearBackendUrlFromUI);
+  document.getElementById('admin-backend-url-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      adminSaveBackendUrlFromUI();
+    }
+  });
+
+  // Initial
+  setAdminCreateType('quiz');
+}
+
+// Init admin UI once DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  initAdminUI();
+  try { adminRefreshBackendUrlUI(); } catch (_) {}
+});
+
+// =========================
+// Small helpers
+// =========================
+function showLibraryHint(err) {
+  // left for future
+}
+
+
+// =========================
+// Debug aliases (optional)
+// =========================
+// Some users look for connectToBackend()/initLive() in the console.
+// These are safe aliases to the live backend connector.
+try {
+  window.connectToBackend = function connectToBackend() {
+    try { liveBackendUrl = getConfiguredBackendUrl(); } catch (_) {}
+    try { liveAuthToken = getLiveToken(); } catch (_) {}
+    try { liveConnect(); } catch (_) {}
+  };
+  window.initLive = window.connectToBackend;
+} catch (_) {}
