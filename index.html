@@ -18,7 +18,7 @@
 
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <!-- Tailwind CDN (kept for existing layouts) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -75,6 +75,13 @@
                             <input id="rememberMe" type="checkbox"> Remember
                         </label>
                         <button type="button" id="forgotPassLink" class="forgot-pass">Forgot password?</button>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <div
+                            class="g-recaptcha"
+                            data-sitekey="6Lc2FYQsAAAAAEL8VOZg4QAuOyo4aPExpRxIK9iS"
+                            data-theme="dark">
+                        </div>
                     </div>
                     <button type="submit" class="modern-login-btn">LOGIN</button>
                     <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
