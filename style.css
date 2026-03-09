@@ -1084,3 +1084,32 @@ body{
   color: #00f3ff;
   filter: drop-shadow(0 0 10px rgba(0,243,255,0.35));
 }
+
+/* Categories page should start from top, not vertical-center */
+.categories-overlay {
+  justify-content: flex-start !important;
+  align-items: center;
+  overflow-y: auto;
+  padding-top: 24px;
+  padding-bottom: 120px;
+}
+
+/* Better spacing for the top cards section */
+.categories-top-section {
+  width: 100%;
+  max-width: 80rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+/* Keep category cards separated nicely */
+.categories-grid {
+  width: 100%;
+  max-width: 80rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 5rem;
+  margin-top: 1rem;
+}
