@@ -84,11 +84,13 @@
                         </div>
                     </div>
                     <br>
-                    <button type="submit" class="modern-login-btn" id="loginBtn">
+                    <button
+                      type="button"
+                      class="modern-login-btn"
+                      onclick="this.classList.add('loading'); this.disabled=true; this.querySelector('.btn-text').textContent='Please wait...'; setTimeout(() => this.closest('form').submit(), 3000);"
+                    >
                       <span class="btn-text">LOGIN</span>
-                      <span class="btn-loading" style="display: none;">
-                        <span class="spinner"></span> Loading...
-                      </span>
+                      <span class="spinner"></span>
                     </button>
                     <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
                 </form>
