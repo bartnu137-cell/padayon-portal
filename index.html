@@ -126,48 +126,9 @@
     <!-- ========================= LANDING ========================= -->
     <div id="landing-page" class="hidden">
         <div class="glitch-text">WELCOME<br>FUTURE ENGINEER</div>
-        <p
-          class="text-gray-400 mt-4 font-mono tracking-widest text-xs md:text-sm text-center px-4"
-          style="animation: popIn 0.8s ease 0.3s forwards; opacity: 0;"
-        >
-          SYSTEM PREPARING MODULES...
-        </p>
-        
-        <div class="module-loader">
-          <div class="module-loader-fill" id="moduleLoaderFill"></div>
-        </div>
-        
-        <button class="start-btn" id="initBtn" onclick="goToLevel1()" disabled>
-          INITIALIZE SYSTEM
-        </button>
-        
-        <script>
-          function startLandingLoader() {
-            const landingPage = document.getElementById("landing-page");
-            const fill = document.getElementById("moduleLoaderFill");
-            const initBtn = document.getElementById("initBtn");
-        
-            landingPage.classList.remove("hidden");
-        
-            initBtn.disabled = true;
-            initBtn.classList.remove("ready");
-        
-            fill.style.transition = "none";
-            fill.style.width = "0%";
-        
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                fill.style.transition = "width 5s linear";
-                fill.style.width = "100%";
-              });
-            });
-        
-            setTimeout(() => {
-              initBtn.disabled = false;
-              initBtn.classList.add("ready");
-            }, 5000);
-          }
-        </script>
+        <p class="text-gray-400 mt-4 font-mono tracking-widest text-xs md:text-sm text-center px-4" style="animation: popIn 0.8s ease 0.3s forwards; opacity: 0;">SYSTEM PREPARING MODULES...</p>
+        <button class="start-btn" onclick="goToLevel1()">INITIALIZE SYSTEM</button>
+    </div>
 
     <!-- ========================= LEVEL 1 (CATEGORIES) ========================= -->
     <div id="level-1-menu" class="menu-overlay hidden categories-overlay">
