@@ -142,19 +142,31 @@
         </button>
         
         <script>
-          window.addEventListener("load", function () {
+          function startLandingLoader() {
+            const landingPage = document.getElementById("landing-page");
             const fill = document.getElementById("moduleLoaderFill");
             const initBtn = document.getElementById("initBtn");
         
-            setTimeout(() => {
-              fill.style.width = "100%";
-            }, 100);
+            landingPage.classList.remove("hidden");
+        
+            initBtn.disabled = true;
+            initBtn.classList.remove("ready");
+        
+            fill.style.transition = "none";
+            fill.style.width = "0%";
+        
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                fill.style.transition = "width 5s linear";
+                fill.style.width = "100%";
+              });
+            });
         
             setTimeout(() => {
               initBtn.disabled = false;
               initBtn.classList.add("ready");
-            }, 5100);
-          });
+            }, 5000);
+          }
         </script>
 
     <!-- ========================= LEVEL 1 (CATEGORIES) ========================= -->
