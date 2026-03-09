@@ -142,22 +142,20 @@
         </button>
         
         <script>
-          let progress = 0;
-          const fill = document.getElementById("moduleLoaderFill");
-          const initBtn = document.getElementById("initBtn");
+          window.addEventListener("load", function () {
+            const fill = document.getElementById("moduleLoaderFill");
+            const initBtn = document.getElementById("initBtn");
         
-          const loader = setInterval(() => {
-            progress += 2;
-            fill.style.width = progress + "%";
+            setTimeout(() => {
+              fill.style.width = "100%";
+            }, 100);
         
-            if (progress >= 100) {
-              clearInterval(loader);
+            setTimeout(() => {
               initBtn.disabled = false;
               initBtn.classList.add("ready");
-            }
-          }, 60);
+            }, 5100);
+          });
         </script>
-    </div>
 
     <!-- ========================= LEVEL 1 (CATEGORIES) ========================= -->
     <div id="level-1-menu" class="menu-overlay hidden categories-overlay">
