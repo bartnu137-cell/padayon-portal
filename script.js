@@ -54,6 +54,7 @@ let lastAppliedLibraryUpdatedAtMs = 0;
 // =========================
 const LIVE_BACKEND_URL_KEY = 'padayon_backend_url';
 const LIVE_TOKEN_KEY = 'padayon_auth_token_v1';
+const LIVE_MANAGED_UPLOAD_PREFIX = '/uploads/pdfs/';
 
 let liveBackendUrl = '';
 let liveAuthToken = '';
@@ -119,6 +120,66 @@ function setConfiguredBackendUrl(url) {
 
   liveBackendUrl = clean;
   updateLiveStatusUI();
+}
+
+const ONLINE_USERS_COLLAPSED_KEY = 'padayon_online_users_collapsed_v1';
+const SCORE_HISTORY_COLLAPSED_KEY = 'padayon_score_history_collapsed_v1';
+
+let onlineUsersCollapsed = true;
+let scoreHistoryCollapsed = true;
+
+function readCollapsedPref(key, fallback = true) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return raw === '1';
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function saveCollapsedPref(key, value) {
+  try {
+    localStorage.setItem(key, value ? '1' : '0');
+  } catch (_) {}
+}
+
+function renderLandingCardToggles() {
+  const onlineBody = document.getElementById('online-users-body');
+  const onlineBtn = document.getElementById('online-users-toggle');
+
+  if (onlineBody) onlineBody.classList.toggle('hidden', onlineUsersCollapsed);
+  if (onlineBtn) {
+    onlineBtn.textContent = onlineUsersCollapsed ? 'SHOW' : 'HIDE';
+    onlineBtn.setAttribute('aria-expanded', onlineUsersCollapsed ? 'false' : 'true');
+  }
+
+  const scoreBody = document.getElementById('score-history-body');
+  const scoreBtn = document.getElementById('score-history-toggle');
+
+  if (scoreBody) scoreBody.classList.toggle('hidden', scoreHistoryCollapsed);
+  if (scoreBtn) {
+    scoreBtn.textContent = scoreHistoryCollapsed ? 'SHOW' : 'HIDE';
+    scoreBtn.setAttribute('aria-expanded', scoreHistoryCollapsed ? 'false' : 'true');
+  }
+}
+
+function toggleOnlineUsersCard() {
+  onlineUsersCollapsed = !onlineUsersCollapsed;
+  saveCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, onlineUsersCollapsed);
+  renderLandingCardToggles();
+}
+
+function toggleScoreHistoryCard() {
+  scoreHistoryCollapsed = !scoreHistoryCollapsed;
+  saveCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, scoreHistoryCollapsed);
+  renderLandingCardToggles();
+}
+
+function initLandingCardToggles() {
+  onlineUsersCollapsed = readCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, true);
+  scoreHistoryCollapsed = readCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, true);
+  renderLandingCardToggles();
 }
 
 // --- Admin UI: Backend URL (stored in localStorage) ---
@@ -1523,6 +1584,7 @@ function logoutToLogin() {
 // Enter key triggers login
 document.addEventListener('DOMContentLoaded', () => {
   initRememberMe();
+  initLandingCardToggles();
 
   const pw = document.getElementById('password');
   if (pw) {
@@ -3444,8 +3506,29 @@ async function adminUploadPdf(kind = 'notes') {
   const folder = getAdminTargetPath() || 'GLOBAL';
   ensureFolder(folder);
 
-  const autoUrl = file ? ('assets/pdfs/' + encodeURIComponent(file.name)) : '';
-  const safeSrc = encodeURI(rawUrl || autoUrl);
+  let safeSrc = encodeURI(rawUrl || '');
+  let usedBackendUpload = false;
+
+  if (!safeSrc && file) {
+    if (liveIsEnabled() && liveAuthToken && session?.role === 'admin') {
+      try {
+        const uploaded = await liveUploadPdfFile(file);
+        safeSrc = String(uploaded.url || uploaded.path || '').trim();
+        usedBackendUpload = true;
+      } catch (err) {
+        console.warn(err);
+        alert('Backend PDF upload failed: ' + String(err?.message || err));
+        return;
+      }
+    } else {
+      safeSrc = 'assets/pdfs/' + encodeURIComponent(file.name);
+    }
+  }
+
+  if (!safeSrc) {
+    alert('Could not determine PDF URL/path.');
+    return;
+  }
 
   library.pdfs.push({
     id: uid('pdf'),
@@ -3465,7 +3548,9 @@ async function adminUploadPdf(kind = 'notes') {
   adminRefreshPdfList();
 
   if (rawUrl) {
-    alert('PDF URL attached. Library now stores only the URL/path.');
+    alert('PDF URL attached. Library stores only the URL/path.');
+  } else if (usedBackendUpload) {
+    alert('PDF uploaded to backend and attached successfully.');
   } else {
     alert(`PDF entry saved as URL only:\n${safeSrc}\n\nUpload the real PDF file to that same path in your repo or hosting.`);
   }
@@ -3555,8 +3640,17 @@ function adminRefreshPdfList() {
       openPdfOverlay(p.id, 'admin-overlay');
     });
 
-    delBtn.addEventListener('click', () => {
+    delBtn.addEventListener('click', async () => {
       if (!confirm(`Delete PDF: "${p.title}"?`)) return;
+
+      const delResult = await liveDeleteManagedPdf(p.src);
+      if (delResult.reason === 'error') {
+        const proceed = confirm(
+          'The PDF entry will be removed from the library, but the backend file could not be deleted.\n\nContinue anyway?'
+        );
+        if (!proceed) return;
+      }
+
       library.pdfs = library.pdfs.filter(x => x.id !== p.id);
       touchLibrary();
       adminRefreshPdfList();
