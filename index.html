@@ -129,51 +129,51 @@
         <div id="online-users-card" class="w-full max-w-5xl px-4 mt-4">
         <div class="cyber-card p-4 rounded-xl">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div>
-                    <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
-                    <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
-                    <button
-                        id="online-users-toggle"
-                        type="button"
-                        onclick="toggleOnlineUsersCard()"
-                        class="admin-mini-btn">
-                        SHOW
-                    </button>
-                </div>
+            <div>
+                <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
+                <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
             </div>
 
-            <div id="online-users-body" class="hidden" style="display:none;">
-                <div id="online-users-list" class="flex flex-wrap gap-2"></div>
+            <div class="flex items-center gap-2">
+                <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
+                <button
+                id="online-users-toggle"
+                type="button"
+                onclick="toggleOnlineUsersCard()"
+                class="admin-mini-btn">
+                SHOW
+                </button>
+            </div>
+            </div>
+
+            <div id="online-users-body" class="hidden mt-3" style="display:none;">
+            <div id="online-users-list" class="flex flex-wrap gap-2"></div>
             </div>
         </div>
         </div>
 
-        <div id="score-history-body" class="hidden" style="display:none;">
-        <div id="score-history-list" class="flex flex-col gap-2"></div>
+        <div id="score-history-card" class="w-full max-w-5xl px-4 mt-4">
+        <div class="cyber-card p-4 rounded-xl">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div>
-                    <div class="text-sm font-mono tracking-widest text-gray-300">RECENT SCORES</div>
-                    <div id="score-history-sub" class="text-xs font-mono text-gray-500">Login to view your recent exam scores.</div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div id="score-history-count" class="text-xs font-mono text-gray-400">0</div>
-                    <button
-                        id="score-history-toggle"
-                        type="button"
-                        onclick="toggleScoreHistoryCard()"
-                        class="admin-mini-btn">
-                        SHOW
-                    </button>
-                </div>
+            <div>
+                <div class="text-sm font-mono tracking-widest text-gray-300">RECENT SCORES</div>
+                <div id="score-history-sub" class="text-xs font-mono text-gray-500">Login to view your recent exam scores.</div>
             </div>
 
-            <div id="score-history-body" class="hidden mt-3">
-                <div id="score-history-list" class="flex flex-col gap-2"></div>
+            <div class="flex items-center gap-2">
+                <div id="score-history-count" class="text-xs font-mono text-gray-400">0</div>
+                <button
+                id="score-history-toggle"
+                type="button"
+                onclick="toggleScoreHistoryCard()"
+                class="admin-mini-btn">
+                SHOW
+                </button>
+            </div>
+            </div>
+
+            <div id="score-history-body" class="hidden mt-3" style="display:none;">
+            <div id="score-history-list" class="flex flex-col gap-2"></div>
             </div>
         </div>
         </div>
