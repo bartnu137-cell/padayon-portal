@@ -84,14 +84,22 @@
                         </div>
                     </div>
                     <br>
-                    <button
-                      type="button"
-                      class="modern-login-btn"
-                      onclick="this.classList.add('loading'); this.disabled=true; this.querySelector('.btn-text').textContent='Please wait...'; setTimeout(() => this.closest('form').submit(), 3000);"
-                    >
+                    <button type="button" class="modern-login-btn" onclick="delayedLogin(this)">
                       <span class="btn-text">LOGIN</span>
                       <span class="spinner"></span>
                     </button>
+                    
+                    <script>
+                      function delayedLogin(btn) {
+                        btn.classList.add('loading');
+                        btn.disabled = true;
+                        btn.querySelector('.btn-text').textContent = 'Please wait...';
+                    
+                        setTimeout(() => {
+                          verifyLogin();
+                        }, 3000);
+                      }
+                    </script>
                     <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
                 </form>
             </div>
