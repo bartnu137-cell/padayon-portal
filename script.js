@@ -1,1 +1,5148 @@
-const _0x3c626c=_0x3d24;(function(_0x2b375c,_0x115b2a){const _0x16a62a=_0x3d24,_0x27210e=_0x2b375c();while(!![]){try{const _0x53b8a8=parseInt(_0x16a62a(0x237))/0x1+parseInt(_0x16a62a(0x1cb))/0x2+-parseInt(_0x16a62a(0x159))/0x3+-parseInt(_0x16a62a(0x22e))/0x4+parseInt(_0x16a62a(0x335))/0x5*(-parseInt(_0x16a62a(0x2ac))/0x6)+parseInt(_0x16a62a(0x2f1))/0x7*(parseInt(_0x16a62a(0x3bd))/0x8)+-parseInt(_0x16a62a(0x213))/0x9*(-parseInt(_0x16a62a(0x3bf))/0xa);if(_0x53b8a8===_0x115b2a)break;else _0x27210e['push'](_0x27210e['shift']());}catch(_0x2c14bf){_0x27210e['push'](_0x27210e['shift']());}}}(_0x108a,0x38859));const ACCOUNTS=[{'username':_0x3c626c(0x33b),'password':_0x3c626c(0x33b),'role':_0x3c626c(0x33b)},{'username':_0x3c626c(0x2d9),'password':_0x3c626c(0x270),'role':_0x3c626c(0x2c2)},{'username':_0x3c626c(0x209),'password':'carl','role':_0x3c626c(0x2c2)},{'username':_0x3c626c(0x373),'password':_0x3c626c(0x1aa),'role':_0x3c626c(0x2c2)},{'username':_0x3c626c(0x37b),'password':_0x3c626c(0x3b6),'role':_0x3c626c(0x2c2)},{'username':'castillo','password':_0x3c626c(0x14c),'role':_0x3c626c(0x2c2)},{'username':_0x3c626c(0x11f),'password':'mj','role':'user'},{'username':_0x3c626c(0x267),'password':'pj','role':_0x3c626c(0x2c2)},{'username':_0x3c626c(0x146),'password':_0x3c626c(0x212),'role':_0x3c626c(0x2c2)},{'username':_0x3c626c(0x254),'password':_0x3c626c(0x183),'role':_0x3c626c(0x2c2)}];let session={'username':null,'role':null},activeMenu=_0x3c626c(0x21b);const LIBRARY_FILENAME=_0x3c626c(0x2f6),LIBRARY_JS_FILENAME=_0x3c626c(0x322),LIBRARY_CACHE_KEY=_0x3c626c(0x370),LIBRARY_GLOBAL_VAR=_0x3c626c(0x20e),LIBRARY_SYNC_CHANNEL=_0x3c626c(0xe9);let librarySyncChannel=null,librarySyncInitialized=![],lastAppliedLibraryUpdatedAtMs=0x0;const LIVE_BACKEND_URL_KEY='padayon_backend_url',LIVE_TOKEN_KEY=_0x3c626c(0x2fc);let liveBackendUrl='',liveAuthToken='',liveWs=null,liveWsConnected=![],liveReconnectTimer=null,liveReconnectDelayMs=0x3e8,liveClientId=null,liveOnlinePublic=[],liveOnlineAdmin=[],liveAdminLog=[],liveLastPresenceHash='',liveLibraryPushTimer=null,liveLastLibraryPushedAtMs=0x0;function trimSlash(_0x50ebc7){const _0x29281b=_0x3c626c;return String(_0x50ebc7||'')[_0x29281b(0x3b9)]()[_0x29281b(0x346)](/\/+$/,'');}function getConfiguredBackendUrl(){const _0x27a00c=_0x3c626c;let _0x29861e='';try{_0x29861e=trimSlash(localStorage[_0x27a00c(0x263)](LIVE_BACKEND_URL_KEY)||'');}catch(_0x17d63f){_0x29861e='';}if(!_0x29861e)try{_0x29861e=trimSlash(window[_0x27a00c(0x14a)]||'');}catch(_0x3704ad){_0x29861e='';}_0x29861e&&!/^https?:\/\//i['test'](_0x29861e)&&(_0x29861e=_0x27a00c(0x203)+_0x29861e);try{if(_0x29861e)localStorage['setItem'](LIVE_BACKEND_URL_KEY,_0x29861e);}catch(_0x2593fa){}return _0x29861e;}function setConfiguredBackendUrl(_0x31ca80){const _0x5f3007=_0x3c626c;let _0x1b29b2=trimSlash(_0x31ca80);if(_0x1b29b2&&!/^https?:\/\//i[_0x5f3007(0x19a)](_0x1b29b2))_0x1b29b2='https://'+_0x1b29b2;try{if(_0x1b29b2)localStorage['setItem'](LIVE_BACKEND_URL_KEY,_0x1b29b2);else localStorage[_0x5f3007(0x320)](LIVE_BACKEND_URL_KEY);}catch(_0x488473){}liveBackendUrl=_0x1b29b2,updateLiveStatusUI();}function adminRefreshBackendUrlUI(){const _0x2bf93b=_0x3c626c,_0x3e39eb=document[_0x2bf93b(0x138)](_0x2bf93b(0x2bb)),_0x144176=document['getElementById'](_0x2bf93b(0x2de)),_0x3589bf=getConfiguredBackendUrl();_0x3e39eb&&document[_0x2bf93b(0x181)]!==_0x3e39eb&&(_0x3e39eb[_0x2bf93b(0x11c)]=_0x3589bf||''),_0x144176&&(_0x144176[_0x2bf93b(0x174)]=_0x2bf93b(0x188)+(_0x3589bf||_0x2bf93b(0x136)));}async function liveReloginFromRememberIfPossible(){const _0x3ce6c2=_0x3c626c;if(!liveIsEnabled())return{'ok':![],'reason':_0x3ce6c2(0x351)};if(!session?.[_0x3ce6c2(0x109)])return{'ok':![],'reason':_0x3ce6c2(0x1db)};if(liveAuthToken)return{'ok':!![],'reason':_0x3ce6c2(0x179)};return{'ok':![],'reason':_0x3ce6c2(0x38e)};}async function adminSaveBackendUrlFromUI(){const _0x4644ba=_0x3c626c,_0x17d7a9=document[_0x4644ba(0x138)](_0x4644ba(0x2bb));if(!_0x17d7a9)return;const _0x437980=trimSlash(liveBackendUrl),_0xda7be1=String(_0x17d7a9[_0x4644ba(0x11c)]||'')[_0x4644ba(0x3b9)]();setConfiguredBackendUrl(_0xda7be1),liveBackendUrl=getConfiguredBackendUrl();const _0x149085=trimSlash(liveBackendUrl);_0x437980!==_0x149085&&setLiveToken('');try{liveDisconnect();}catch(_0x33670c){}try{session?.[_0x4644ba(0x109)]&&liveIsEnabled()&&(liveAuthToken=getLiveToken(),await liveReloginFromRememberIfPossible(),liveAuthToken=getLiveToken(),liveConnect(),loadLibraryFromBackend());}catch(_0x56477f){}adminRefreshBackendUrlUI();}function adminClearBackendUrlFromUI(){setConfiguredBackendUrl(''),setLiveToken('');try{liveDisconnect();}catch(_0x10b69d){}try{liveOnlinePublic=[],liveOnlineAdmin=[],renderOnlineUsersWidget(),renderAdminOnlineUsers(),renderAdminLog(),updateLiveStatusUI();}catch(_0x281a77){}adminRefreshBackendUrlUI();}function getLiveToken(){const _0x269126=_0x3c626c;try{return String(localStorage[_0x269126(0x263)](LIVE_TOKEN_KEY)||'')['trim']();}catch(_0x52ef89){return'';}}function setLiveToken(_0x361661){const _0x113447=_0x3c626c,_0x2c0b93=String(_0x361661||'')[_0x113447(0x3b9)]();try{if(_0x2c0b93)localStorage[_0x113447(0x2ce)](LIVE_TOKEN_KEY,_0x2c0b93);else localStorage[_0x113447(0x320)](LIVE_TOKEN_KEY);}catch(_0x43db6a){}liveAuthToken=_0x2c0b93;}function httpToWsUrl(_0x2fd8cc){const _0x229709=_0x3c626c,_0x171a62=String(_0x2fd8cc||'')[_0x229709(0x3b9)]();if(!_0x171a62)return'';if(_0x171a62[_0x229709(0x3c3)](_0x229709(0x203)))return _0x229709(0x328)+_0x171a62[_0x229709(0x15c)](_0x229709(0x203)[_0x229709(0xe7)]);if(_0x171a62[_0x229709(0x3c3)](_0x229709(0x2c3)))return _0x229709(0x1b6)+_0x171a62[_0x229709(0x15c)](_0x229709(0x2c3)[_0x229709(0xe7)]);return _0x229709(0x328)+_0x171a62[_0x229709(0x346)](/^wss?:\/\//,'');}function liveIsEnabled(){const _0x319c84=_0x3c626c;return!!(liveBackendUrl&&liveBackendUrl[_0x319c84(0x3c3)]('http'));}async function liveApiFetch(_0xfd3a77,{method:method=_0x3c626c(0x2d5),body:body=null,headers:headers={}}={}){const _0x5532f4=_0x3c626c;if(!liveIsEnabled())throw new Error(_0x5532f4(0x3c4));const _0x5a0388=trimSlash(liveBackendUrl)+String(_0xfd3a77||''),_0x3c70d7={'Content-Type':_0x5532f4(0x1f6),...headers};if(liveAuthToken)_0x3c70d7[_0x5532f4(0x2d6)]='Bearer\x20'+liveAuthToken;const _0x118ade=await fetch(_0x5a0388,{'method':method,'headers':_0x3c70d7,'body':body?JSON[_0x5532f4(0x18e)](body):null}),_0x50979d=await _0x118ade[_0x5532f4(0x3a6)]();let _0x3cf4b8=null;try{_0x3cf4b8=_0x50979d?JSON[_0x5532f4(0x2f8)](_0x50979d):null;}catch(_0x3a1527){_0x3cf4b8=null;}if(!_0x118ade['ok']){const _0x18731d=_0x3cf4b8&&(_0x3cf4b8[_0x5532f4(0x202)]||_0x3cf4b8['message'])?_0x3cf4b8['error']||_0x3cf4b8[_0x5532f4(0x111)]:_0x50979d||_0x5532f4(0x311)+_0x118ade[_0x5532f4(0x32c)];throw new Error(_0x18731d);}return _0x3cf4b8;}async function liveTryBackendLogin(_0xa136d0,_0x74d13a,_0xabe9ea){const _0x498bc2=_0x3c626c;if(!liveIsEnabled())return{'ok':![],'reason':_0x498bc2(0x351)};try{const _0xb9847=await liveApiFetch(_0x498bc2(0x22c),{'method':'POST','body':{'username':_0xa136d0,'password':_0x74d13a,'captchaToken':_0xabe9ea}});if(_0xb9847?.[_0x498bc2(0x153)])return setLiveToken(_0xb9847[_0x498bc2(0x153)]),{'ok':!![],'token':_0xb9847['token'],'user':_0xb9847[_0x498bc2(0x2c2)]||{'username':_0xa136d0,'role':'user'}};return{'ok':![],'reason':_0x498bc2(0x1bb)};}catch(_0x30f608){return{'ok':![],'reason':_0x498bc2(0x202),'error':_0x30f608};}}function liveConnect(){const _0x54ae2b=_0x3c626c;if(!liveIsEnabled()){updateLiveStatusUI();return;}if(!liveClientId){try{const _0x5a2e67=localStorage[_0x54ae2b(0x263)](_0x54ae2b(0x36b));if(_0x5a2e67)liveClientId=_0x5a2e67;}catch(_0x5c7aff){}if(!liveClientId){liveClientId=uid(_0x54ae2b(0x15e));try{localStorage[_0x54ae2b(0x2ce)](_0x54ae2b(0x36b),liveClientId);}catch(_0x36b796){}}}if(liveWs&&(liveWs[_0x54ae2b(0x2fa)]===WebSocket[_0x54ae2b(0x21a)]||liveWs[_0x54ae2b(0x2fa)]===WebSocket[_0x54ae2b(0x19d)])){updateLiveStatusUI();return;}const _0x5701ab=httpToWsUrl(liveBackendUrl)+'/ws';try{liveWs=new WebSocket(_0x5701ab);}catch(_0x5cbc8d){console[_0x54ae2b(0x2fd)](_0x54ae2b(0x19e),_0x5cbc8d),liveWs=null,scheduleLiveReconnect(),updateLiveStatusUI();return;}liveWs[_0x54ae2b(0x1fa)]=()=>{const _0x33c438=_0x54ae2b;liveWsConnected=!![],liveReconnectDelayMs=0x3e8,updateLiveStatusUI(),safeLiveSend({'type':_0x33c438(0xdd),'token':liveAuthToken||null,'username':session?.[_0x33c438(0x109)]||null,'role':session?.[_0x33c438(0x198)]||null,'clientId':liveClientId,'ua':navigator[_0x33c438(0x171)],'ts':Date['now']()});try{liveSetActivity('Online',{'view':currentViewName()});}catch(_0x1c216d){}},liveWs[_0x54ae2b(0x2b8)]=_0xb89d8f=>{const _0x22d366=_0x54ae2b,_0x46b703=String(_0xb89d8f?.['data']||'');if(!_0x46b703)return;let _0x4e3968=null;try{_0x4e3968=JSON[_0x22d366(0x2f8)](_0x46b703);}catch(_0x20427e){return;}if(!_0x4e3968||typeof _0x4e3968!==_0x22d366(0x34d))return;handleLiveMessage(_0x4e3968);},liveWs['onclose']=()=>{liveWsConnected=![],updateLiveStatusUI(),scheduleLiveReconnect();},liveWs[_0x54ae2b(0x1a0)]=()=>{updateLiveStatusUI();},updateLiveStatusUI();}function liveDisconnect(){try{if(liveReconnectTimer)clearTimeout(liveReconnectTimer);}catch(_0x2664f5){}liveReconnectTimer=null,liveReconnectDelayMs=0x3e8;try{if(liveWs)liveWs['close']();}catch(_0x5ef578){}liveWs=null,liveWsConnected=![],updateLiveStatusUI();}function scheduleLiveReconnect(){const _0x569a5e=_0x3c626c;if(!liveIsEnabled())return;if(liveReconnectTimer)return;const _0x194c3c=Math['min'](0x3a98,Math['max'](0x3e8,liveReconnectDelayMs));liveReconnectDelayMs=Math[_0x569a5e(0x284)](0x3a98,_0x194c3c*1.6),liveReconnectTimer=setTimeout(()=>{liveReconnectTimer=null;if(session?.['username'])liveConnect();},_0x194c3c);}function safeLiveSend(_0x14cf14){const _0x102c94=_0x3c626c;try{if(!liveWs||liveWs[_0x102c94(0x2fa)]!==WebSocket[_0x102c94(0x21a)])return![];return liveWs['send'](JSON[_0x102c94(0x18e)](_0x14cf14)),!![];}catch(_0x4d9a7c){return![];}}function currentViewName(){const _0x25afc0=_0x3c626c;if(!session?.[_0x25afc0(0x109)])return _0x25afc0(0x25b);if(!document[_0x25afc0(0x138)](_0x25afc0(0xea))?.[_0x25afc0(0x35c)]['contains'](_0x25afc0(0x1d9)))return'ADMIN';if(!document['getElementById'](_0x25afc0(0x11b))?.[_0x25afc0(0x35c)]['contains'](_0x25afc0(0x1d9)))return _0x25afc0(0x377);if(!document[_0x25afc0(0x138)](_0x25afc0(0x314))?.['classList'][_0x25afc0(0x360)](_0x25afc0(0x1d9)))return _0x25afc0(0xef);if(!document[_0x25afc0(0x138)]('quiz-browser-overlay')?.['classList']['contains']('hidden'))return'QUIZ_BROWSER';if(!document[_0x25afc0(0x138)]('main-app')?.[_0x25afc0(0x35c)]['contains'](_0x25afc0(0x1d9)))return _0x25afc0(0xf5);if(!document[_0x25afc0(0x138)](_0x25afc0(0x28f))?.[_0x25afc0(0x35c)][_0x25afc0(0x360)](_0x25afc0(0x1d9)))return _0x25afc0(0x133);return _0x25afc0(0xfc);}function liveSetActivity(_0x59190b,_0x4977b5={}){const _0x40bdaf=_0x3c626c,_0x504d2a=Date[_0x40bdaf(0x238)](),_0x34e52e={'type':_0x40bdaf(0x164),'activity':String(_0x59190b||'')[_0x40bdaf(0x15c)](0x0,0xb4),'view':_0x4977b5['view']||currentViewName(),'path':_0x4977b5['path']||null,'details':_0x4977b5['details']||null,'ts':_0x504d2a};if(!liveWsConnected)return;if(liveSetActivity[_0x40bdaf(0xf4)]&&_0x504d2a-liveSetActivity[_0x40bdaf(0xf4)]<0x15e)return;liveSetActivity[_0x40bdaf(0xf4)]=_0x504d2a,safeLiveSend(_0x34e52e);}function handleLiveMessage(_0x99bfd){const _0x32815c=_0x3c626c,_0x5854aa=String(_0x99bfd[_0x32815c(0x356)]||'');if(_0x5854aa===_0x32815c(0x104)){alert(_0x99bfd[_0x32815c(0x124)]||_0x32815c(0x3ca)),logoutToLogin();return;}if(_0x5854aa===_0x32815c(0x3d0)){liveOnlinePublic=Array[_0x32815c(0x1bd)](_0x99bfd[_0x32815c(0x178)])?_0x99bfd[_0x32815c(0x178)]:[],renderOnlineUsersWidget();return;}if(_0x5854aa===_0x32815c(0x39d)){liveOnlineAdmin=Array[_0x32815c(0x1bd)](_0x99bfd[_0x32815c(0x178)])?_0x99bfd['users']:[],liveOnlinePublic=liveOnlineAdmin[_0x32815c(0x379)](_0x2b6f23=>({'username':_0x2b6f23[_0x32815c(0x109)],'role':_0x2b6f23[_0x32815c(0x198)]})),renderOnlineUsersWidget(),renderAdminOnlineUsers();return;}if(_0x5854aa==='library:changed'){const _0x1b034e=Number(_0x99bfd['ms']||0x0);_0x1b034e&&_0x1b034e>getLibraryUpdatedAtMs(library)&&loadLibraryFromBackend();return;}if(_0x5854aa===_0x32815c(0x34f)){Array[_0x32815c(0x1bd)](_0x99bfd[_0x32815c(0x27c)])&&(liveAdminLog=_0x99bfd['items']['slice'](-0xc8),renderAdminLog());return;}if(_0x5854aa===_0x32815c(0x34a)){const _0x1d5e22=_0x99bfd[_0x32815c(0x122)];if(_0x1d5e22&&typeof _0x1d5e22===_0x32815c(0x34d)){liveAdminLog[_0x32815c(0x16f)](_0x1d5e22);if(liveAdminLog[_0x32815c(0xe7)]>0xc8)liveAdminLog=liveAdminLog[_0x32815c(0x15c)](-0xc8);renderAdminLog();}return;}if(_0x5854aa==='hello:ack'){updateLiveStatusUI(_0x99bfd);session?.[_0x32815c(0x198)]===_0x32815c(0x33b)&&(safeLiveSend({'type':_0x32815c(0x217)}),safeLiveSend({'type':_0x32815c(0x3b3)}));return;}}function updateLiveStatusUI(_0x85473e=null){const _0x474550=_0x3c626c,_0x55dfcc=document[_0x474550(0x138)](_0x474550(0x1b1));if(_0x55dfcc){if(!session?.[_0x474550(0x109)])_0x55dfcc['textContent']=_0x474550(0x1a2);else{if(!liveIsEnabled())_0x55dfcc[_0x474550(0x174)]=_0x474550(0x393);else{if(liveWsConnected)_0x55dfcc['textContent']='Live\x20connected.';else _0x55dfcc[_0x474550(0x174)]=_0x474550(0x139);}}}const _0x2f80c0=document['getElementById']('admin-live-status');if(_0x2f80c0){if(!liveIsEnabled())_0x2f80c0[_0x474550(0x174)]=_0x474550(0x2b1);else{if(liveWsConnected)_0x2f80c0[_0x474550(0x174)]=_0x474550(0x2d4);else _0x2f80c0[_0x474550(0x174)]=_0x474550(0x197);}}const _0x24e856=document[_0x474550(0x138)]('admin-account-status');if(_0x24e856){if(!liveIsEnabled())_0x24e856['textContent']=_0x474550(0x2b1);else{if(!liveAuthToken)_0x24e856['textContent']=_0x474550(0x2f2);else _0x24e856[_0x474550(0x174)]=liveWsConnected?'Backend:\x20authenticated\x20+\x20live\x20connected.':_0x474550(0x38a);}}}function renderOnlineUsersWidget(){const _0x3191ae=_0x3c626c,_0xc50e70=document['getElementById'](_0x3191ae(0x2da)),_0x1f35a0=document[_0x3191ae(0x138)](_0x3191ae(0x2b4));if(!_0xc50e70||!_0x1f35a0)return;const _0x349045=Array[_0x3191ae(0x1bd)](liveOnlinePublic)?liveOnlinePublic:[];_0xc50e70[_0x3191ae(0x174)]=String(_0x349045[_0x3191ae(0xe7)]);if(!session?.[_0x3191ae(0x109)]){_0x1f35a0[_0x3191ae(0x199)]=_0x3191ae(0x156);return;}if(!liveIsEnabled()){_0x1f35a0[_0x3191ae(0x199)]=_0x3191ae(0x1c5);return;}if(!liveWsConnected){_0x1f35a0[_0x3191ae(0x199)]='<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(connecting…)</span>';return;}if(_0x349045['length']===0x0){_0x1f35a0[_0x3191ae(0x199)]='<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>No\x20one\x20online.</span>';return;}_0x1f35a0['innerHTML']=_0x349045[_0x3191ae(0x379)](_0x58c531=>{const _0x3c6d7d=_0x3191ae,_0x3cc99f=escapeHTML(_0x58c531?.[_0x3c6d7d(0x109)]||_0x3c6d7d(0x2c2));return _0x3c6d7d(0x2c6)+_0x3cc99f+_0x3c6d7d(0x2fb);})[_0x3191ae(0x3b4)]('');}function renderAdminOnlineUsers(){const _0x3fd1f1=_0x3c626c,_0x1020b6=document[_0x3fd1f1(0x138)](_0x3fd1f1(0x1ec));if(!_0x1020b6)return;if(session?.[_0x3fd1f1(0x198)]!==_0x3fd1f1(0x33b)){_0x1020b6[_0x3fd1f1(0x199)]=_0x3fd1f1(0x399);return;}if(!liveWsConnected){_0x1020b6[_0x3fd1f1(0x199)]=_0x3fd1f1(0x2a5);return;}const _0x3b37c3=Array[_0x3fd1f1(0x1bd)](liveOnlineAdmin)?liveOnlineAdmin:[];if(_0x3b37c3[_0x3fd1f1(0xe7)]===0x0){_0x1020b6[_0x3fd1f1(0x199)]=_0x3fd1f1(0x34c);return;}_0x1020b6['innerHTML']=_0x3b37c3['map'](_0x3af7ae=>{const _0x553aa1=_0x3fd1f1,_0x1591ed=escapeHTML(_0x3af7ae['username']||_0x553aa1(0x2c2)),_0x3ec0f7=escapeHTML(_0x3af7ae[_0x553aa1(0x198)]||_0x553aa1(0x2c2)),_0x1be681=escapeHTML(_0x3af7ae['activity']||_0x553aa1(0x1b9)),_0x21d135=_0x3af7ae[_0x553aa1(0x13a)]?escapeHTML(String(_0x3af7ae[_0x553aa1(0x13a)])):'',_0x57bd6f=_0x3af7ae['view']?escapeHTML(String(_0x3af7ae['view'])):'',_0x255ee1=[_0x1be681,_0x57bd6f?_0x553aa1(0x247)+_0x57bd6f:null,_0x21d135?'PATH:\x20'+_0x21d135:null]['filter'](Boolean)['join']('\x20•\x20');return _0x553aa1(0x3aa)+_0x1591ed+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>'+(_0x255ee1||'')+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22><span\x20class=\x22admin-pill\x22>'+_0x3ec0f7+'</span></div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20';})[_0x3fd1f1(0x3b4)]('');}function renderAdminLog(){const _0x4b24fe=_0x3c626c,_0x266fb9=document[_0x4b24fe(0x138)](_0x4b24fe(0x282));if(!_0x266fb9)return;if(session?.[_0x4b24fe(0x198)]!==_0x4b24fe(0x33b)){_0x266fb9[_0x4b24fe(0x199)]=_0x4b24fe(0x399);return;}if(!liveWsConnected){_0x266fb9[_0x4b24fe(0x199)]=_0x4b24fe(0x2a5);return;}const _0x290d73=Array['isArray'](liveAdminLog)?liveAdminLog['slice'](-0x78):[];if(_0x290d73[_0x4b24fe(0xe7)]===0x0){_0x266fb9[_0x4b24fe(0x199)]='<div\x20class=\x22admin-help\x22>No\x20activity\x20yet.</div>';return;}_0x266fb9['innerHTML']=_0x290d73[_0x4b24fe(0x15c)]()[_0x4b24fe(0x2c0)]()['map'](_0x181f95=>{const _0x48b189=_0x4b24fe,_0x47412c=_0x181f95?.['ts']?new Date(_0x181f95['ts'])['toLocaleString']():'',_0x194a3f=escapeHTML(_0x181f95?.[_0x48b189(0x109)]||''),_0x3653b4=escapeHTML(_0x181f95?.[_0x48b189(0x111)]||'');return _0x48b189(0x280)+(_0x194a3f?_0x194a3f+_0x48b189(0x189):'')+escapeHTML(_0x47412c)+_0x48b189(0x169)+_0x3653b4+_0x48b189(0x114);})[_0x4b24fe(0x3b4)]('');}function liveRequestAdminRefresh(){const _0x227ee7=_0x3c626c;if(session?.[_0x227ee7(0x198)]!==_0x227ee7(0x33b))return;safeLiveSend({'type':_0x227ee7(0x217)}),safeLiveSend({'type':_0x227ee7(0x3b3)});}function scheduleLiveLibraryPush(_0x2f7730=![]){const _0x5efbdf=_0x3c626c;if(session?.[_0x5efbdf(0x198)]!==_0x5efbdf(0x33b))return;if(!liveIsEnabled())return;if(!liveAuthToken)return;const _0x3b82e2=getLibraryUpdatedAtMs(library);if(_0x3b82e2<=liveLastLibraryPushedAtMs)return;try{if(liveLibraryPushTimer)clearTimeout(liveLibraryPushTimer);}catch(_0x1e1a36){}liveLibraryPushTimer=setTimeout(()=>{liveLibraryPushTimer=null,livePushLibraryToBackend();},_0x2f7730?0xa:0x384);}async function livePushLibraryToBackend(){const _0xd13c9c=_0x3c626c;if(session?.[_0xd13c9c(0x198)]!==_0xd13c9c(0x33b))return;if(!liveIsEnabled())return;if(!liveAuthToken)return;const _0x88fab=getLibraryUpdatedAtMs(library);if(_0x88fab<=liveLastLibraryPushedAtMs)return;try{await liveApiFetch('/api/library',{'method':'PUT','body':library}),liveLastLibraryPushedAtMs=_0x88fab;}catch(_0x444869){console[_0xd13c9c(0x2fd)](_0xd13c9c(0x319),_0x444869);}}async function loadLibraryFromBackend(){const _0xf6cf45=_0x3c626c;if(!liveIsEnabled())return![];try{const _0x462359=await liveApiFetch(_0xf6cf45(0x2c8),{'method':_0xf6cf45(0x2d5)}),_0x21fa54=normalizeIncomingLibrary(_0x462359),_0x4a38b2=getLibraryUpdatedAtMs(_0x21fa54),_0x23e71a=getLibraryUpdatedAtMs(library);if(_0x4a38b2&&_0x4a38b2>_0x23e71a){library=_0x21fa54,libraryLoadState={'ok':!![],'source':_0xf6cf45(0x1d2),'error':null},persistLibraryToCache(),lastAppliedLibraryUpdatedAtMs=_0x4a38b2;try{refreshUiAfterLibraryChange();}catch(_0x351d0f){}try{updateAdminLibraryStatus();}catch(_0x567ba9){}return!![];}return![];}catch(_0x5dfd90){return![];}}function emptyLibrary(){return{'version':0x2,'updatedAt':null,'folders':[],'quizSets':[],'pdfs':[]};}let library=emptyLibrary(),libraryLoadState={'ok':![],'source':_0x3c626c(0x16e),'error':null},libraryBootstrappedFromFallback=![];function nowISO(){const _0x5dc2a1=_0x3c626c;return new Date()[_0x5dc2a1(0x261)]();}function uid(_0x328a4d){const _0x53686b=_0x3c626c;return _0x328a4d+'_'+Date[_0x53686b(0x238)]()[_0x53686b(0x1f1)](0x24)+'_'+Math[_0x53686b(0x145)]()[_0x53686b(0x1f1)](0x24)['slice'](0x2,0x8);}function normalizePath(_0x46d2ce){const _0x45f665=_0x3c626c;if(typeof _0x46d2ce!==_0x45f665(0x345))return'';let _0xf16650=_0x46d2ce[_0x45f665(0x346)](/\\/g,'/');return _0xf16650=_0xf16650[_0x45f665(0x1a6)]('/')[_0x45f665(0x379)](_0x582c4c=>_0x582c4c[_0x45f665(0x3b9)]())[_0x45f665(0x3b2)](Boolean)['join']('/'),_0xf16650;}function samePath(_0x1b6573,_0xeb4bf6){const _0xe42151=_0x3c626c;return normalizePath(_0x1b6573)[_0xe42151(0x327)]()===normalizePath(_0xeb4bf6)[_0xe42151(0x327)]();}function isUnderPath(_0x74098f,_0xab8f8b){const _0x3a049f=_0x3c626c,_0x5e29bf=normalizePath(_0x74098f)[_0x3a049f(0x327)](),_0x3910e3=normalizePath(_0xab8f8b)['toLowerCase']();if(!_0x3910e3)return!![];return _0x5e29bf===_0x3910e3||_0x5e29bf['startsWith'](_0x3910e3+'/');}function parentPath(_0x2e7d03){const _0x11723e=_0x3c626c,_0x239f2a=normalizePath(_0x2e7d03),_0x482960=_0x239f2a['split']('/')['filter'](Boolean);if(_0x482960[_0x11723e(0xe7)]<=0x1)return'';return _0x482960[_0x11723e(0x15c)](0x0,-0x1)['join']('/');}function baseName(_0x2dcd69){const _0x1a5f8e=_0x3c626c,_0x54ea02=normalizePath(_0x2dcd69),_0x55ceac=_0x54ea02[_0x1a5f8e(0x1a6)]('/')[_0x1a5f8e(0x3b2)](Boolean);return _0x55ceac[_0x55ceac[_0x1a5f8e(0xe7)]-0x1]||'';}function getAllFolderPaths(){const _0xa5d4ca=_0x3c626c,_0x31c593=new Map();return(library[_0xa5d4ca(0x23a)]||[])[_0xa5d4ca(0x18f)](_0x800732=>{const _0x20498d=_0xa5d4ca,_0x5646ef=normalizePath(_0x800732?.[_0x20498d(0x13a)]||'');if(_0x5646ef)_0x31c593[_0x20498d(0x134)](_0x5646ef['toLowerCase'](),_0x5646ef);}),(library['quizSets']||[])[_0xa5d4ca(0x18f)](_0x154052=>{const _0x3f023a=_0xa5d4ca,_0x53af6e=normalizePath(_0x154052?.[_0x3f023a(0x218)]||'');if(_0x53af6e)_0x31c593[_0x3f023a(0x134)](_0x53af6e[_0x3f023a(0x327)](),_0x53af6e);}),(library[_0xa5d4ca(0x1ef)]||[])[_0xa5d4ca(0x18f)](_0x4c3739=>{const _0x2057ea=_0xa5d4ca,_0xcfd577=normalizePath(_0x4c3739?.[_0x2057ea(0x218)]||'');if(_0xcfd577)_0x31c593['set'](_0xcfd577['toLowerCase'](),_0xcfd577);}),Array['from'](_0x31c593['values']());}function getImmediateChildFolders(_0x42b350){const _0x29e46b=_0x3c626c,_0x18d15b=normalizePath(_0x42b350),_0x1d3785=_0x18d15b[_0x29e46b(0x327)](),_0x17ac19=getAllFolderPaths(),_0x58e676=new Map();return _0x17ac19['forEach'](_0x439a37=>{const _0xe0b339=_0x29e46b,_0x69f10=normalizePath(_0x439a37);if(!_0x69f10)return;const _0x588c48=_0x69f10['toLowerCase']();if(!_0x18d15b){const _0x5e1613=_0x69f10['split']('/')[0x0];if(!_0x5e1613)return;const _0x57496a=normalizePath(_0x5e1613);_0x58e676[_0xe0b339(0x134)](_0x57496a['toLowerCase'](),{'path':_0x57496a,'name':_0x5e1613});return;}if(_0x588c48===_0x1d3785)return;if(!_0x588c48['startsWith'](_0x1d3785+'/'))return;const _0x59e58c=_0x69f10[_0xe0b339(0x15c)](_0x18d15b['length']+0x1),_0x32eced=_0x59e58c[_0xe0b339(0x1a6)]('/')[0x0];if(!_0x32eced)return;const _0x3d176a=normalizePath(_0x18d15b+'/'+_0x32eced);_0x58e676[_0xe0b339(0x134)](_0x3d176a[_0xe0b339(0x327)](),{'path':_0x3d176a,'name':_0x32eced});}),Array['from'](_0x58e676[_0x29e46b(0x29f)]())['sort']((_0x25ec4f,_0x528541)=>_0x25ec4f[_0x29e46b(0x29d)][_0x29e46b(0x31e)](_0x528541[_0x29e46b(0x29d)]));}function ensureFolder(_0x129f64,_0x28b963=library){const _0x20871e=_0x3c626c,_0xa2753e=normalizePath(_0x129f64);if(!_0xa2753e)return![];const _0x552893=_0xa2753e[_0x20871e(0x1a6)]('/')['filter'](Boolean);let _0x268bff='',_0xce8ba4=![];for(const _0x288bea of _0x552893){_0x268bff=_0x268bff?_0x268bff+'/'+_0x288bea:_0x288bea;const _0x3c8886=_0x28b963['folders']['some'](_0x3d589c=>samePath(_0x3d589c['path'],_0x268bff));!_0x3c8886&&(_0x28b963['folders'][_0x20871e(0x16f)]({'path':_0x268bff,'createdAt':nowISO()}),_0xce8ba4=!![]);}return _0xce8ba4;}function persistLibraryToCache(){const _0x4fd439=_0x3c626c;try{return localStorage[_0x4fd439(0x2ce)](LIBRARY_CACHE_KEY,JSON[_0x4fd439(0x18e)](library)),!![];}catch(_0x57a078){return![];}}function touchLibrary(){const _0x500810=_0x3c626c;library[_0x500810(0x23f)]=nowISO();const _0x1fb058=persistLibraryToCache();_0x1fb058&&(lastAppliedLibraryUpdatedAtMs=getLibraryUpdatedAtMs(library),broadcastLibraryUpdated());try{scheduleLiveLibraryPush(![]);}catch(_0x5ad9a9){}return _0x1fb058;}function normalizeIncomingLibrary(_0x49a4e9){const _0xdb7964=_0x3c626c;if(_0x49a4e9&&typeof _0x49a4e9===_0xdb7964(0x34d)&&_0x49a4e9[_0xdb7964(0x3a4)]===0x2){const _0x3ea99f=emptyLibrary();return _0x3ea99f[_0xdb7964(0x23f)]=_0x49a4e9['updatedAt']||null,_0x3ea99f[_0xdb7964(0x23a)]=Array[_0xdb7964(0x1bd)](_0x49a4e9['folders'])?_0x49a4e9[_0xdb7964(0x23a)][_0xdb7964(0x3b2)](Boolean)[_0xdb7964(0x379)](_0x14529f=>({'path':normalizePath(_0x14529f[_0xdb7964(0x13a)]||''),'createdAt':_0x14529f[_0xdb7964(0x291)]||null}))[_0xdb7964(0x3b2)](_0x55121b=>_0x55121b[_0xdb7964(0x13a)]):[],_0x3ea99f['quizSets']=Array[_0xdb7964(0x1bd)](_0x49a4e9['quizSets'])?_0x49a4e9[_0xdb7964(0x13e)][_0xdb7964(0x379)](_0x9ec80d=>({'id':String(_0x9ec80d['id']||uid('qs')),'title':String(_0x9ec80d[_0xdb7964(0x206)]||_0xdb7964(0x269)),'folder':normalizePath(_0x9ec80d[_0xdb7964(0x218)]||'GLOBAL'),'createdAt':_0x9ec80d[_0xdb7964(0x291)]||null,'updatedAt':_0x9ec80d['updatedAt']||null,'questions':Array['isArray'](_0x9ec80d[_0xdb7964(0xe4)])?_0x9ec80d[_0xdb7964(0xe4)]:[]})):[],_0x3ea99f[_0xdb7964(0x1ef)]=Array['isArray'](_0x49a4e9['pdfs'])?_0x49a4e9[_0xdb7964(0x1ef)]['map'](_0x4555fa=>({'id':String(_0x4555fa['id']||uid('pdf')),'title':String(_0x4555fa['title']||_0xdb7964(0x36e)),'folder':normalizePath(_0x4555fa[_0xdb7964(0x218)]||_0xdb7964(0x200)),'kind':_0x4555fa['kind']===_0xdb7964(0x248)?_0xdb7964(0x248):'notes','src':String(_0x4555fa[_0xdb7964(0x15f)]||''),'createdAt':_0x4555fa['createdAt']||null})):[],_0x3ea99f[_0xdb7964(0x13e)][_0xdb7964(0x18f)](_0x495052=>ensureFolder(_0x495052[_0xdb7964(0x218)],_0x3ea99f)),_0x3ea99f[_0xdb7964(0x1ef)]['forEach'](_0x26c4d9=>ensureFolder(_0x26c4d9[_0xdb7964(0x218)],_0x3ea99f)),_0x3ea99f;}if(_0x49a4e9&&typeof _0x49a4e9===_0xdb7964(0x34d)&&_0x49a4e9[_0xdb7964(0x3a4)]===0x1){const _0x4fe92c=emptyLibrary();_0x4fe92c[_0xdb7964(0x23f)]=_0x49a4e9[_0xdb7964(0x23f)]||null;Array[_0xdb7964(0x1bd)](_0x49a4e9['quizSets'])&&(_0x4fe92c[_0xdb7964(0x13e)]=_0x49a4e9['quizSets']['map'](_0x231072=>({'id':String(_0x231072['id']||uid('qs')),'title':String(_0x231072[_0xdb7964(0x206)]||_0xdb7964(0x269)),'folder':normalizePath(_0x231072[_0xdb7964(0x218)]||_0xdb7964(0x200)),'createdAt':_0x231072[_0xdb7964(0x291)]||null,'updatedAt':_0x231072[_0xdb7964(0x23f)]||null,'questions':Array[_0xdb7964(0x1bd)](_0x231072['questions'])?_0x231072[_0xdb7964(0xe4)]:[]})));const _0x49615f=[];return Array[_0xdb7964(0x1bd)](_0x49a4e9['notes'])&&_0x49a4e9['notes'][_0xdb7964(0x18f)](_0x3e2f9d=>_0x49615f['push']({..._0x3e2f9d,'kind':'notes'})),Array[_0xdb7964(0x1bd)](_0x49a4e9[_0xdb7964(0x2f9)])&&_0x49a4e9[_0xdb7964(0x2f9)][_0xdb7964(0x18f)](_0x26b0d1=>_0x49615f['push']({..._0x26b0d1,'kind':_0xdb7964(0x248)})),_0x4fe92c['pdfs']=_0x49615f[_0xdb7964(0x379)](_0x2a9851=>({'id':String(_0x2a9851['id']||uid(_0xdb7964(0x3ce))),'title':String(_0x2a9851[_0xdb7964(0x206)]||_0xdb7964(0x36e)),'folder':normalizePath(_0x2a9851['folder']||_0xdb7964(0x200)),'kind':_0x2a9851[_0xdb7964(0x26a)]===_0xdb7964(0x248)?'archive':_0xdb7964(0x2e1),'src':String(_0x2a9851[_0xdb7964(0x15f)]||_0x2a9851[_0xdb7964(0x34b)]||_0x2a9851[_0xdb7964(0x16b)]||''),'createdAt':_0x2a9851[_0xdb7964(0x291)]||null})),_0x4fe92c[_0xdb7964(0x13e)][_0xdb7964(0x18f)](_0xb5e0de=>ensureFolder(_0xb5e0de['folder'],_0x4fe92c)),_0x4fe92c[_0xdb7964(0x1ef)]['forEach'](_0x3e7f0b=>ensureFolder(_0x3e7f0b['folder'],_0x4fe92c)),_0x4fe92c;}return emptyLibrary();}function getLibraryUpdatedAtMs(_0x1729b6){const _0x40a1d6=_0x3c626c,_0x4d7e8=Date['parse'](String(_0x1729b6?.[_0x40a1d6(0x23f)]||''));return Number[_0x40a1d6(0x3b1)](_0x4d7e8)?_0x4d7e8:0x0;}function readLibraryCache(){const _0x1de9a0=_0x3c626c;try{const _0x17df71=localStorage[_0x1de9a0(0x263)](LIBRARY_CACHE_KEY);if(!_0x17df71)return null;const _0x3f20f2=JSON[_0x1de9a0(0x2f8)](_0x17df71);return normalizeIncomingLibrary(_0x3f20f2);}catch(_0x1c3c7a){return null;}}function isOverlayOpen(_0x518848){const _0x3950eb=_0x3c626c,_0x514ac5=document[_0x3950eb(0x138)](_0x518848);return!!_0x514ac5&&!_0x514ac5['classList'][_0x3950eb(0x360)](_0x3950eb(0x1d9));}function refreshUiAfterLibraryChange(){const _0x13fd3d=_0x3c626c;if(isOverlayOpen(_0x13fd3d(0xea))){try{updateAdminLibraryStatus();}catch(_0x18c451){}try{adminRefreshAll();}catch(_0x4e054e){}}if(isOverlayOpen(_0x13fd3d(0x1c9)))try{renderQuizBrowser();}catch(_0x56b284){}if(isOverlayOpen(_0x13fd3d(0x314)))try{renderNotesOverlayList(notesCurrentFolder);}catch(_0x32f9e9){}}function maybeReloadLibraryFromCache(_0x5de7f6=_0x3c626c(0x205)){const _0x2e8a6f=_0x3c626c,_0x2f8775=readLibraryCache();if(!_0x2f8775)return![];const _0x1b4031=getLibraryUpdatedAtMs(_0x2f8775),_0x3fbe2e=getLibraryUpdatedAtMs(library);if(_0x1b4031<=_0x3fbe2e)return![];library=normalizeIncomingLibrary(_0x2f8775),libraryLoadState={'ok':!![],'source':_0x2e8a6f(0x205),'error':null},lastAppliedLibraryUpdatedAtMs=_0x1b4031;try{refreshUiAfterLibraryChange();}catch(_0x48f7c2){}return!![];}function broadcastLibraryUpdated(){const _0x35a7f4=_0x3c626c;if(!librarySyncChannel)return;try{librarySyncChannel[_0x35a7f4(0x227)]({'type':_0x35a7f4(0x2c7),'updatedAt':library?.[_0x35a7f4(0x23f)]||null,'ms':getLibraryUpdatedAtMs(library)});}catch(_0x487fe2){}}function initLibraryLiveSync(){const _0x29e2d1=_0x3c626c;if(librarySyncInitialized)return;librarySyncInitialized=!![];try{librarySyncChannel=new BroadcastChannel(LIBRARY_SYNC_CHANNEL),librarySyncChannel[_0x29e2d1(0x2b8)]=_0x28ab42=>{const _0x1121a2=_0x29e2d1;if(_0x28ab42?.['data']?.['type']!==_0x1121a2(0x2c7))return;maybeReloadLibraryFromCache(_0x1121a2(0x2b2));};}catch(_0x6d012c){librarySyncChannel=null;}window[_0x29e2d1(0x2c9)](_0x29e2d1(0x1f4),_0x794c09=>{const _0x5777d9=_0x29e2d1;if(_0x794c09?.[_0x5777d9(0x2bf)]!==LIBRARY_CACHE_KEY)return;maybeReloadLibraryFromCache('storage');}),document['addEventListener'](_0x29e2d1(0x323),()=>{const _0x37a09b=_0x29e2d1;if(!document[_0x37a09b(0x1d9)])maybeReloadLibraryFromCache(_0x37a09b(0x292));});}function loadLibraryFromFallbacks(){const _0x1f6370=_0x3c626c,_0x5ba820=[];try{const _0x1faecd=localStorage['getItem'](LIBRARY_CACHE_KEY);if(_0x1faecd){const _0xb02381=JSON[_0x1f6370(0x2f8)](_0x1faecd),_0x3f587c=normalizeIncomingLibrary(_0xb02381);_0x5ba820[_0x1f6370(0x16f)]({'source':'cache','lib':_0x3f587c,'ms':getLibraryUpdatedAtMs(_0x3f587c)});}}catch(_0x3b7c2f){}try{const _0x1c2ab4=window[LIBRARY_GLOBAL_VAR];if(_0x1c2ab4&&typeof _0x1c2ab4===_0x1f6370(0x34d)){const _0xbd027a=normalizeIncomingLibrary(_0x1c2ab4);_0x5ba820[_0x1f6370(0x16f)]({'source':_0x1f6370(0x19c),'lib':_0xbd027a,'ms':getLibraryUpdatedAtMs(_0xbd027a)});}}catch(_0x51d433){}if(_0x5ba820[_0x1f6370(0xe7)]===0x0)return![];_0x5ba820[_0x1f6370(0x2f5)]((_0x15310b,_0x26efe5)=>{const _0x2f927c=_0x1f6370;if(_0x26efe5['ms']!==_0x15310b['ms'])return _0x26efe5['ms']-_0x15310b['ms'];if(_0x15310b[_0x2f927c(0x157)]===_0x26efe5[_0x2f927c(0x157)])return 0x0;return _0x15310b['source']===_0x2f927c(0x205)?-0x1:0x1;});const _0x17643a=_0x5ba820[0x0];return library=_0x17643a[_0x1f6370(0x31b)],libraryLoadState={'ok':!![],'source':_0x17643a[_0x1f6370(0x157)],'error':null},libraryBootstrappedFromFallback=!![],!![];}async function loadLibraryFromRepo(){const _0xf887d2=_0x3c626c,_0x4fb696=window['location'][_0xf887d2(0x242)]===_0xf887d2(0x2dd);!libraryBootstrappedFromFallback&&loadLibraryFromFallbacks();if(_0x4fb696){const _0x3544e7=loadLibraryFromFallbacks();!_0x3544e7?(library=emptyLibrary(),libraryLoadState={'ok':![],'source':'empty','error':new Error('file://\x20cannot\x20fetch\x20library.json')}):persistLibraryToCache();updateAdminLibraryStatus();if(!document[_0xf887d2(0x138)](_0xf887d2(0xea))?.['classList']['contains'](_0xf887d2(0x1d9)))adminRefreshAll();return;}try{const _0x2df2e1=await fetch(LIBRARY_FILENAME,{'cache':'no-store'});if(!_0x2df2e1['ok'])throw new Error('HTTP\x20'+_0x2df2e1[_0xf887d2(0x32c)]);const _0x225d1e=await _0x2df2e1['json'](),_0x47b137=normalizeIncomingLibrary(_0x225d1e),_0x468e17=getLibraryUpdatedAtMs(_0x47b137),_0x4d97ee=getLibraryUpdatedAtMs(library);!libraryLoadState['ok']||_0x468e17>_0x4d97ee?(library=_0x47b137,libraryLoadState={'ok':!![],'source':_0xf887d2(0x299),'error':null},persistLibraryToCache()):libraryLoadState={'ok':!![],'source':libraryLoadState['source']||_0xf887d2(0x205),'error':null};}catch(_0x5c2f39){console[_0xf887d2(0x2fd)](_0xf887d2(0x1fe),_0x5c2f39);const _0x2874e2=loadLibraryFromFallbacks();!_0x2874e2?(library=emptyLibrary(),libraryLoadState={'ok':![],'source':_0xf887d2(0x16e),'error':_0x5c2f39},console[_0xf887d2(0x2fd)]('Library\x20not\x20found\x20or\x20invalid.\x20Using\x20empty\x20library.',_0x5c2f39)):persistLibraryToCache();}lastAppliedLibraryUpdatedAtMs=getLibraryUpdatedAtMs(library),updateAdminLibraryStatus(),!document[_0xf887d2(0x138)](_0xf887d2(0xea))?.[_0xf887d2(0x35c)][_0xf887d2(0x360)]('hidden')&&adminRefreshAll();}function downloadJSON(_0x24d450,_0x43647f){const _0x448875=_0x3c626c,_0x54ab20=JSON[_0x448875(0x18e)](_0x43647f,null,0x2),_0x4f5a19=new Blob([_0x54ab20],{'type':_0x448875(0x1f6)}),_0x2b5f58=URL[_0x448875(0x391)](_0x4f5a19),_0x9147e0=document[_0x448875(0x12e)]('a');_0x9147e0[_0x448875(0x363)]=_0x2b5f58,_0x9147e0[_0x448875(0x27f)]=_0x24d450,document[_0x448875(0x1da)][_0x448875(0x369)](_0x9147e0),_0x9147e0['click'](),_0x9147e0[_0x448875(0x1c2)](),URL['revokeObjectURL'](_0x2b5f58);}function downloadText(_0x349d10,_0x22ac34,_0x1b4ee1='text/plain'){const _0x103ae9=_0x3c626c,_0x234ac6=new Blob([_0x22ac34],{'type':_0x1b4ee1}),_0x401b59=URL[_0x103ae9(0x391)](_0x234ac6),_0x51ed13=document[_0x103ae9(0x12e)]('a');_0x51ed13[_0x103ae9(0x363)]=_0x401b59,_0x51ed13[_0x103ae9(0x27f)]=_0x349d10,document[_0x103ae9(0x1da)]['appendChild'](_0x51ed13),_0x51ed13['click'](),_0x51ed13[_0x103ae9(0x1c2)](),URL['revokeObjectURL'](_0x401b59);}function adminSaveLibrary(){const _0x4b1f0f=_0x3c626c;if(session['role']!=='admin'){alert(_0x4b1f0f(0x229));return;}touchLibrary();try{scheduleLiveLibraryPush(!![]);}catch(_0x28890b){}adminExportLibrary();}function readFileAsText(_0x9276ef){return new Promise((_0x25ec04,_0x19dae7)=>{const _0x19ff29=_0x3d24,_0x32077d=new FileReader();_0x32077d[_0x19ff29(0x1e4)]=()=>_0x25ec04(String(_0x32077d[_0x19ff29(0x1ff)]||'')),_0x32077d[_0x19ff29(0x1a0)]=()=>_0x19dae7(_0x32077d[_0x19ff29(0x202)]||new Error('Failed\x20to\x20read\x20file')),_0x32077d[_0x19ff29(0x1ab)](_0x9276ef);});}function readFileAsDataURL(_0x5b53ba){return new Promise((_0x2ea196,_0x3e0f07)=>{const _0x2e52d2=_0x3d24,_0x543d75=new FileReader();_0x543d75[_0x2e52d2(0x1e4)]=()=>_0x2ea196(String(_0x543d75[_0x2e52d2(0x1ff)]||'')),_0x543d75[_0x2e52d2(0x1a0)]=()=>_0x3e0f07(_0x543d75[_0x2e52d2(0x202)]||new Error(_0x2e52d2(0x207))),_0x543d75[_0x2e52d2(0x365)](_0x5b53ba);});}function findAccount(_0x5440d0,_0x4f56be){const _0x482f25=_0x3c626c,_0x26d47c=String(_0x5440d0||'')[_0x482f25(0x3b9)](),_0x2fb2a2=String(_0x4f56be||'');return ACCOUNTS[_0x482f25(0x382)](_0xb9f4c3=>_0xb9f4c3[_0x482f25(0x109)]['toLowerCase']()===_0x26d47c[_0x482f25(0x327)]()&&_0xb9f4c3[_0x482f25(0x32d)]===_0x2fb2a2)||null;}function showLoginError(){const _0x4438c0=_0x3c626c,_0x401035=document[_0x4438c0(0x138)](_0x4438c0(0x31d));_0x401035&&(_0x401035['classList'][_0x4438c0(0x1c2)](_0x4438c0(0x1d9)),_0x401035['classList'][_0x4438c0(0x1d0)](_0x4438c0(0x1de)));}function hideLoginError(){const _0x2e7573=_0x3c626c,_0x5a0396=document[_0x2e7573(0x138)](_0x2e7573(0x31d));if(_0x5a0396)_0x5a0396[_0x2e7573(0x35c)][_0x2e7573(0x1d0)]('hidden');}function setRememberMe(_0x3cb4d1,_0xa49831){const _0x191e9b=_0x3c626c,_0x4ebb87=document[_0x191e9b(0x138)]('rememberMe');if(!_0x4ebb87)return;if(_0x4ebb87[_0x191e9b(0x10d)]){const _0x1a5fd0={'username':_0x3cb4d1,'password':_0xa49831};localStorage[_0x191e9b(0x2ce)](_0x191e9b(0x285),JSON['stringify'](_0x1a5fd0));}else localStorage['removeItem'](_0x191e9b(0x285));}function initRememberMe(){const _0x516dc2=_0x3c626c;try{const _0x59f756=localStorage[_0x516dc2(0x263)]('padayon_remember');if(!_0x59f756)return;const _0x5de3f1=JSON[_0x516dc2(0x2f8)](_0x59f756);if(!_0x5de3f1)return;const _0x2bf176=document[_0x516dc2(0x138)](_0x516dc2(0x109)),_0x1de675=document['getElementById']('password'),_0x2321e9=document['getElementById'](_0x516dc2(0x185));if(_0x2bf176&&typeof _0x5de3f1[_0x516dc2(0x109)]===_0x516dc2(0x345))_0x2bf176[_0x516dc2(0x11c)]=_0x5de3f1[_0x516dc2(0x109)];if(_0x1de675&&typeof _0x5de3f1[_0x516dc2(0x32d)]===_0x516dc2(0x345))_0x1de675[_0x516dc2(0x11c)]=_0x5de3f1[_0x516dc2(0x32d)];if(_0x2321e9)_0x2321e9[_0x516dc2(0x10d)]=!![];}catch{}}async function verifyLogin(){const _0x3a7117=_0x3c626c,_0x29057b=String(document[_0x3a7117(0x138)](_0x3a7117(0x109))?.[_0x3a7117(0x11c)]||'')['trim'](),_0x3f8817=String(document[_0x3a7117(0x138)](_0x3a7117(0x32d))?.[_0x3a7117(0x11c)]||''),_0x38a58e=document[_0x3a7117(0x138)](_0x3a7117(0x20d)),_0x2bf704=document[_0x3a7117(0x138)](_0x3a7117(0xec)),_0x4cc138=document[_0x3a7117(0x138)](_0x3a7117(0x31d));setLiveToken('');if(!_0x29057b||!_0x3f8817){_0x4cc138&&(_0x4cc138[_0x3a7117(0x174)]=_0x3a7117(0x2df),_0x4cc138[_0x3a7117(0x35c)][_0x3a7117(0x1c2)](_0x3a7117(0x1d9)));return;}const _0x4d4f6b=window[_0x3a7117(0x2b7)]&&typeof grecaptcha[_0x3a7117(0x384)]===_0x3a7117(0x354)?grecaptcha[_0x3a7117(0x384)]():'';if(!_0x4d4f6b){_0x4cc138&&(_0x4cc138[_0x3a7117(0x174)]=_0x3a7117(0x38b),_0x4cc138['classList'][_0x3a7117(0x1c2)]('hidden'));return;}let _0x323775=null;if(liveIsEnabled()){const _0x1364bc=await liveTryBackendLogin(_0x29057b,_0x3f8817,_0x4d4f6b);if(_0x1364bc?.['ok'])_0x323775={'username':_0x1364bc[_0x3a7117(0x2c2)]?.[_0x3a7117(0x109)]||_0x29057b,'role':_0x1364bc['user']?.['role']||_0x3a7117(0x2c2)};else{_0x4cc138&&(_0x4cc138[_0x3a7117(0x174)]=(_0x1364bc?.[_0x3a7117(0x202)]?.[_0x3a7117(0x111)]||_0x3a7117(0x1c8))['toUpperCase'](),_0x4cc138[_0x3a7117(0x35c)][_0x3a7117(0x1c2)](_0x3a7117(0x1d9)));const _0x261548=document['getElementById'](_0x3a7117(0x32d));if(_0x261548)_0x261548[_0x3a7117(0x11c)]='';window[_0x3a7117(0x2b7)]&&typeof grecaptcha[_0x3a7117(0x219)]===_0x3a7117(0x354)&&grecaptcha['reset']();updateLiveStatusUI();return;}}else{_0x4cc138&&(_0x4cc138[_0x3a7117(0x174)]=_0x3a7117(0x195),_0x4cc138['classList'][_0x3a7117(0x1c2)](_0x3a7117(0x1d9)));return;}if(_0x4cc138)_0x4cc138[_0x3a7117(0x35c)][_0x3a7117(0x1d0)]('hidden');hideLoginError(),session={'username':_0x323775['username'],'role':_0x323775[_0x3a7117(0x198)]},setRememberMe(_0x29057b,_0x3f8817);try{liveBackendUrl=getConfiguredBackendUrl(),liveAuthToken=getLiveToken(),updateLiveStatusUI(),liveConnect();}catch(_0x41dc0d){}_0x38a58e&&(_0x38a58e['style'][_0x3a7117(0x12c)]='0',_0x38a58e['style'][_0x3a7117(0x366)]=_0x3a7117(0x306)),setTimeout(()=>{const _0x33d811=_0x3a7117;if(_0x38a58e)_0x38a58e['style'][_0x33d811(0x37e)]='none';const _0x285ebd=document[_0x33d811(0x138)](_0x33d811(0xde));if(_0x285ebd)_0x285ebd[_0x33d811(0x35c)][_0x33d811(0x105)]('hidden',session[_0x33d811(0x198)]!==_0x33d811(0x33b));const _0x5957b4=document[_0x33d811(0x138)](_0x33d811(0x1a5));if(_0x5957b4)_0x5957b4[_0x33d811(0x35c)][_0x33d811(0x105)](_0x33d811(0x1d9),session[_0x33d811(0x198)]!==_0x33d811(0x33b));if(_0x2bf704)_0x2bf704[_0x33d811(0x35c)][_0x33d811(0x1c2)](_0x33d811(0x1d9));try{liveSetActivity(_0x33d811(0x39c),{'view':'LANDING'});}catch(_0x3883d0){}},0x1f4);}function logoutToLogin(){const _0x3205fc=_0x3c626c;try{liveSetActivity('Logout',{'view':_0x3205fc(0x25b)});}catch(_0x1f5e20){}try{liveDisconnect();}catch(_0x50e820){}try{setLiveToken('');}catch(_0x2e1d58){}session={'username':null,'role':null};try{liveOnlinePublic=[],liveOnlineAdmin=[],renderOnlineUsersWidget(),renderAdminOnlineUsers(),updateLiveStatusUI();}catch(_0x57dcc5){}document[_0x3205fc(0x138)](_0x3205fc(0xec))?.['classList']['add']('hidden'),document['querySelectorAll'](_0x3205fc(0x353))[_0x3205fc(0x18f)](_0x368126=>_0x368126['classList'][_0x3205fc(0x1d0)]('hidden'));const _0x52b6aa=document['getElementById'](_0x3205fc(0x17e));_0x52b6aa&&(_0x52b6aa[_0x3205fc(0x35c)][_0x3205fc(0x1d0)]('hidden'),_0x52b6aa[_0x3205fc(0xf7)][_0x3205fc(0x12c)]='0');document[_0x3205fc(0x138)](_0x3205fc(0xea))?.[_0x3205fc(0x35c)][_0x3205fc(0x1d0)](_0x3205fc(0x1d9));const _0x3cef8b=document['getElementById'](_0x3205fc(0x20d));_0x3cef8b&&(_0x3cef8b['style'][_0x3205fc(0x37e)]=_0x3205fc(0x25f),_0x3cef8b['style'][_0x3205fc(0x12c)]='1');}document['addEventListener'](_0x3c626c(0x355),()=>{const _0x179557=_0x3c626c;initRememberMe();const _0xdc1660=document[_0x179557(0x138)](_0x179557(0x32d));_0xdc1660&&_0xdc1660[_0x179557(0x2c9)](_0x179557(0xe8),_0x320059=>{const _0x48d7aa=_0x179557;_0x320059['key']===_0x48d7aa(0x173)&&(_0x320059[_0x48d7aa(0x1f9)](),verifyLogin());});const _0x329194=document[_0x179557(0x138)](_0x179557(0x123));_0x329194&&_0x329194['addEventListener'](_0x179557(0x192),()=>{const _0x5d31fc=_0x179557;document[_0x5d31fc(0x138)]('forgot-modal')?.['classList'][_0x5d31fc(0x1c2)](_0x5d31fc(0x1d9)),document[_0x5d31fc(0x138)](_0x5d31fc(0x359))?.[_0x5d31fc(0x2e4)]();});const _0x13a586=document[_0x179557(0x138)]('forgot-modal');_0x13a586&&_0x13a586[_0x179557(0x2c9)]('click',_0x241e9d=>{const _0x18b2bc=_0x179557;if(_0x241e9d[_0x18b2bc(0xf0)]===_0x13a586)closeForgotModal();}),initLibraryLiveSync(),loadLibraryFromRepo(),liveBackendUrl=getConfiguredBackendUrl(),liveAuthToken=getLiveToken(),updateLiveStatusUI(),loadLibraryFromBackend();});function closeForgotModal(){const _0x42fd4a=_0x3c626c;document[_0x42fd4a(0x138)]('forgot-modal')?.[_0x42fd4a(0x35c)][_0x42fd4a(0x1d0)]('hidden');}function sendForgotEmail(){const _0x4dbaf8=_0x3c626c,_0x1ddced=String(document[_0x4dbaf8(0x138)](_0x4dbaf8(0x359))?.[_0x4dbaf8(0x11c)]||'')[_0x4dbaf8(0x3b9)](),_0x28b8b7=String(document[_0x4dbaf8(0x138)]('forgot-lastpass')?.['value']||'')[_0x4dbaf8(0x3b9)]();if(!_0x1ddced||!_0x28b8b7){alert('Please\x20enter\x20username\x20and\x20last\x20password\x20you\x20remember.');return;}const _0x22bb37=encodeURIComponent(_0x4dbaf8(0x223)),_0x27da67=encodeURIComponent('Hi\x20Admin,\x0a\x0aI\x20forgot\x20my\x20password.\x0a\x0aUsername:\x20'+_0x1ddced+_0x4dbaf8(0x259)+_0x28b8b7+'\x0a\x0aThanks!');window['location'][_0x4dbaf8(0x363)]='mailto:bartnu137@gmail.com?subject='+_0x22bb37+_0x4dbaf8(0x25a)+_0x27da67,closeForgotModal();}function goToLevel1(){const _0x4f51ed=_0x3c626c;document['getElementById'](_0x4f51ed(0xec))?.[_0x4f51ed(0x1a3)](_0x4f51ed(0xf7),_0x4f51ed(0x1cf)),document[_0x4f51ed(0x138)]('level-1-menu')?.[_0x4f51ed(0x35c)][_0x4f51ed(0x1c2)]('hidden');try{liveSetActivity(_0x4f51ed(0x120),{'view':'CATEGORIES'});}catch(_0x37d131){}}function goToLevel2(_0x165530){const _0x420edf=_0x3c626c;document[_0x420edf(0x138)](_0x420edf(0x28f))?.[_0x420edf(0x35c)][_0x420edf(0x1d0)](_0x420edf(0x1d9)),['submenu-undergrounds',_0x420edf(0x21b),_0x420edf(0x211),_0x420edf(0x29c)][_0x420edf(0x18f)](_0x223b09=>{const _0x4fbffe=_0x420edf;document[_0x4fbffe(0x138)](_0x223b09)?.[_0x4fbffe(0x35c)][_0x4fbffe(0x1d0)]('hidden');}),document[_0x420edf(0x138)](_0x420edf(0x1a4)+_0x165530)?.[_0x420edf(0x35c)]['remove'](_0x420edf(0x1d9));try{liveSetActivity(_0x420edf(0x23d),{'view':_0x420edf(0xfc),'details':String(_0x165530||'')[_0x420edf(0x38c)]()});}catch(_0x4450e6){}}function _0x3d24(_0x22ab06,_0x298baf){_0x22ab06=_0x22ab06-0xda;const _0x108a44=_0x108a();let _0x3d2433=_0x108a44[_0x22ab06];return _0x3d2433;}function backToLevel1(){const _0xe2e665=_0x3c626c;[_0xe2e665(0x389),_0xe2e665(0x21b),'submenu-exhale',_0xe2e665(0x29c)][_0xe2e665(0x18f)](_0x2ee47a=>{const _0x10a21e=_0xe2e665;document[_0x10a21e(0x138)](_0x2ee47a)?.[_0x10a21e(0x35c)]['add'](_0x10a21e(0x1d9));}),document[_0xe2e665(0x138)](_0xe2e665(0x28f))?.[_0xe2e665(0x35c)][_0xe2e665(0x1c2)](_0xe2e665(0x1d9));try{liveSetActivity('Back\x20to\x20Categories',{'view':_0xe2e665(0x133)});}catch(_0x530378){}}function openTermsMenu(){const _0x2031be=_0x3c626c;document[_0x2031be(0x138)](_0x2031be(0x389))?.[_0x2031be(0x35c)][_0x2031be(0x1d0)](_0x2031be(0x1d9)),document['getElementById'](_0x2031be(0x222))?.[_0x2031be(0x35c)][_0x2031be(0x1c2)]('hidden');try{liveSetActivity(_0x2031be(0x315),{'view':_0x2031be(0xfc),'details':'UNDERGROUNDS/TERMS\x20&\x20OBJECTIVES'});}catch(_0x408e61){}}function closeTermsMenu(){const _0x41d2a5=_0x3c626c;document['getElementById'](_0x41d2a5(0x222))?.['classList']['add']('hidden'),document['getElementById'](_0x41d2a5(0x389))?.[_0x41d2a5(0x35c)][_0x41d2a5(0x1c2)]('hidden');try{liveSetActivity('Back\x20to\x20UNDERGROUNDS',{'view':_0x41d2a5(0xfc)});}catch(_0x236444){}}function openPastBoardList(){const _0x595c83=_0x3c626c;document['getElementById']('submenu-terms')?.[_0x595c83(0x35c)]['add'](_0x595c83(0x1d9)),document['getElementById'](_0x595c83(0x22f))?.[_0x595c83(0x35c)]['remove'](_0x595c83(0x1d9));try{liveSetActivity(_0x595c83(0x1f5),{'view':_0x595c83(0xfc)});}catch(_0x5554a0){}}function closePastBoardList(){const _0x10cbf6=_0x3c626c;document[_0x10cbf6(0x138)](_0x10cbf6(0x22f))?.[_0x10cbf6(0x35c)]['add'](_0x10cbf6(0x1d9)),document[_0x10cbf6(0x138)](_0x10cbf6(0x222))?.[_0x10cbf6(0x35c)][_0x10cbf6(0x1c2)]('hidden');try{liveSetActivity(_0x10cbf6(0x35e),{'view':_0x10cbf6(0xfc)});}catch(_0x306d76){}}function callAdminNotice(_0x5960c3){const _0x1acc3a=_0x3c626c;alert(_0x5960c3+_0x1acc3a(0xe3));}let notesBackMenuId=null,notesRootFolder=null,notesCurrentFolder=null,notesCurrentKind=null,notesOverlayTitle=_0x3c626c(0xef);function openNotesFolder(_0x119989,_0x382937,_0x4087f4,_0x1414a4=_0x3c626c(0x2e1)){const _0x4d64fc=_0x3c626c;notesBackMenuId=_0x4087f4,notesRootFolder=normalizePath(_0x119989),notesCurrentFolder=notesRootFolder,notesCurrentKind=_0x1414a4,notesOverlayTitle=_0x382937||_0x4d64fc(0xef);if(_0x4087f4)document[_0x4d64fc(0x138)](_0x4087f4)?.[_0x4d64fc(0x35c)][_0x4d64fc(0x1d0)](_0x4d64fc(0x1d9));const _0x24f9f=document[_0x4d64fc(0x138)]('notes-overlay-title');if(_0x24f9f)_0x24f9f[_0x4d64fc(0x174)]=notesOverlayTitle;renderNotesOverlayList(),document[_0x4d64fc(0x138)](_0x4d64fc(0x314))?.[_0x4d64fc(0x35c)][_0x4d64fc(0x1c2)](_0x4d64fc(0x1d9));try{const _0xc90838=_0x1414a4===_0x4d64fc(0x248)?'ARCHIVE':_0x1414a4===_0x4d64fc(0x281)?'PDFs':'NOTES';liveSetActivity(_0x4d64fc(0x1e9)+_0xc90838,{'view':_0x4d64fc(0xef),'path':notesCurrentFolder||notesRootFolder||''});}catch(_0xfe8e92){}}function closeNotesOverlay(){const _0x3f88b3=_0x3c626c;document[_0x3f88b3(0x138)](_0x3f88b3(0x314))?.[_0x3f88b3(0x35c)][_0x3f88b3(0x1d0)]('hidden');if(notesBackMenuId)document['getElementById'](notesBackMenuId)?.[_0x3f88b3(0x35c)]['remove'](_0x3f88b3(0x1d9));try{liveSetActivity(_0x3f88b3(0x26c),{'view':currentViewName()});}catch(_0x3b84a8){}notesBackMenuId=null,notesRootFolder=null,notesCurrentFolder=null,notesCurrentKind=null,notesOverlayTitle='NOTES';}function notesGoToFolder(_0x4e6458){const _0x75b047=_0x3c626c,_0x213cd6=normalizePath(_0x4e6458);if(!_0x213cd6)return;if(notesRootFolder&&!isUnderPath(_0x213cd6,notesRootFolder))return;notesCurrentFolder=_0x213cd6,renderNotesOverlayList();try{liveSetActivity(_0x75b047(0x236),{'view':_0x75b047(0xef),'path':notesCurrentFolder||''});}catch(_0x2f253f){}}function notesGoUp(){const _0x183666=_0x3c626c,_0x15ef86=normalizePath(notesRootFolder||''),_0x1514a7=normalizePath(notesCurrentFolder||_0x15ef86);if(!_0x1514a7)return;if(samePath(_0x1514a7,_0x15ef86))return;const _0x29be14=parentPath(_0x1514a7);_0x15ef86&&!isUnderPath(_0x29be14,_0x15ef86)?notesCurrentFolder=_0x15ef86:notesCurrentFolder=_0x29be14||_0x15ef86;renderNotesOverlayList();try{liveSetActivity(_0x183666(0x1d5),{'view':'NOTES','path':notesCurrentFolder||''});}catch(_0x1e843e){}}function notesBrowserBackOrClose(){const _0x4f6937=normalizePath(notesRootFolder||''),_0xc8a5b8=normalizePath(notesCurrentFolder||_0x4f6937);if(_0x4f6937&&_0xc8a5b8&&!samePath(_0xc8a5b8,_0x4f6937)){notesGoUp();return;}closeNotesOverlay();}function renderNotesOverlayList(){const _0x140337=_0x3c626c,_0x56f904=document[_0x140337(0x138)]('notes-overlay-list');if(!_0x56f904)return;const _0x213153=normalizePath(notesRootFolder||''),_0xd8586c=normalizePath(notesCurrentFolder||_0x213153||''),_0x698ac7=notesCurrentKind||_0x140337(0x2e1),_0x15c679=document[_0x140337(0x138)](_0x140337(0x244));_0x15c679&&(_0x15c679['textContent']='PATH:\x20'+(_0xd8586c||_0x140337(0x21d)));const _0x4f6593=samePath(_0xd8586c,_0x213153),_0x310b33=getImmediateChildFolders(_0xd8586c)[_0x140337(0x3b2)](_0x27808b=>_0x213153?isUnderPath(_0x27808b[_0x140337(0x13a)],_0x213153):!![])[_0x140337(0x3b2)](_0x4245b6=>!samePath(_0x4245b6[_0x140337(0x13a)],_0xd8586c)),_0x2a8b63=(library['pdfs']||[])['filter'](_0x2929af=>_0x698ac7===_0x140337(0x281)?!![]:_0x2929af[_0x140337(0x26a)]===_0x698ac7)[_0x140337(0x3b2)](_0x552bbe=>{const _0x30b041=_0x140337;if(isGlobalFolder(_0x552bbe[_0x30b041(0x218)]))return _0x4f6593;return samePath(_0x552bbe[_0x30b041(0x218)],_0xd8586c);}),_0x35ac89=[];_0x310b33['forEach'](_0x5bbf66=>{const _0x283c53=_0x140337,_0x1e966f=(library[_0x283c53(0x1ef)]||[])[_0x283c53(0x3b2)](_0x1efb38=>_0x698ac7===_0x283c53(0x281)?!![]:_0x1efb38['kind']===_0x698ac7)[_0x283c53(0x3b2)](_0x270096=>isUnderPath(_0x270096[_0x283c53(0x218)],_0x5bbf66[_0x283c53(0x13a)]))[_0x283c53(0xe7)];_0x35ac89[_0x283c53(0x16f)]('\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20text-center\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x22\x20onclick=\x22notesGoToFolder(\x27'+_0x5bbf66[_0x283c53(0x13a)][_0x283c53(0x346)](/'/g,'\x5c\x27')+'\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-4xl\x20mb-4\x20text-[#00f3ff]\x22>📁</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22font-bold\x20text-lg\x22>'+escapeHTML(_0x5bbf66[_0x283c53(0x29d)])+_0x283c53(0x2cc)+_0x1e966f+'\x20PDF'+(_0x1e966f===0x1?'':'s')+_0x283c53(0x1ca));}),_0x2a8b63[_0x140337(0x18f)](_0x1825dc=>{const _0x3ea9fd=_0x140337,_0x262bf8=escapeHTML(_0x1825dc[_0x3ea9fd(0x206)]||_0x3ea9fd(0x36e)),_0x3afb0a=escapeHTML(isGlobalFolder(_0x1825dc[_0x3ea9fd(0x218)])?_0x3ea9fd(0x200):_0x1825dc[_0x3ea9fd(0x218)]||_0x3ea9fd(0x21d));_0x35ac89[_0x3ea9fd(0x16f)](_0x3ea9fd(0x1dc)+_0x1825dc['id'][_0x3ea9fd(0x346)](/'/g,'\x5c\x27')+'\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-4xl\x20mb-4\x20text-[#00f3ff]\x22>📄</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22font-bold\x20text-lg\x22>'+_0x262bf8+_0x3ea9fd(0x2cc)+_0x3afb0a+_0x3ea9fd(0x1ca));});if(_0x35ac89[_0x140337(0xe7)]===0x0){_0x56f904[_0x140337(0x199)]=_0x140337(0x32b)+escapeHTML(_0xd8586c||'ROOT')+_0x140337(0x167);return;}_0x56f904[_0x140337(0x199)]=_0x35ac89[_0x140337(0x3b4)]('');}function getPdfById(_0x4e73e4){const _0xf21a29=_0x3c626c;return library[_0xf21a29(0x1ef)][_0xf21a29(0x382)](_0x4b2425=>_0x4b2425['id']===_0x4e73e4)||null;}let pdfBackOverlayId=null;function openPdfOverlay(_0x529a27,_0x498e45=null){const _0x1543ee=_0x3c626c,_0x113c85=getPdfById(_0x529a27);if(!_0x113c85){alert(_0x1543ee(0x1ae));return;}pdfBackOverlayId=_0x498e45;_0x498e45&&document['getElementById'](_0x498e45)?.[_0x1543ee(0x35c)][_0x1543ee(0x1d0)]('hidden');document[_0x1543ee(0x138)]('notes-overlay')?.[_0x1543ee(0x35c)][_0x1543ee(0x1d0)](_0x1543ee(0x1d9));const _0x3b19c8=document['getElementById'](_0x1543ee(0x1d8));if(_0x3b19c8)_0x3b19c8[_0x1543ee(0x174)]=_0x113c85['title']||_0x1543ee(0x36e);const _0x388c5e=document[_0x1543ee(0x138)](_0x1543ee(0x347));if(_0x388c5e)_0x388c5e['src']=_0x113c85[_0x1543ee(0x15f)];const _0x20ea14=document[_0x1543ee(0x138)](_0x1543ee(0x1e3));if(_0x20ea14){_0x20ea14['href']=_0x113c85[_0x1543ee(0x15f)];const _0x4bbbe5=(_0x113c85[_0x1543ee(0x206)]||_0x1543ee(0x2e1))[_0x1543ee(0x346)](/[^a-z0-9\-\_]+/gi,'_')+_0x1543ee(0x349);_0x20ea14[_0x1543ee(0x1a3)](_0x1543ee(0x27f),_0x4bbbe5);}document[_0x1543ee(0x138)](_0x1543ee(0x11b))?.['classList'][_0x1543ee(0x1c2)](_0x1543ee(0x1d9));try{liveSetActivity(_0x1543ee(0x1a8),{'view':_0x1543ee(0x377),'path':_0x113c85[_0x1543ee(0x218)]||'','details':_0x113c85[_0x1543ee(0x206)]||'PDF'});}catch(_0x2aad76){}}function closePdfOverlay(){const _0x5eda4b=_0x3c626c;document[_0x5eda4b(0x138)](_0x5eda4b(0x11b))?.[_0x5eda4b(0x35c)][_0x5eda4b(0x1d0)]('hidden');const _0x48ef58=document[_0x5eda4b(0x138)](_0x5eda4b(0x347));if(_0x48ef58)_0x48ef58[_0x5eda4b(0x15f)]='';if(pdfBackOverlayId){document[_0x5eda4b(0x138)](pdfBackOverlayId)?.['classList'][_0x5eda4b(0x1c2)](_0x5eda4b(0x1d9)),pdfBackOverlayId=null;try{liveSetActivity(_0x5eda4b(0x272),{'view':currentViewName()});}catch(_0x9b9cdd){}return;}document[_0x5eda4b(0x138)]('notes-overlay')?.['classList']['remove'](_0x5eda4b(0x1d9));try{liveSetActivity(_0x5eda4b(0x272),{'view':'NOTES','path':notesCurrentFolder||''});}catch(_0x4e58e9){}}function escapeHTML(_0x1e4af6){const _0x39e268=_0x3c626c;return String(_0x1e4af6)['replaceAll']('&',_0x39e268(0x279))['replaceAll']('<','&lt;')[_0x39e268(0x243)]('>',_0x39e268(0x309))[_0x39e268(0x243)]('\x22','&quot;')[_0x39e268(0x243)]('\x27',_0x39e268(0x253));}let quizBrowserBackMenuId=null,quizBrowserRootFolder=null,quizBrowserCurrentFolder=null,quizBrowserTitle=_0x3c626c(0x262);function isGlobalFolder(_0x1fc920){const _0x374ad0=_0x3c626c,_0xd4faf1=normalizePath(_0x1fc920)[_0x374ad0(0x327)]();return _0xd4faf1==='global'||_0xd4faf1[_0x374ad0(0x3c3)](_0x374ad0(0x3c7))||_0xd4faf1==='all'||_0xd4faf1[_0x374ad0(0x3c3)]('all/');}function openCustomQuizBrowser(_0x5ec989,_0x2aaf58,_0x4955ec){const _0x34d222=_0x3c626c;quizBrowserBackMenuId=_0x2aaf58,quizBrowserRootFolder=normalizePath(_0x5ec989),quizBrowserCurrentFolder=quizBrowserRootFolder,quizBrowserTitle=_0x4955ec||_0x34d222(0x262);if(_0x2aaf58)document[_0x34d222(0x138)](_0x2aaf58)?.['classList'][_0x34d222(0x1d0)](_0x34d222(0x1d9));const _0x2284a9=document['getElementById'](_0x34d222(0x2cd));if(_0x2284a9)_0x2284a9['textContent']=quizBrowserTitle;renderQuizBrowser(),document[_0x34d222(0x138)]('quiz-browser-overlay')?.['classList'][_0x34d222(0x1c2)](_0x34d222(0x1d9));try{liveSetActivity(_0x34d222(0x32e),{'view':_0x34d222(0x21f),'path':quizBrowserCurrentFolder||quizBrowserRootFolder||''});}catch(_0x2441bd){}}function closeCustomQuizBrowser(){const _0x5024d4=_0x3c626c;document[_0x5024d4(0x138)](_0x5024d4(0x1c9))?.[_0x5024d4(0x35c)][_0x5024d4(0x1d0)]('hidden');if(quizBrowserBackMenuId)document[_0x5024d4(0x138)](quizBrowserBackMenuId)?.[_0x5024d4(0x35c)][_0x5024d4(0x1c2)](_0x5024d4(0x1d9));try{liveSetActivity(_0x5024d4(0x3b7),{'view':currentViewName()});}catch(_0x496b2e){}quizBrowserBackMenuId=null,quizBrowserRootFolder=null,quizBrowserCurrentFolder=null,quizBrowserTitle=_0x5024d4(0x262);}function quizBrowserGoToFolder(_0xc966b3){const _0x59d8fa=_0x3c626c,_0x360034=normalizePath(_0xc966b3);if(!_0x360034)return;if(quizBrowserRootFolder&&!isUnderPath(_0x360034,quizBrowserRootFolder))return;quizBrowserCurrentFolder=_0x360034,renderQuizBrowser();try{liveSetActivity(_0x59d8fa(0x274),{'view':_0x59d8fa(0x21f),'path':quizBrowserCurrentFolder||''});}catch(_0x1fff4){}}function quizBrowserGoUp(){const _0x4bd4f7=_0x3c626c,_0x7f164a=normalizePath(quizBrowserRootFolder||''),_0x49225e=normalizePath(quizBrowserCurrentFolder||_0x7f164a);if(!_0x49225e)return;if(samePath(_0x49225e,_0x7f164a))return;const _0x2fcd35=parentPath(_0x49225e);_0x7f164a&&!isUnderPath(_0x2fcd35,_0x7f164a)?quizBrowserCurrentFolder=_0x7f164a:quizBrowserCurrentFolder=_0x2fcd35||_0x7f164a;renderQuizBrowser();try{liveSetActivity(_0x4bd4f7(0x302),{'view':_0x4bd4f7(0x21f),'path':quizBrowserCurrentFolder||''});}catch(_0x3bfb03){}}function quizBrowserBackOrClose(){const _0x4c7b57=normalizePath(quizBrowserRootFolder||''),_0x4c012c=normalizePath(quizBrowserCurrentFolder||_0x4c7b57);if(_0x4c7b57&&_0x4c012c&&!samePath(_0x4c012c,_0x4c7b57)){quizBrowserGoUp();return;}closeCustomQuizBrowser();}function renderQuizBrowser(){const _0x1b9c5f=_0x3c626c,_0x350321=document[_0x1b9c5f(0x138)](_0x1b9c5f(0x1f7));if(!_0x350321)return;const _0x509895=normalizePath(quizBrowserRootFolder||''),_0x2e522d=normalizePath(quizBrowserCurrentFolder||_0x509895||''),_0x15b672=document[_0x1b9c5f(0x138)]('quiz-browser-path');_0x15b672&&(_0x15b672[_0x1b9c5f(0x174)]=_0x1b9c5f(0x310)+(_0x2e522d||_0x1b9c5f(0x21d)));const _0x5ba14a=samePath(_0x2e522d,_0x509895),_0xd6c3b6=getImmediateChildFolders(_0x2e522d)['filter'](_0x4cbc69=>_0x509895?isUnderPath(_0x4cbc69[_0x1b9c5f(0x13a)],_0x509895):!![])[_0x1b9c5f(0x3b2)](_0x148896=>!samePath(_0x148896[_0x1b9c5f(0x13a)],_0x2e522d)),_0xea254c=(library[_0x1b9c5f(0x13e)]||[])[_0x1b9c5f(0x3b2)](_0xfda32c=>{const _0x404658=_0x1b9c5f;if(isGlobalFolder(_0xfda32c[_0x404658(0x218)]))return _0x5ba14a;return samePath(_0xfda32c[_0x404658(0x218)],_0x2e522d);}),_0x2443bd=[];_0xd6c3b6[_0x1b9c5f(0x18f)](_0x363ee4=>{const _0x3f9031=_0x1b9c5f,_0x311398=(library[_0x3f9031(0x13e)]||[])[_0x3f9031(0x3b2)](_0x2d823c=>isUnderPath(_0x2d823c[_0x3f9031(0x218)],_0x363ee4[_0x3f9031(0x13a)])&&!isGlobalFolder(_0x2d823c['folder']))[_0x3f9031(0xe7)];_0x2443bd[_0x3f9031(0x16f)](_0x3f9031(0x1b2)+_0x363ee4[_0x3f9031(0x13a)][_0x3f9031(0x346)](/'/g,'\x5c\x27')+'\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-4xl\x20mb-4\x20text-[#00f3ff]\x22>📁</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22font-bold\x20text-lg\x22>'+escapeHTML(_0x363ee4[_0x3f9031(0x29d)])+_0x3f9031(0x2cc)+_0x311398+_0x3f9031(0x214)+(_0x311398===0x1?'':'s')+_0x3f9031(0x1ca));}),_0xea254c[_0x1b9c5f(0x15c)]()[_0x1b9c5f(0x2f5)]((_0x2cb6fa,_0x4b0e58)=>String(_0x2cb6fa[_0x1b9c5f(0x206)]||'')['localeCompare'](String(_0x4b0e58[_0x1b9c5f(0x206)]||'')))[_0x1b9c5f(0x18f)](_0x2cb607=>{const _0x519eb2=_0x1b9c5f,_0x44c430=escapeHTML(_0x2cb607[_0x519eb2(0x206)]),_0x558437=Array[_0x519eb2(0x1bd)](_0x2cb607[_0x519eb2(0xe4)])?_0x2cb607['questions'][_0x519eb2(0xe7)]:0x0,_0x1e4d30=escapeHTML(isGlobalFolder(_0x2cb607[_0x519eb2(0x218)])?_0x519eb2(0x200):_0x2cb607[_0x519eb2(0x218)]||'');_0x2443bd[_0x519eb2(0x16f)](_0x519eb2(0x2eb)+_0x2cb607['id']['replace'](/'/g,'\x5c\x27')+_0x519eb2(0x3ac)+(quizBrowserBackMenuId||'')[_0x519eb2(0x346)](/'/g,'\x5c\x27')+_0x519eb2(0x17b)+_0x558437+_0x519eb2(0x278)+_0x44c430+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-600\x20text-[10px]\x20font-mono\x20mt-3\x22>'+_0x1e4d30+_0x519eb2(0x19f));});if(_0x2443bd[_0x1b9c5f(0xe7)]===0x0){_0x350321[_0x1b9c5f(0x199)]=_0x1b9c5f(0x2e0)+escapeHTML(_0x2e522d||_0x1b9c5f(0x21d))+_0x1b9c5f(0x12f);return;}_0x350321[_0x1b9c5f(0x199)]=_0x2443bd[_0x1b9c5f(0x3b4)]('');}let currentMode='review',currentQuestions=[],userAnswers={},practiceAttempts={},examSubmitted=![];const container=document[_0x3c626c(0x138)](_0x3c626c(0xe1)),examDashboard=document[_0x3c626c(0x138)]('exam-dashboard'),practiceDashboard=document[_0x3c626c(0x138)](_0x3c626c(0x1e8)),scoreDisplay=document[_0x3c626c(0x138)](_0x3c626c(0xe6)),examStatus=document[_0x3c626c(0x138)](_0x3c626c(0x13d)),submitBtn=document[_0x3c626c(0x138)]('submit-btn');function loadQuiz(_0x65dd9c){const _0x13081b=_0x3c626c,_0x70ae78=document['getElementById']('main-app'),_0x56a616=document[_0x13081b(0x138)]('active-module-title');let _0x5f1233='';if(_0x65dd9c==='math')currentQuestions=typeof mathData!==_0x13081b(0x3a9)?[...mathData]:[],_0x56a616&&(_0x56a616[_0x13081b(0x199)]=_0x13081b(0xf1),_0x56a616[_0x13081b(0x194)]=_0x13081b(0x3c6)),_0x5f1233=_0x13081b(0xf1),activeMenu=_0x13081b(0x21b);else{if(_0x65dd9c===_0x13081b(0x21c))currentQuestions=typeof esasData!==_0x13081b(0x3a9)?[...esasData]:[],_0x56a616&&(_0x56a616[_0x13081b(0x199)]=_0x13081b(0x152),_0x56a616[_0x13081b(0x194)]=_0x13081b(0xdf)),_0x5f1233=_0x13081b(0x152),activeMenu=_0x13081b(0x21b);else{if(_0x65dd9c===_0x13081b(0x3be))currentQuestions=typeof esasUG1Data!==_0x13081b(0x3a9)?[...esasUG1Data]:[],_0x56a616&&(_0x56a616[_0x13081b(0x199)]=_0x13081b(0x352),_0x56a616[_0x13081b(0x194)]='text-[#00f3ff]'),_0x5f1233='PAST\x20BOARD\x201',activeMenu=_0x13081b(0x22f);else{if(_0x65dd9c==='ug2')currentQuestions=typeof esasUG2Data!==_0x13081b(0x3a9)?[...esasUG2Data]:[],_0x56a616&&(_0x56a616['innerHTML']='PAST\x20BOARD\x202',_0x56a616[_0x13081b(0x194)]=_0x13081b(0x3c6)),_0x5f1233='PAST\x20BOARD\x202',activeMenu=_0x13081b(0x22f);else{if(_0x65dd9c===_0x13081b(0x1d4))currentQuestions=typeof esasUG3Data!=='undefined'?[...esasUG3Data]:[],_0x56a616&&(_0x56a616[_0x13081b(0x199)]='PAST\x20BOARD\x203',_0x56a616[_0x13081b(0x194)]=_0x13081b(0x3c6)),_0x5f1233=_0x13081b(0x102),activeMenu=_0x13081b(0x22f);else{alert(_0x13081b(0x27b));return;}}}}}document[_0x13081b(0x2d7)](_0x13081b(0x353))[_0x13081b(0x18f)](_0x4116f1=>_0x4116f1[_0x13081b(0x35c)][_0x13081b(0x1d0)](_0x13081b(0x1d9)));if(_0x70ae78)_0x70ae78[_0x13081b(0x35c)][_0x13081b(0x1c2)](_0x13081b(0x1d9));currentMode=_0x13081b(0x2a3),resetExam(),resetPractice(),setMode(_0x13081b(0x2a3));try{liveSetActivity(_0x13081b(0x39e),{'view':_0x13081b(0xf5),'details':_0x5f1233||String(_0x65dd9c||'')['toUpperCase']()});}catch(_0x200dc3){}setTimeout(()=>{const _0x2a6360=_0x13081b;if(_0x70ae78)_0x70ae78[_0x2a6360(0xf7)][_0x2a6360(0x12c)]='1';},0x64);}function loadQuizCustom(_0x3dc1dc,_0x45b3d7){const _0x3eb6ed=_0x3c626c,_0xf3ad8e=library[_0x3eb6ed(0x13e)]['find'](_0x20309c=>_0x20309c['id']===_0x3dc1dc);if(!_0xf3ad8e){alert(_0x3eb6ed(0x3a7));return;}const _0x2724a9=document[_0x3eb6ed(0x138)]('main-app'),_0x1ea86f=document[_0x3eb6ed(0x138)](_0x3eb6ed(0x275));currentQuestions=Array[_0x3eb6ed(0x1bd)](_0xf3ad8e[_0x3eb6ed(0xe4)])?_0xf3ad8e[_0x3eb6ed(0xe4)][_0x3eb6ed(0x379)](_0x4f38a6=>({'id':_0x4f38a6['id'],'key':_0x4f38a6[_0x3eb6ed(0x2bf)],'topic':_0x4f38a6[_0x3eb6ed(0x31f)]||_0x3eb6ed(0x33c),'q':_0x4f38a6['q'],'options':_0x4f38a6[_0x3eb6ed(0x249)]||{'a':'','b':'','c':'','d':''},'ans':_0x4f38a6[_0x3eb6ed(0x260)]||(_0x4f38a6['options']&&_0x4f38a6[_0x3eb6ed(0x2bf)]?_0x4f38a6[_0x3eb6ed(0x249)][_0x4f38a6[_0x3eb6ed(0x2bf)]]:''),'soln':_0x4f38a6[_0x3eb6ed(0x33d)]||'','caltech':_0x4f38a6[_0x3eb6ed(0x161)]||null})):[];_0x1ea86f&&(_0x1ea86f[_0x3eb6ed(0x199)]=escapeHTML(_0xf3ad8e[_0x3eb6ed(0x206)]||_0x3eb6ed(0x143)),_0x1ea86f[_0x3eb6ed(0x194)]=_0x3eb6ed(0x3c6));activeMenu=_0x45b3d7||quizBrowserBackMenuId||'level-1-menu',document[_0x3eb6ed(0x2d7)](_0x3eb6ed(0x353))[_0x3eb6ed(0x18f)](_0x3a15c0=>_0x3a15c0[_0x3eb6ed(0x35c)][_0x3eb6ed(0x1d0)](_0x3eb6ed(0x1d9)));if(_0x2724a9)_0x2724a9[_0x3eb6ed(0x35c)][_0x3eb6ed(0x1c2)]('hidden');currentMode='review',resetExam(),resetPractice(),setMode(_0x3eb6ed(0x2a3));try{liveSetActivity(_0x3eb6ed(0x342),{'view':'QUIZ_ENGINE','path':_0xf3ad8e[_0x3eb6ed(0x218)]||'','details':_0xf3ad8e[_0x3eb6ed(0x206)]||_0x3eb6ed(0x143)});}catch(_0x34e186){}setTimeout(()=>{const _0x512b35=_0x3eb6ed;if(_0x2724a9)_0x2724a9[_0x512b35(0xf7)]['opacity']='1';},0x64);}function backToQuizMenu(){const _0x4efdf7=_0x3c626c,_0x5956fc=document[_0x4efdf7(0x138)](_0x4efdf7(0x17e));if(!_0x5956fc)return;try{liveSetActivity(_0x4efdf7(0x1cd),{'view':_0x4efdf7(0xfc)});}catch(_0xfff0f){}_0x5956fc[_0x4efdf7(0xf7)][_0x4efdf7(0x12c)]='0',setTimeout(()=>{const _0x2b6a1a=_0x4efdf7;_0x5956fc[_0x2b6a1a(0x35c)]['add'](_0x2b6a1a(0x1d9));const _0x36860e=document[_0x2b6a1a(0x138)](activeMenu);if(_0x36860e)_0x36860e[_0x2b6a1a(0x35c)][_0x2b6a1a(0x1c2)](_0x2b6a1a(0x1d9));else document[_0x2b6a1a(0x138)]('level-1-menu')?.[_0x2b6a1a(0x35c)][_0x2b6a1a(0x1c2)](_0x2b6a1a(0x1d9));},0x1f4);}function setMode(_0x6f4873){const _0xe8be88=_0x3c626c;currentMode=_0x6f4873,[_0xe8be88(0x2a3),_0xe8be88(0x11a),'exam'][_0xe8be88(0x18f)](_0x25f22b=>{const _0x25d831=_0xe8be88,_0x1b4cb5=document[_0x25d831(0x138)](_0x25d831(0x2ef)+_0x25f22b);if(_0x1b4cb5)_0x1b4cb5[_0x25d831(0x194)]=_0x25d831(0x358)+(_0x6f4873===_0x25f22b?_0x25d831(0x14b):_0x25d831(0x31a));});if(examDashboard)examDashboard[_0xe8be88(0x35c)][_0xe8be88(0x105)](_0xe8be88(0x1d9),_0x6f4873!==_0xe8be88(0x1ad));if(practiceDashboard)practiceDashboard[_0xe8be88(0x35c)][_0xe8be88(0x105)]('hidden',_0x6f4873!==_0xe8be88(0x11a));renderQuestions();try{const _0x1779a1=String(document[_0xe8be88(0x138)](_0xe8be88(0x275))?.[_0xe8be88(0x1b5)]||'')[_0xe8be88(0x3b9)](),_0x2f571e=_0x1779a1?_0x1779a1+_0xe8be88(0x189)+_0x6f4873[_0xe8be88(0x38c)]():_0x6f4873[_0xe8be88(0x38c)]();liveSetActivity('Mode\x20Change',{'view':'QUIZ_ENGINE','details':_0x2f571e});}catch(_0xca4fe1){}}function resetExam(){const _0x1a0c63=_0x3c626c;userAnswers={},examSubmitted=![];examStatus&&(examStatus[_0x1a0c63(0x1b5)]=_0x1a0c63(0x2bd),examStatus[_0x1a0c63(0x35c)][_0x1a0c63(0x1c2)](_0x1a0c63(0x2ea)),examStatus[_0x1a0c63(0x35c)][_0x1a0c63(0x1d0)](_0x1a0c63(0x387)));if(scoreDisplay)scoreDisplay[_0x1a0c63(0x1b5)]='--';const _0x4d36ec=document[_0x1a0c63(0x138)]('total-score');if(_0x4d36ec)_0x4d36ec[_0x1a0c63(0x1b5)]=_0x1a0c63(0x350);submitBtn&&(submitBtn[_0x1a0c63(0x35c)]['remove'](_0x1a0c63(0x228),_0x1a0c63(0x106)),submitBtn[_0x1a0c63(0x390)]=![]),renderQuestions();}function resetPractice(){practiceAttempts={},renderQuestions();}function selectExamOption(_0x318848,_0x58824a){if(examSubmitted)return;userAnswers[_0x318848]=_0x58824a,renderQuestions();}function selectPracticeOption(_0x23199d,_0x113548){const _0x3828a7=_0x3c626c;if(practiceAttempts[_0x23199d])return;const _0x3894e1=currentQuestions[_0x3828a7(0x382)](_0x436c08=>_0x436c08['id']===_0x23199d);if(!_0x3894e1)return;practiceAttempts[_0x23199d]={'selected':_0x113548,'isCorrect':_0x113548===_0x3894e1[_0x3828a7(0x2bf)]},renderQuestions();}function submitExam(){const _0x337bcd=_0x3c626c;if(examSubmitted)return;examSubmitted=!![];let _0x10a566=0x0;currentQuestions[_0x337bcd(0x18f)](_0xdd39b8=>{const _0x566edd=_0x337bcd;if(userAnswers[_0xdd39b8['id']]===_0xdd39b8[_0x566edd(0x2bf)])_0x10a566++;});if(scoreDisplay)scoreDisplay[_0x337bcd(0x1b5)]=String(_0x10a566);try{liveSetActivity(_0x337bcd(0x2a7),{'view':_0x337bcd(0xf5),'details':_0x337bcd(0x2b3)+_0x10a566+'/'+currentQuestions[_0x337bcd(0xe7)]});}catch(_0x211a67){}const _0x2b631c=document['getElementById'](_0x337bcd(0x2af));if(_0x2b631c)_0x2b631c[_0x337bcd(0x1b5)]='/\x20'+currentQuestions[_0x337bcd(0xe7)];examStatus&&(examStatus['innerText']=_0x337bcd(0x12a),examStatus[_0x337bcd(0x35c)]['remove']('text-yellow-500'),examStatus[_0x337bcd(0x35c)][_0x337bcd(0x1d0)]('text-[#00ff9d]')),submitBtn&&(submitBtn[_0x337bcd(0x35c)][_0x337bcd(0x1d0)](_0x337bcd(0x228),_0x337bcd(0x106)),submitBtn[_0x337bcd(0x390)]=!![]),renderQuestions(),window[_0x337bcd(0x210)]({'top':0x0,'behavior':_0x337bcd(0x246)});}function renderQuestions(){const _0x3452c4=_0x3c626c;if(!container)return;container[_0x3452c4(0x199)]='',currentQuestions['forEach'](_0x1ef5c4=>{const _0xca5544=_0x3452c4,_0x2fcea6=currentMode==='exam',_0x5e69d9=currentMode===_0xca5544(0x11a),_0x435d22=!!_0x1ef5c4[_0xca5544(0x161)];let _0x2aba53=_0xca5544(0x24d);if(_0x2fcea6&&examSubmitted){const _0x25d4a6=userAnswers[_0x1ef5c4['id']];if(_0x25d4a6===_0x1ef5c4['key'])_0x2aba53+=_0xca5544(0x3a3);else{if(_0x25d4a6)_0x2aba53+=_0xca5544(0x20c);}}if(_0x5e69d9&&practiceAttempts[_0x1ef5c4['id']]){if(practiceAttempts[_0x1ef5c4['id']][_0xca5544(0x2a2)])_0x2aba53+=_0xca5544(0x3a3);else _0x2aba53+='\x20wrong';}const _0x2c700f=_0xca5544(0x2dc),_0x2cea1c=escapeHTML(_0x1ef5c4[_0xca5544(0x31f)]||'');let _0x8b4b32=_0xca5544(0x231)+_0x1ef5c4['id']+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+(_0x2cea1c?_0xca5544(0x16d)+_0x2cea1c+_0xca5544(0x2fb):'')+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+(currentMode!==_0xca5544(0x1ad)&&_0x435d22?_0x2c700f:'')+_0xca5544(0x297)+_0x1ef5c4['q']+'</div>\x0a\x20\x20\x20\x20';if(_0x2fcea6||_0x5e69d9){_0x8b4b32+='<div\x20class=\x22opt-container\x22>',['a','b','c','d'][_0xca5544(0x18f)](_0x31d530=>{const _0x12e296=_0xca5544;let _0x20a9a0=_0x12e296(0x14e),_0x3fc5e4='';if(_0x2fcea6){_0x3fc5e4=_0x12e296(0x16a)+_0x1ef5c4['id']+_0x12e296(0x1b4)+_0x31d530+'\x27)';const _0x33cd6b=userAnswers[_0x1ef5c4['id']];if(examSubmitted){if(_0x31d530===_0x1ef5c4[_0x12e296(0x2bf)])_0x20a9a0+='\x20correct-ans';else{if(_0x33cd6b===_0x31d530)_0x20a9a0+=_0x12e296(0x22d);else _0x20a9a0+=_0x12e296(0x1d6);}}else _0x33cd6b===_0x31d530&&(_0x20a9a0+=_0x12e296(0x117));}else{if(_0x5e69d9){_0x3fc5e4=_0x12e296(0x316)+_0x1ef5c4['id']+_0x12e296(0x1b4)+_0x31d530+'\x27)';const _0x241afe=practiceAttempts[_0x1ef5c4['id']];if(_0x241afe){if(_0x31d530===_0x1ef5c4[_0x12e296(0x2bf)])_0x20a9a0+=_0x12e296(0x17c);else{if(_0x241afe[_0x12e296(0x126)]===_0x31d530)_0x20a9a0+=_0x12e296(0x22d);else _0x20a9a0+='\x20dimmed';}}}}_0x8b4b32+='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20onclick=\x22'+_0x3fc5e4+_0x12e296(0x36f)+_0x20a9a0+_0x12e296(0x255)+_0x31d530[_0x12e296(0x38c)]()+_0x12e296(0x1f3)+(_0x1ef5c4[_0x12e296(0x249)]?.[_0x31d530]||_0x12e296(0x293)+_0x31d530)+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20';}),_0x8b4b32+='</div>';const _0x1b0b19=_0x2fcea6&&examSubmitted||_0x5e69d9&&practiceAttempts[_0x1ef5c4['id']];_0x1b0b19&&(_0x8b4b32+=_0xca5544(0x36d)+(_0x1ef5c4[_0xca5544(0x33d)]||_0xca5544(0x257))+_0xca5544(0x15a)+(_0x1ef5c4[_0xca5544(0x161)]?_0xca5544(0x2ab)+_0x1ef5c4[_0xca5544(0x161)]+'</div>':'')+_0xca5544(0x256));}else _0x8b4b32+=_0xca5544(0x110)+(_0x1ef5c4[_0xca5544(0x260)]||'')+_0xca5544(0x1b0)+(_0x1ef5c4[_0xca5544(0x2bf)]||'')[_0xca5544(0x38c)]()+']</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22document.getElementById(\x27soln-'+_0x1ef5c4['id']+_0xca5544(0x2c1)+_0x1ef5c4['id']+'\x22\x20class=\x22hidden\x20pt-4\x20border-t\x20border-gray-800\x20space-y-4\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-400\x20text-sm\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong\x20class=\x22text-[#00f3ff]\x22>SOLUTION:</strong><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-2\x22>'+(_0x1ef5c4[_0xca5544(0x33d)]||'<span\x20class=\x22text-gray-500\x22>(no\x20solution\x20provided)</span>')+_0xca5544(0x308)+(_0x1ef5c4['caltech']?_0xca5544(0x162)+_0x1ef5c4[_0xca5544(0x161)]+_0xca5544(0x28e):'')+_0xca5544(0x2a4);const _0x1f789e=document[_0xca5544(0x12e)](_0xca5544(0x245));_0x1f789e[_0xca5544(0x194)]=_0x2aba53,_0x1f789e[_0xca5544(0x199)]=_0x8b4b32,container[_0xca5544(0x369)](_0x1f789e);});if(window['MathJax'])MathJax['typesetPromise']();}let adminTab=_0x3c626c(0x16c),adminCreateType=_0x3c626c(0x28b),adminSelectedQuizSetId='';function openAdminPanel(){const _0x34c528=_0x3c626c;if(session['role']!==_0x34c528(0x33b)){alert(_0x34c528(0x277));return;}document[_0x34c528(0x2d7)]('.menu-overlay')[_0x34c528(0x18f)](_0x523c65=>_0x523c65[_0x34c528(0x35c)][_0x34c528(0x1d0)](_0x34c528(0x1d9)));const _0x39cd33=document[_0x34c528(0x138)](_0x34c528(0x17e));_0x39cd33&&(_0x39cd33[_0x34c528(0x35c)][_0x34c528(0x1d0)](_0x34c528(0x1d9)),_0x39cd33[_0x34c528(0xf7)][_0x34c528(0x12c)]='0');document['getElementById'](_0x34c528(0xea))?.[_0x34c528(0x35c)]['remove'](_0x34c528(0x1d9)),setAdminTab(_0x34c528(0x16c));try{liveSetActivity(_0x34c528(0x23e),{'view':_0x34c528(0x2a0)});}catch(_0x2342d1){}try{liveRequestAdminRefresh();}catch(_0x41cf66){}updateAdminLibraryStatus(),showLibraryHintIfNeeded(),adminRefreshAll();}function closeAdminPanel(){const _0x4bb97c=_0x3c626c;document[_0x4bb97c(0x138)]('admin-overlay')?.[_0x4bb97c(0x35c)][_0x4bb97c(0x1d0)](_0x4bb97c(0x1d9)),document['getElementById']('level-1-menu')?.[_0x4bb97c(0x35c)]['remove'](_0x4bb97c(0x1d9));try{liveSetActivity(_0x4bb97c(0x367),{'view':'CATEGORIES'});}catch(_0x2b37f8){}}function updateAdminLibraryStatus(){const _0x9f50e5=_0x3c626c,_0x56b0d3=document[_0x9f50e5(0x138)](_0x9f50e5(0x20a));if(!_0x56b0d3)return;if(libraryLoadState['ok']){const _0x3d0ad7=libraryLoadState[_0x9f50e5(0x157)],_0x2d7f5f=_0x3d0ad7==='repo'?LIBRARY_FILENAME:_0x3d0ad7==='bundle'?LIBRARY_JS_FILENAME:_0x3d0ad7===_0x9f50e5(0x205)?'OFFLINE\x20CACHE':String(_0x3d0ad7||_0x9f50e5(0x1f8));_0x56b0d3[_0x9f50e5(0x174)]='LIBRARY:\x20LOADED\x20('+_0x2d7f5f+')',_0x56b0d3[_0x9f50e5(0xf7)]['borderColor']=_0x9f50e5(0x287);}else _0x56b0d3['textContent']='LIBRARY:\x20EMPTY\x20(import\x20in\x20Backup)',_0x56b0d3[_0x9f50e5(0xf7)][_0x9f50e5(0x301)]=_0x9f50e5(0x11e);showLibraryHintIfNeeded();}function showLibraryHintIfNeeded(){const _0x34bb5e=_0x3c626c,_0x110306=document[_0x34bb5e(0x138)](_0x34bb5e(0x20b));if(!_0x110306)return;const _0x5c3892=window['location'][_0x34bb5e(0x242)]===_0x34bb5e(0x2dd),_0x5c89ac=libraryLoadState[_0x34bb5e(0x157)];if(!libraryLoadState['ok']&&_0x5c3892){_0x110306['classList']['remove'](_0x34bb5e(0x1d9)),_0x110306['textContent']=_0x34bb5e(0x2fe);return;}if(!libraryLoadState['ok']){_0x110306[_0x34bb5e(0x35c)][_0x34bb5e(0x1c2)]('hidden'),_0x110306['textContent']=_0x34bb5e(0x3af);return;}if(_0x5c3892&&(_0x5c89ac==='bundle'||_0x5c89ac===_0x34bb5e(0x205))){_0x110306[_0x34bb5e(0x35c)][_0x34bb5e(0x1c2)](_0x34bb5e(0x1d9)),_0x110306[_0x34bb5e(0x174)]='Offline\x20mode:\x20loaded\x20library\x20from\x20'+(_0x5c89ac===_0x34bb5e(0x19c)?'library.js':_0x34bb5e(0x2d1))+_0x34bb5e(0x3c0);return;}_0x110306[_0x34bb5e(0x35c)][_0x34bb5e(0x1d0)](_0x34bb5e(0x1d9));}function setAdminTab(_0x514cb0){const _0x4a2f6e=_0x3c626c;adminTab=_0x514cb0;const _0x4568c5={'content':_0x4a2f6e(0x344),'accounts':_0x4a2f6e(0x149),'logs':'admin-tab-logs','backup':_0x4a2f6e(0x1be)};Object[_0x4a2f6e(0x26e)](_0x4568c5)[_0x4a2f6e(0x18f)](([_0x137860,_0x5ae941])=>{const _0xed9868=_0x4a2f6e;document[_0xed9868(0x138)](_0x5ae941)?.['classList']['toggle']('hidden',_0x137860!==_0x514cb0);});const _0x502e14={'content':_0x4a2f6e(0x37a),'accounts':_0x4a2f6e(0x26f),'logs':_0x4a2f6e(0x20f),'backup':_0x4a2f6e(0x2d0)};Object['values'](_0x502e14)[_0x4a2f6e(0x18f)](_0x12e644=>document[_0x4a2f6e(0x138)](_0x12e644)?.['classList'][_0x4a2f6e(0x1c2)](_0x4a2f6e(0x14b))),document['getElementById'](_0x502e14[_0x514cb0])?.[_0x4a2f6e(0x35c)]['add'](_0x4a2f6e(0x14b));try{_0x514cb0===_0x4a2f6e(0x3b5)&&(adminRefreshBackendUrlUI(),renderAdminOnlineUsers(),renderAdminLog(),liveRequestAdminRefresh()),_0x514cb0===_0x4a2f6e(0x240)&&adminRefreshServerAccounts();}catch(_0x456050){}}async function adminRefreshServerAccounts(){const _0x41a265=_0x3c626c,_0x4c3da2=document['getElementById'](_0x41a265(0x25c)),_0x1bea43=document[_0x41a265(0x138)](_0x41a265(0x224));if(!_0x4c3da2)return;if(session?.[_0x41a265(0x198)]!==_0x41a265(0x33b)){_0x4c3da2['innerHTML']=_0x41a265(0x399);if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=_0x41a265(0x229);return;}if(!liveIsEnabled()){_0x4c3da2['innerHTML']=_0x41a265(0x35d);if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=_0x41a265(0x2b1);return;}if(!liveAuthToken){_0x4c3da2[_0x41a265(0x199)]='<div\x20class=\x22admin-help\x22>Login\x20to\x20backend\x20required\x20(no\x20token).</div>';if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=_0x41a265(0x2f2);return;}_0x4c3da2[_0x41a265(0x199)]=_0x41a265(0xe5);if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=liveWsConnected?_0x41a265(0x2c4):_0x41a265(0x1c0);try{const _0x3ccd68=await liveApiFetch(_0x41a265(0x1cc),{'method':'GET'}),_0x1022bd=Array[_0x41a265(0x1bd)](_0x3ccd68?.[_0x41a265(0x240)])?_0x3ccd68[_0x41a265(0x240)]:Array[_0x41a265(0x1bd)](_0x3ccd68)?_0x3ccd68:[];if(_0x1022bd[_0x41a265(0xe7)]===0x0){_0x4c3da2[_0x41a265(0x199)]='<div\x20class=\x22admin-help\x22>No\x20server\x20accounts\x20yet.</div>';if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=_0x41a265(0x131);return;}_0x4c3da2[_0x41a265(0x199)]=_0x1022bd[_0x41a265(0x379)](_0x416833=>{const _0x598644=_0x41a265,_0x4fea6b=escapeHTML(_0x416833[_0x598644(0x109)]||'user'),_0x87607c=escapeHTML(_0x416833['role']||_0x598644(0x2c2)),_0x5f0a89=_0x416833[_0x598644(0x291)]?new Date(_0x416833[_0x598644(0x291)])[_0x598644(0x381)]():'';return'\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>'+_0x4fea6b+_0x598644(0x2ec)+_0x87607c+(_0x5f0a89?'\x20•\x20Created:\x20'+escapeHTML(_0x5f0a89):'')+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22><span\x20class=\x22admin-pill\x22>'+_0x87607c+_0x598644(0x283);})['join']('');if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=_0x41a265(0x17a)+_0x1022bd['length'];}catch(_0x58adf6){console[_0x41a265(0x2fd)](_0x58adf6),_0x4c3da2[_0x41a265(0x199)]=_0x41a265(0x2e2)+escapeHTML(String(_0x58adf6?.['message']||_0x58adf6))+_0x41a265(0x28e);if(_0x1bea43)_0x1bea43[_0x41a265(0x174)]=_0x41a265(0x31c);}}async function adminCreateAccountServer(){const _0x484e5b=_0x3c626c,_0x1eb507=document['getElementById']('admin-account-status');if(session?.['role']!==_0x484e5b(0x33b)){alert('Admin\x20only.');return;}if(!liveIsEnabled()){alert('Backend\x20URL\x20not\x20set.\x20Set\x20it\x20in\x20Admin\x20→\x20Online\x20&\x20Logs\x20(Backend\x20URL),\x20or\x20set\x20window.PADAYON_BACKEND_URL\x20in\x20index.html.');return;}if(!liveAuthToken){alert('Backend\x20login\x20required\x20(no\x20token).\x20Login\x20again\x20while\x20backend\x20is\x20configured.');return;}const _0x3cb374=String(document[_0x484e5b(0x138)]('admin-create-username')?.['value']||'')[_0x484e5b(0x3b9)](),_0x1a0762=String(document[_0x484e5b(0x138)](_0x484e5b(0x372))?.[_0x484e5b(0x11c)]||''),_0x38b179=String(document[_0x484e5b(0x138)]('admin-create-role')?.['value']||_0x484e5b(0x2c2));if(!_0x3cb374||!_0x1a0762){alert(_0x484e5b(0x233));return;}try{if(_0x1eb507)_0x1eb507[_0x484e5b(0x174)]=_0x484e5b(0x286);await liveApiFetch(_0x484e5b(0x1cc),{'method':'POST','body':{'username':_0x3cb374,'password':_0x1a0762,'role':_0x38b179==='admin'?'admin':'user'}});const _0x6e7079=document[_0x484e5b(0x138)](_0x484e5b(0x372));if(_0x6e7079)_0x6e7079[_0x484e5b(0x11c)]='';if(_0x1eb507)_0x1eb507['textContent']='Created\x20account:\x20'+_0x3cb374;await adminRefreshServerAccounts();}catch(_0x4fdf6b){console[_0x484e5b(0x2fd)](_0x4fdf6b);if(_0x1eb507)_0x1eb507[_0x484e5b(0x174)]='Create\x20failed:\x20'+String(_0x4fdf6b?.[_0x484e5b(0x111)]||_0x4fdf6b);alert(_0x484e5b(0x30e)+String(_0x4fdf6b?.[_0x484e5b(0x111)]||_0x4fdf6b));}}function setAdminCreateType(_0x35ec4b){const _0x30b72a=_0x3c626c;adminCreateType=_0x35ec4b;const _0x1a8874={'quiz':_0x30b72a(0x325),'notes':'admin-type-notes','folder':_0x30b72a(0x135)};Object[_0x30b72a(0x26e)](_0x1a8874)['forEach'](([_0x4f4bf1,_0x574ec2])=>{const _0x44c87b=_0x30b72a;document[_0x44c87b(0x138)](_0x574ec2)?.[_0x44c87b(0x35c)]['toggle'](_0x44c87b(0x14b),_0x4f4bf1===_0x35ec4b);const _0x5366e3=document[_0x44c87b(0x1ba)]('#'+_0x574ec2+_0x44c87b(0x3d1));if(_0x5366e3)_0x5366e3[_0x44c87b(0x35c)][_0x44c87b(0x105)]('on',_0x4f4bf1===_0x35ec4b);}),document[_0x30b72a(0x138)](_0x30b72a(0x33e))?.[_0x30b72a(0x35c)][_0x30b72a(0x105)](_0x30b72a(0x1d9),_0x35ec4b!==_0x30b72a(0x28b)),document[_0x30b72a(0x138)]('admin-panel-notes')?.[_0x30b72a(0x35c)][_0x30b72a(0x105)](_0x30b72a(0x1d9),_0x35ec4b!==_0x30b72a(0x2e1)),document[_0x30b72a(0x138)](_0x30b72a(0x258))?.[_0x30b72a(0x35c)][_0x30b72a(0x105)](_0x30b72a(0x1d9),_0x35ec4b!==_0x30b72a(0x218)),adminRefreshAll();}function getAdminTargetPath(){const _0x2b2c37=_0x3c626c;return normalizePath(document[_0x2b2c37(0x138)](_0x2b2c37(0x329))?.[_0x2b2c37(0x11c)]||'');}function setAdminTargetPath(_0x24c100){const _0x3357f6=_0x3c626c,_0x44c1bd=document[_0x3357f6(0x138)](_0x3357f6(0x329)),_0x5140e1=normalizePath(_0x24c100);if(_0x44c1bd)_0x44c1bd[_0x3357f6(0x11c)]=_0x5140e1;if(_0x5140e1){const _0x111c31=ensureFolder(_0x5140e1);if(_0x111c31)touchLibrary();}}function adminComputePathVisibility(_0x2aaaf2){const _0x4450a6=_0x3c626c,_0x3578f9=normalizePath(_0x2aaaf2),_0x1125a7=_0x3578f9[_0x4450a6(0x327)]();if(!_0x3578f9)return[_0x4450a6(0x394)];if(isGlobalFolder(_0x3578f9))return[_0x4450a6(0x24a)];const _0x7fa432=[],_0x59aa7f=(_0x2e2827,_0x4f2a87)=>{const _0x48860f=_0x4450a6;if(_0x1125a7['startsWith'](_0x2e2827[_0x48860f(0x327)]()))_0x7fa432[_0x48860f(0x16f)](_0x4f2a87);};return _0x59aa7f('UNDERGROUNDS/FORMULAS','UNDERGROUNDS\x20→\x20FORMULAS\x20(Notes)'),_0x59aa7f(_0x4450a6(0x1ce),_0x4450a6(0x2a1)),_0x59aa7f('UNDERGROUNDS/PROBLEM\x20EXERCISES',_0x4450a6(0x30d)),_0x59aa7f(_0x4450a6(0x271),'EXHALE\x20FILE\x20→\x20NOTES\x20(PDF\x20Notes)'),_0x59aa7f(_0x4450a6(0x2b5),'EXHALE\x20FILE\x20→\x20PRACTICE\x20QUIZ\x20(Quiz\x20Sets)'),_0x59aa7f(_0x4450a6(0x305),'EXHALE\x20FILE\x20→\x20EXAM\x20(Quiz\x20Sets)'),_0x59aa7f('PAWER-LAYN\x20FILE/NOTES','PAWER-LAYN\x20FILE\x20→\x20NOTES\x20(PDF\x20Notes)'),_0x59aa7f('PAWER-LAYN\x20FILE/PRACTICE\x20QUIZ',_0x4450a6(0x12b)),_0x59aa7f(_0x4450a6(0x3a8),_0x4450a6(0xf2)),_0x59aa7f(_0x4450a6(0x128),_0x4450a6(0x2db)),_0x7fa432[_0x4450a6(0xe7)]===0x0&&_0x7fa432[_0x4450a6(0x16f)](_0x4450a6(0x35b)),_0x7fa432;}const ADMIN_QUICK_PICK_PRESETS=[_0x3c626c(0x200),_0x3c626c(0x296),_0x3c626c(0x128),_0x3c626c(0x3ae),'PAWER-LAYN\x20FILE',_0x3c626c(0x1b3),_0x3c626c(0x1ce),_0x3c626c(0x158),'UNDERGROUNDS/TERMS\x20&\x20OBJECTIVES',_0x3c626c(0x23b),_0x3c626c(0x368),'T-AY-PI/EE',_0x3c626c(0x24c),_0x3c626c(0x271),'EXHALE\x20FILE/PRACTICE\x20QUIZ','EXHALE\x20FILE/EXAM',_0x3c626c(0x1c1),_0x3c626c(0x177),'PAWER-LAYN\x20FILE/EXAM'];let _cachedUiFolderPaths=null;function adminCollectUiFolderPaths(){const _0x1c75dd=_0x3c626c;if(_cachedUiFolderPaths)return _cachedUiFolderPaths[_0x1c75dd(0x15c)]();const _0x56ce67=new Set();try{const _0xf89051=document[_0x1c75dd(0x2d7)](_0x1c75dd(0x239)),_0x3d96f7=/(openCustomQuizBrowser|openNotesFolder)\s*\(\s*(['"`])([^'"`]+?)\2/g;_0xf89051[_0x1c75dd(0x18f)](_0x5d09f0=>{const _0x3c3441=_0x1c75dd,_0x450081=String(_0x5d09f0['getAttribute'](_0x3c3441(0x36a))||'');let _0x4e05b2;while(_0x4e05b2=_0x3d96f7[_0x3c3441(0x151)](_0x450081)){const _0x2920cc=normalizePath(_0x4e05b2[0x3]);if(_0x2920cc)_0x56ce67[_0x3c3441(0x1d0)](_0x2920cc);}});}catch(_0x1a1cdd){}return _cachedUiFolderPaths=Array[_0x1c75dd(0x318)](_0x56ce67),_cachedUiFolderPaths[_0x1c75dd(0x15c)]();}function expandWithAncestors(_0x414d92){const _0x4d55d9=_0x3c626c,_0x553b71=new Set();for(const _0x324940 of _0x414d92||[]){const _0x91a7ad=normalizePath(_0x324940);if(!_0x91a7ad)continue;const _0x3fa585=_0x91a7ad[_0x4d55d9(0x1a6)]('/')[_0x4d55d9(0x3b2)](Boolean);for(let _0x50a4e6=0x1;_0x50a4e6<=_0x3fa585['length'];_0x50a4e6++){_0x553b71[_0x4d55d9(0x1d0)](_0x3fa585[_0x4d55d9(0x15c)](0x0,_0x50a4e6)[_0x4d55d9(0x3b4)]('/'));}}return Array[_0x4d55d9(0x318)](_0x553b71);}function uniquePaths(_0xe9a8){const _0x2884e3=_0x3c626c,_0x257dc1=[],_0x139d2d=new Set();for(const _0x1835be of _0xe9a8||[]){const _0x566777=normalizePath(_0x1835be);if(!_0x566777)continue;const _0x60822a=_0x566777[_0x2884e3(0x327)]();if(_0x139d2d[_0x2884e3(0x3a1)](_0x60822a))continue;_0x139d2d[_0x2884e3(0x1d0)](_0x60822a),_0x257dc1[_0x2884e3(0x16f)](_0x566777);}return _0x257dc1;}function adminGetQuickPickPaths(){const _0x4228a2=_0x3c626c,_0x13fd9f=ADMIN_QUICK_PICK_PRESETS[_0x4228a2(0x379)](normalizePath)[_0x4228a2(0x3b2)](Boolean),_0x18a82c=adminCollectUiFolderPaths()[_0x4228a2(0x379)](normalizePath)[_0x4228a2(0x3b2)](Boolean),_0x57ad43=getAllFolderPaths(library)[_0x4228a2(0x379)](normalizePath)['filter'](Boolean);return uniquePaths(expandWithAncestors([..._0x13fd9f,..._0x18a82c,..._0x57ad43]));}function adminRefreshQuickPickOptions(){const _0x4a5c37=_0x3c626c,_0x2600b7=document['getElementById']('admin-quick-pick');if(!_0x2600b7)return;const _0x4b0658=getAdminTargetPath()||'',_0x5fd565=adminGetQuickPickPaths(),_0x31f7f6=_0x5fd565['slice']()[_0x4a5c37(0x2f5)]((_0x1a1b2e,_0x1e5d7f)=>{const _0x2b69ed=_0x4a5c37;if(_0x1a1b2e==='GLOBAL')return-0x1;if(_0x1e5d7f===_0x2b69ed(0x200))return 0x1;return _0x1a1b2e[_0x2b69ed(0x31e)](_0x1e5d7f);});_0x2600b7[_0x4a5c37(0x199)]='';const _0x519921=document[_0x4a5c37(0x12e)]('option');_0x519921['value']='',_0x519921[_0x4a5c37(0x174)]='Quick\x20pick:\x20choose\x20a\x20folder…',_0x2600b7[_0x4a5c37(0x369)](_0x519921);for(const _0x5a1f86 of _0x31f7f6){const _0x302673=document['createElement'](_0x4a5c37(0x2f0));_0x302673[_0x4a5c37(0x11c)]=_0x5a1f86;const _0x33ed55=_0x5a1f86[_0x4a5c37(0x1a6)]('/')[_0x4a5c37(0x3b2)](Boolean)[_0x4a5c37(0xe7)],_0x322646='\u00a0\u00a0'[_0x4a5c37(0x1ac)](Math['max'](0x0,_0x33ed55-0x1));_0x302673['textContent']=_0x322646+_0x5a1f86,_0x2600b7[_0x4a5c37(0x369)](_0x302673);}_0x4b0658&&Array['from'](_0x2600b7[_0x4a5c37(0x249)])['some'](_0x537686=>samePath(_0x537686['value'],_0x4b0658))?_0x2600b7[_0x4a5c37(0x11c)]=_0x4b0658:_0x2600b7[_0x4a5c37(0x11c)]='';}function adminUpdatePathHelpers(){const _0x2ad18c=_0x3c626c,_0x494f83=getAdminTargetPath(),_0x1f354b=document[_0x2ad18c(0x138)](_0x2ad18c(0x24e));if(_0x1f354b)_0x1f354b['textContent']=_0x494f83||_0x2ad18c(0x252);const _0x4c1a9a=document[_0x2ad18c(0x138)](_0x2ad18c(0x232));if(_0x4c1a9a)_0x4c1a9a[_0x2ad18c(0x174)]=adminComputePathVisibility(_0x494f83)[_0x2ad18c(0x3b4)](_0x2ad18c(0x189));}async function adminCopyTargetPath(){const _0x17ef0a=_0x3c626c,_0x460ba9=getAdminTargetPath();if(!_0x460ba9){alert(_0x17ef0a(0x392));return;}try{if(navigator[_0x17ef0a(0x2aa)]&&window['isSecureContext'])await navigator[_0x17ef0a(0x2aa)][_0x17ef0a(0xfa)](_0x460ba9);else{const _0x2ae2cb=document['createElement']('textarea');_0x2ae2cb[_0x17ef0a(0x11c)]=_0x460ba9,_0x2ae2cb['style'][_0x17ef0a(0x121)]=_0x17ef0a(0x324),_0x2ae2cb[_0x17ef0a(0xf7)][_0x17ef0a(0x362)]=_0x17ef0a(0x155),document[_0x17ef0a(0x1da)][_0x17ef0a(0x369)](_0x2ae2cb),_0x2ae2cb[_0x17ef0a(0x2e4)](),_0x2ae2cb['select'](),document['execCommand']('copy'),_0x2ae2cb[_0x17ef0a(0x1c2)]();}alert(_0x17ef0a(0x3c1));}catch(_0x5957c2){console['warn'](_0x5957c2),alert(_0x17ef0a(0x30b));}}function adminPreviewQuizSets(){const _0xc662bf=_0x3c626c,_0x259672=getAdminTargetPath()||'';openCustomQuizBrowser(_0x259672,_0xc662bf(0xea),_0xc662bf(0x1d1));}function adminPreviewPdfs(){const _0x3a392d=_0x3c626c,_0x855d91=getAdminTargetPath()||'';openNotesFolder(_0x855d91,_0x3a392d(0x374),_0x3a392d(0xea),_0x3a392d(0x281));}function adminRefreshAll(){adminRefreshQuickPickOptions(),adminUpdatePathHelpers(),adminRefreshFolderList(),adminRefreshQuizSetSelect(),adminRefreshPdfList(),adminUpdateQuestionCount();}function adminRefreshFolderList(){const _0x4b9108=_0x3c626c,_0x1a0371=document[_0x4b9108(0x138)](_0x4b9108(0x288));if(!_0x1a0371)return;const _0x4a2a63=getAdminTargetPath(),_0x4d94db=getImmediateChildFolders(_0x4a2a63);if(_0x4d94db['length']===0x0){_0x1a0371['innerHTML']='<div\x20class=\x22admin-list-item\x22><div\x20class=\x22admin-list-left\x22><div\x20class=\x22admin-list-title\x22>No\x20subfolders</div><div\x20class=\x22admin-list-sub\x22>Create\x20one\x20above,\x20or\x20type\x20a\x20deeper\x20Target\x20path.</div></div></div>';return;}_0x1a0371[_0x4b9108(0x199)]=_0x4d94db[_0x4b9108(0x379)](_0x2e1a6f=>{const _0x3fa948=_0x4b9108,_0x2e436a=(library['quizSets']||[])[_0x3fa948(0x3b2)](_0x282a41=>isUnderPath(_0x282a41[_0x3fa948(0x218)],_0x2e1a6f[_0x3fa948(0x13a)])&&!isGlobalFolder(_0x282a41[_0x3fa948(0x218)]))[_0x3fa948(0xe7)],_0x11d440=(library[_0x3fa948(0x1ef)]||[])[_0x3fa948(0x3b2)](_0x3421f9=>isUnderPath(_0x3421f9[_0x3fa948(0x218)],_0x2e1a6f[_0x3fa948(0x13a)])&&!isGlobalFolder(_0x3421f9[_0x3fa948(0x218)]))[_0x3fa948(0xe7)],_0x4ad76d=_0x2e436a+_0x3fa948(0x214)+(_0x2e436a===0x1?'':'s')+'\x20•\x20'+_0x11d440+'\x20pdf'+(_0x11d440===0x1?'':'s');return _0x3fa948(0x165)+_0x2e1a6f['path'][_0x3fa948(0x346)](/'/g,'\x5c\x27')+_0x3fa948(0xdc)+escapeHTML(_0x2e1a6f[_0x3fa948(0x29d)])+_0x3fa948(0x169)+escapeHTML(_0x2e1a6f[_0x3fa948(0x13a)])+_0x3fa948(0x189)+escapeHTML(_0x4ad76d)+_0x3fa948(0x388);})['join']('');}function adminRefreshQuizSetSelect(){const _0xaaafff=_0x3c626c,_0x32ebdd=document[_0xaaafff(0x138)]('admin-quiz-select');if(!_0x32ebdd)return;const _0x4d9fdd=adminSelectedQuizSetId;_0x32ebdd[_0xaaafff(0x199)]=_0xaaafff(0x1b7),library[_0xaaafff(0x13e)]['slice']()[_0xaaafff(0x2f5)]((_0x57280b,_0x265ff5)=>_0x57280b[_0xaaafff(0x206)]['localeCompare'](_0x265ff5[_0xaaafff(0x206)]))['forEach'](_0x14f81d=>{const _0x170311=_0xaaafff,_0x3b6989=document['createElement'](_0x170311(0x2f0));_0x3b6989[_0x170311(0x11c)]=_0x14f81d['id'],_0x3b6989[_0x170311(0x174)]=_0x14f81d['title']+_0x170311(0x298)+_0x14f81d[_0x170311(0x218)]+']',_0x32ebdd[_0x170311(0x369)](_0x3b6989);});if(_0x4d9fdd)_0x32ebdd[_0xaaafff(0x11c)]=_0x4d9fdd;}function adminGetSelectedSet(){const _0x383ac2=_0x3c626c;if(!adminSelectedQuizSetId)return null;return library[_0x383ac2(0x13e)]['find'](_0x431ac6=>_0x431ac6['id']===adminSelectedQuizSetId)||null;}function adminUpdateQuestionCount(){const _0x446cfd=_0x3c626c,_0x5c77dd=document[_0x446cfd(0x138)](_0x446cfd(0x340));if(!_0x5c77dd)return;const _0x3c3e59=adminGetSelectedSet(),_0x5c5516=_0x3c3e59?.['questions']?.[_0x446cfd(0xe7)]||0x0;_0x5c77dd[_0x446cfd(0x174)]=String(_0x5c5516);}function adminSelectQuizSet(_0x50685b){const _0x57d5dd=_0x3c626c;adminSelectedQuizSetId=_0x50685b||'';const _0xde6b91=document[_0x57d5dd(0x138)](_0x57d5dd(0x2ff));if(_0xde6b91)_0xde6b91[_0x57d5dd(0x11c)]=adminSelectedQuizSetId;adminUpdateQuestionCount();}function adminCreateQuizSet(){const _0x4f50f2=_0x3c626c,_0x21c86=document['getElementById']('admin-quiz-title'),_0x102148=String(_0x21c86?.['value']||'')[_0x4f50f2(0x3b9)]();if(!_0x102148){alert(_0x4f50f2(0x24f));return;}const _0x21681a=getAdminTargetPath()||'GLOBAL';ensureFolder(_0x21681a);const _0xf18750={'id':uid('qs'),'title':_0x102148,'folder':_0x21681a,'createdAt':nowISO(),'updatedAt':nowISO(),'questions':[]};library['quizSets']['push'](_0xf18750),touchLibrary();if(_0x21c86)_0x21c86[_0x4f50f2(0x11c)]='';adminRefreshQuizSetSelect(),adminSelectQuizSet(_0xf18750['id']),alert('Quiz\x20set\x20created:\x20'+_0xf18750[_0x4f50f2(0x206)]+_0x4f50f2(0x298)+_0xf18750[_0x4f50f2(0x218)]+']');}function adminMoveSelectedQuizSet(){const _0x21d42f=_0x3c626c,_0x27ad61=adminGetSelectedSet();if(!_0x27ad61){alert(_0x21d42f(0x1a1));return;}const _0x7f8401=document[_0x21d42f(0x138)](_0x21d42f(0xe0)),_0x16494d=String(_0x7f8401?.[_0x21d42f(0x11c)]||'')[_0x21d42f(0x3b9)](),_0xc07f3b=_0x16494d?normalizePath(_0x16494d):getAdminTargetPath();if(!_0xc07f3b){alert('Enter\x20a\x20folder\x20path\x20(or\x20set\x20Target\x20folder\x20path).');return;}ensureFolder(_0xc07f3b),_0x27ad61[_0x21d42f(0x218)]=_0xc07f3b,_0x27ad61[_0x21d42f(0x23f)]=nowISO(),touchLibrary();if(_0x7f8401)_0x7f8401[_0x21d42f(0x11c)]='';adminRefreshQuizSetSelect(),adminSelectQuizSet(_0x27ad61['id']),alert(_0x21d42f(0x3a2));}function adminDeleteSelectedQuizSet(){const _0x37751f=_0x3c626c,_0x403207=adminGetSelectedSet();if(!_0x403207){alert(_0x37751f(0x1a1));return;}const _0x543f5c=!!document['getElementById']('admin-quiz-delete-questions')?.[_0x37751f(0x10d)];if(!confirm(_0x37751f(0x36c)+_0x403207[_0x37751f(0x206)]+'\x22?'))return;_0x543f5c?library[_0x37751f(0x13e)]=library[_0x37751f(0x13e)][_0x37751f(0x3b2)](_0x5ea55d=>_0x5ea55d['id']!==_0x403207['id']):(_0x403207['questions']=[],_0x403207[_0x37751f(0x23f)]=nowISO()),touchLibrary(),adminSelectedQuizSetId='',adminRefreshQuizSetSelect(),adminUpdateQuestionCount(),alert(_0x37751f(0x371));}function adminExportSelectedQuizSet(){const _0x3ad1d3=_0x3c626c,_0x1d1f3e=adminGetSelectedSet();if(!_0x1d1f3e){alert(_0x3ad1d3(0x1a1));return;}const _0xb26435={'format':'PADAYON_QUIZSET_V1','title':_0x1d1f3e[_0x3ad1d3(0x206)],'folder':_0x1d1f3e[_0x3ad1d3(0x218)],'exportedAt':nowISO(),'questions':Array[_0x3ad1d3(0x1bd)](_0x1d1f3e[_0x3ad1d3(0xe4)])?_0x1d1f3e[_0x3ad1d3(0xe4)]:[]},_0x2e04f3=_0x1d1f3e[_0x3ad1d3(0x206)][_0x3ad1d3(0x346)](/[^a-z0-9\-\_]+/gi,'_');downloadJSON((_0x2e04f3||_0x3ad1d3(0x166))+_0x3ad1d3(0x383),_0xb26435);}function sanitizeQuestion(_0x275e36,_0x27327a){const _0x106000=_0x3c626c,_0x49148d=String(_0x275e36['topic']||'')['trim'](),_0x37dcfd=String(_0x275e36['q']||_0x275e36[_0x106000(0x26b)]||'')[_0x106000(0x3b9)](),_0x346347=_0x275e36[_0x106000(0x249)]||_0x275e36[_0x106000(0x204)]||{},_0x54aacc=String(_0x346347['a']??_0x346347['A']??_0x275e36['a']??'')['trim'](),_0x4696c0=String(_0x346347['b']??_0x346347['B']??_0x275e36['b']??'')['trim'](),_0x313b3c=String(_0x346347['c']??_0x346347['C']??_0x275e36['c']??'')[_0x106000(0x3b9)](),_0xd0ff0d=String(_0x346347['d']??_0x346347['D']??_0x275e36['d']??'')[_0x106000(0x3b9)](),_0x5c341d=String(_0x275e36[_0x106000(0x2bf)]||_0x275e36['correct']||'')[_0x106000(0x3b9)]()[_0x106000(0x327)](),_0x4e9afe=['a','b','c','d'][_0x106000(0x2cb)](_0x5c341d)?_0x5c341d:'a',_0x2abf89={'a':_0x54aacc,'b':_0x4696c0,'c':_0x313b3c,'d':_0xd0ff0d},_0x5dd6ce=String(_0x275e36[_0x106000(0x260)]||_0x2abf89[_0x4e9afe]||'')['trim']();return{'id':Number[_0x106000(0x3b1)](_0x275e36['id'])?_0x275e36['id']:_0x27327a,'topic':_0x49148d||_0x106000(0x33c),'q':_0x37dcfd,'options':_0x2abf89,'key':_0x4e9afe,'ans':_0x5dd6ce,'soln':String(_0x275e36[_0x106000(0x33d)]||_0x275e36[_0x106000(0x2d2)]||'')[_0x106000(0x3b9)](),'caltech':_0x275e36[_0x106000(0x161)]!=null?String(_0x275e36['caltech']):null};}async function adminImportQuestionsJson(){const _0x49ef3d=_0x3c626c,_0x22f091=adminGetSelectedSet();if(!_0x22f091){alert(_0x49ef3d(0x1a1));return;}const _0x576fe0=document[_0x49ef3d(0x138)]('admin-import-file'),_0x5f4ece=_0x576fe0?.[_0x49ef3d(0x180)]?.[0x0];if(!_0x5f4ece){alert(_0x49ef3d(0x3c8));return;}try{const _0x4812c3=await readFileAsText(_0x5f4ece),_0x7085a7=JSON[_0x49ef3d(0x2f8)](_0x4812c3);let _0x8c7d0d=[];if(Array[_0x49ef3d(0x1bd)](_0x7085a7))_0x8c7d0d=_0x7085a7;else{if(_0x7085a7&&Array[_0x49ef3d(0x1bd)](_0x7085a7[_0x49ef3d(0xe4)]))_0x8c7d0d=_0x7085a7[_0x49ef3d(0xe4)];}if(!Array[_0x49ef3d(0x1bd)](_0x8c7d0d)||_0x8c7d0d[_0x49ef3d(0xe7)]===0x0){alert('No\x20questions\x20found\x20in\x20JSON.');return;}const _0x21bb80=(_0x22f091['questions']||[])['reduce']((_0xda7764,_0x373591)=>Math[_0x49ef3d(0x378)](_0xda7764,Number(_0x373591['id'])||0x0),0x0);let _0x1c5cdf=_0x21bb80+0x1;const _0x13e409=_0x8c7d0d[_0x49ef3d(0x379)](_0x49ca87=>sanitizeQuestion(_0x49ca87,_0x1c5cdf++))['filter'](_0x4c88b9=>_0x4c88b9['q']);if(_0x13e409[_0x49ef3d(0xe7)]===0x0){alert('Questions\x20imported,\x20but\x20all\x20were\x20empty\x20after\x20sanitizing.');return;}_0x22f091[_0x49ef3d(0xe4)]=Array[_0x49ef3d(0x1bd)](_0x22f091[_0x49ef3d(0xe4)])?_0x22f091[_0x49ef3d(0xe4)][_0x49ef3d(0x28d)](_0x13e409):_0x13e409,_0x22f091['updatedAt']=nowISO(),touchLibrary();if(_0x576fe0)_0x576fe0['value']='';adminUpdateQuestionCount(),alert('Imported\x20'+_0x13e409[_0x49ef3d(0xe7)]+'\x20question(s).');}catch(_0x45d047){console[_0x49ef3d(0x202)](_0x45d047),alert(_0x49ef3d(0x357));}}function adminClearQuestionBuilder(){const _0x1b8555=_0x3c626c,_0x99fb19=[_0x1b8555(0x251),_0x1b8555(0x137),'admin-q-a',_0x1b8555(0x225),_0x1b8555(0xe2),_0x1b8555(0x326),_0x1b8555(0x3ab),'admin-q-caltech'];_0x99fb19[_0x1b8555(0x18f)](_0x26e766=>{const _0x120de4=_0x1b8555,_0xb0f8a1=document[_0x120de4(0x138)](_0x26e766);if(_0xb0f8a1)_0xb0f8a1[_0x120de4(0x11c)]='';});const _0x5ab501=document[_0x1b8555(0x138)]('admin-q-correct');if(_0x5ab501)_0x5ab501['value']='a';}function adminAddQuestion(){const _0x113594=_0x3c626c,_0x37e07b=adminGetSelectedSet();if(!_0x37e07b){alert(_0x113594(0x1a1));return;}const _0x424665=String(document[_0x113594(0x138)](_0x113594(0x251))?.[_0x113594(0x11c)]||'')[_0x113594(0x3b9)](),_0x1748ae=String(document[_0x113594(0x138)](_0x113594(0x137))?.[_0x113594(0x11c)]||'')[_0x113594(0x3b9)](),_0x14b915=String(document[_0x113594(0x138)](_0x113594(0x1d7))?.[_0x113594(0x11c)]||'')['trim'](),_0x5f5bac=String(document['getElementById'](_0x113594(0x225))?.[_0x113594(0x11c)]||'')[_0x113594(0x3b9)](),_0x369447=String(document[_0x113594(0x138)]('admin-q-c')?.['value']||'')[_0x113594(0x3b9)](),_0x67ce6e=String(document[_0x113594(0x138)]('admin-q-d')?.[_0x113594(0x11c)]||'')[_0x113594(0x3b9)](),_0x35c86f=String(document[_0x113594(0x138)](_0x113594(0x3ab))?.[_0x113594(0x11c)]||'')[_0x113594(0x3b9)](),_0x36f208=String(document[_0x113594(0x138)](_0x113594(0x24b))?.[_0x113594(0x11c)]||'')[_0x113594(0x3b9)](),_0x4832ad=String(document['getElementById'](_0x113594(0x175))?.['value']||'a')[_0x113594(0x327)]();if(!_0x1748ae){alert(_0x113594(0x10b));return;}if(!_0x14b915||!_0x5f5bac||!_0x369447||!_0x67ce6e){alert(_0x113594(0x2a9));return;}const _0x7cb43f=(_0x37e07b[_0x113594(0xe4)]||[])[_0x113594(0x1c3)]((_0x1064de,_0x279448)=>Math[_0x113594(0x378)](_0x1064de,Number(_0x279448['id'])||0x0),0x0),_0x44fb09=_0x7cb43f+0x1,_0x296138={'id':_0x44fb09,'topic':_0x424665||_0x113594(0x33c),'q':_0x1748ae,'options':{'a':_0x14b915,'b':_0x5f5bac,'c':_0x369447,'d':_0x67ce6e},'key':['a','b','c','d'][_0x113594(0x2cb)](_0x4832ad)?_0x4832ad:'a','ans':{'a':_0x14b915,'b':_0x5f5bac,'c':_0x369447,'d':_0x67ce6e}[_0x4832ad]||_0x14b915,'soln':_0x35c86f,'caltech':_0x36f208||null};_0x37e07b[_0x113594(0xe4)]=Array[_0x113594(0x1bd)](_0x37e07b[_0x113594(0xe4)])?_0x37e07b[_0x113594(0xe4)][_0x113594(0x28d)]([_0x296138]):[_0x296138],_0x37e07b[_0x113594(0x23f)]=nowISO(),touchLibrary(),adminUpdateQuestionCount(),adminClearQuestionBuilder(),alert(_0x113594(0x132));}function adminGetPdfKind(){const _0x4fb571=_0x3c626c,_0x23e368=String(document[_0x4fb571(0x138)](_0x4fb571(0x14f))?.[_0x4fb571(0x11c)]||'notes')[_0x4fb571(0x327)]();return _0x23e368===_0x4fb571(0x248)?_0x4fb571(0x248):_0x4fb571(0x2e1);}async function adminUploadPdf(_0x362d3a=_0x3c626c(0x2e1)){const _0x437036=_0x3c626c,_0x36f255=document[_0x437036(0x138)](_0x437036(0x186)),_0x42481d=_0x36f255?.[_0x437036(0x180)]?.[0x0];if(!_0x42481d){alert(_0x437036(0x398));return;}const _0x3b6f3d=document['getElementById'](_0x437036(0x313)),_0x382e17=String(_0x3b6f3d?.[_0x437036(0x11c)]||'')[_0x437036(0x3b9)]()||_0x42481d[_0x437036(0x29d)],_0x324f5b=getAdminTargetPath()||'GLOBAL';ensureFolder(_0x324f5b);try{const _0x44a46d=await readFileAsDataURL(_0x42481d);library[_0x437036(0x1ef)][_0x437036(0x16f)]({'id':uid('pdf'),'title':_0x382e17,'folder':_0x324f5b,'kind':_0x362d3a,'src':_0x44a46d,'createdAt':nowISO()});const _0xa82ba3=touchLibrary();if(_0x36f255)_0x36f255[_0x437036(0x11c)]='';if(_0x3b6f3d)_0x3b6f3d[_0x437036(0x11c)]='';const _0x4ea85f=document[_0x437036(0x138)]('admin-pdf-url');if(_0x4ea85f)_0x4ea85f['value']='';adminRefreshPdfList(),!_0xa82ba3?alert(_0x437036(0x264)):alert(_0x437036(0x1bf));}catch(_0x21b07c){console[_0x437036(0x202)](_0x21b07c),alert('Failed\x20to\x20read\x20PDF\x20file.');}}function adminAttachPdfUrl(_0x259e3a=_0x3c626c(0x2e1)){const _0x210671=_0x3c626c,_0x18b290=document[_0x210671(0x138)](_0x210671(0xdb)),_0xa469ee=String(_0x18b290?.[_0x210671(0x11c)]||'')[_0x210671(0x3b9)]();if(!_0xa469ee){alert(_0x210671(0x140));return;}const _0x3da4ad=document['getElementById']('admin-pdf-title'),_0x4e64fe=String(_0x3da4ad?.[_0x210671(0x11c)]||'')[_0x210671(0x3b9)]()||baseName(_0xa469ee)||_0x210671(0x36e),_0x1c82d1=getAdminTargetPath()||'GLOBAL';ensureFolder(_0x1c82d1);const _0x14fe83=encodeURI(_0xa469ee);library[_0x210671(0x1ef)][_0x210671(0x16f)]({'id':uid('pdf'),'title':_0x4e64fe,'folder':_0x1c82d1,'kind':_0x259e3a,'src':_0x14fe83,'createdAt':nowISO()});const _0x5aa2fd=touchLibrary();if(_0x18b290)_0x18b290[_0x210671(0x11c)]='';if(_0x3da4ad)_0x3da4ad['value']='';adminRefreshPdfList(),!_0x5aa2fd?alert(_0x210671(0x1e5)):alert(_0x210671(0x336));}function adminRefreshPdfList(){const _0x34c16f=_0x3c626c,_0x14c50f=document[_0x34c16f(0x138)](_0x34c16f(0x18b));if(!_0x14c50f)return;const _0x9d64a8=getAdminTargetPath(),_0x3cb274=(library[_0x34c16f(0x1ef)]||[])[_0x34c16f(0x3b2)](_0x10690d=>{const _0x25062d=normalizePath(_0x10690d['folder']||'');if(!_0x9d64a8)return isGlobalFolder(_0x25062d)||!_0x25062d;return isUnderPath(_0x25062d,_0x9d64a8);})[_0x34c16f(0x15c)]()[_0x34c16f(0x2f5)]((_0x4984d1,_0x32485c)=>String(_0x4984d1[_0x34c16f(0x206)]||'')[_0x34c16f(0x31e)](String(_0x32485c[_0x34c16f(0x206)]||'')));if(_0x3cb274[_0x34c16f(0xe7)]===0x0){_0x14c50f[_0x34c16f(0x199)]=_0x34c16f(0x1e6);return;}_0x14c50f[_0x34c16f(0x199)]='',_0x3cb274[_0x34c16f(0x18f)](_0x2fbc55=>{const _0x1b5b00=_0x34c16f,_0x431ee1=document[_0x1b5b00(0x12e)](_0x1b5b00(0x245));_0x431ee1[_0x1b5b00(0x194)]=_0x1b5b00(0x115),_0x431ee1[_0x1b5b00(0x199)]=_0x1b5b00(0x13c)+escapeHTML(_0x2fbc55[_0x1b5b00(0x206)])+_0x1b5b00(0x28c)+escapeHTML(_0x2fbc55[_0x1b5b00(0x26a)])+'\x20•\x20'+escapeHTML(_0x2fbc55[_0x1b5b00(0x218)])+_0x1b5b00(0x1b8);const [_0x51ef14,_0x8a5877]=_0x431ee1[_0x1b5b00(0x2d7)](_0x1b5b00(0x330));_0x51ef14[_0x1b5b00(0x2c9)](_0x1b5b00(0x192),()=>{const _0x1c2c1f=_0x1b5b00;openPdfOverlay(_0x2fbc55['id'],_0x1c2c1f(0xea));}),_0x8a5877[_0x1b5b00(0x2c9)](_0x1b5b00(0x192),()=>{const _0x479083=_0x1b5b00;if(!confirm('Delete\x20PDF:\x20\x22'+_0x2fbc55[_0x479083(0x206)]+'\x22?'))return;library[_0x479083(0x1ef)]=library[_0x479083(0x1ef)][_0x479083(0x3b2)](_0x23686a=>_0x23686a['id']!==_0x2fbc55['id']),touchLibrary(),adminRefreshPdfList();}),_0x14c50f['appendChild'](_0x431ee1);});}function adminCreateFolder(){const _0x1d7d70=_0x3c626c,_0x150078=String(document[_0x1d7d70(0x138)](_0x1d7d70(0x216))?.[_0x1d7d70(0x11c)]||'')[_0x1d7d70(0x3b9)]();if(!_0x150078){alert('Enter\x20folder\x20name.');return;}const _0x5dd05e=getAdminTargetPath(),_0x5ac560=[_0x1d7d70(0x200),_0x1d7d70(0x296),_0x1d7d70(0x128),_0x1d7d70(0x3ae),_0x1d7d70(0x312)],_0x7f7fcc=normalizePath(_0x150078),_0x5e4359=_0x7f7fcc['split']('/')[0x0]||'',_0x24af35=_0x5ac560['some'](_0x4e8305=>samePath(_0x5e4359,_0x4e8305)),_0x342b19=normalizePath(_0x24af35?_0x7f7fcc:_0x5dd05e?_0x5dd05e+'/'+_0x150078:_0x150078),_0x5a2438=ensureFolder(_0x342b19);if(_0x5a2438)touchLibrary();document['getElementById'](_0x1d7d70(0x216))[_0x1d7d70(0x11c)]='',adminRefreshAll(),alert(_0x5a2438?_0x1d7d70(0x22b)+_0x342b19:_0x1d7d70(0xf3)+_0x342b19);}function adminOpenTarget(){const _0x7f00ef=_0x3c626c,_0xbd8602=getAdminTargetPath();alert(_0x7f00ef(0x375)+(_0xbd8602||_0x7f00ef(0x252)));}function adminRenameFolder(){const _0x3a6cc2=_0x3c626c,_0x5889db=String(document[_0x3a6cc2(0x138)]('admin-folder-rename')?.['value']||'')[_0x3a6cc2(0x3b9)]();if(!_0x5889db){alert(_0x3a6cc2(0x112));return;}const _0x4d86ad=getAdminTargetPath();if(!_0x4d86ad){alert(_0x3a6cc2(0x119));return;}const _0x5e5c6c=parentPath(_0x4d86ad),_0x21f690=normalizePath(_0x5e5c6c?_0x5e5c6c+'/'+_0x5889db:_0x5889db);adminMoveFolderInternal(_0x4d86ad,_0x21f690),document[_0x3a6cc2(0x138)](_0x3a6cc2(0x3cc))[_0x3a6cc2(0x11c)]='',setAdminTargetPath(_0x21f690),adminRefreshAll(),alert(_0x3a6cc2(0x2ba));}function adminMoveFolder(){const _0x126766=_0x3c626c,_0x2110a1=normalizePath(String(document['getElementById'](_0x126766(0x101))?.['value']||'')[_0x126766(0x3b9)]()),_0x501605=getAdminTargetPath();if(!_0x501605){alert(_0x126766(0x1f0));return;}if(!_0x2110a1){alert(_0x126766(0x10f));return;}const _0xba7b89=normalizePath(_0x2110a1+'/'+baseName(_0x501605));adminMoveFolderInternal(_0x501605,_0xba7b89),document[_0x126766(0x138)](_0x126766(0x101))['value']='',setAdminTargetPath(_0xba7b89),adminRefreshAll(),alert(_0x126766(0x333));}function adminMoveFolderInternal(_0x2116e2,_0x56f224){const _0x2d845d=_0x3c626c,_0x1b4c66=normalizePath(_0x2116e2),_0x100291=normalizePath(_0x56f224);ensureFolder(parentPath(_0x100291)),ensureFolder(_0x100291),library[_0x2d845d(0x23a)]=library[_0x2d845d(0x23a)]['map'](_0x2e1280=>{const _0x2277d5=_0x2d845d;if(isUnderPath(_0x2e1280['path'],_0x1b4c66)){const _0x2aa097=normalizePath(_0x2e1280[_0x2277d5(0x13a)])[_0x2277d5(0x15c)](normalizePath(_0x1b4c66)[_0x2277d5(0xe7)]),_0x345d85=_0x2aa097[_0x2277d5(0x3c3)]('/')?_0x2aa097:_0x2aa097?'/'+_0x2aa097:'';return{..._0x2e1280,'path':normalizePath(_0x100291+_0x345d85)};}return _0x2e1280;})[_0x2d845d(0x3b2)]((_0x14b8b7,_0x296afa,_0x5492d3)=>_0x5492d3[_0x2d845d(0x321)](_0xa81a6a=>samePath(_0xa81a6a['path'],_0x14b8b7[_0x2d845d(0x13a)]))===_0x296afa),library[_0x2d845d(0x13e)]['forEach'](_0x508cd5=>{const _0x4cecf8=_0x2d845d;if(isUnderPath(_0x508cd5[_0x4cecf8(0x218)],_0x1b4c66)){const _0xafe30b=normalizePath(_0x508cd5['folder'])['slice'](normalizePath(_0x1b4c66)[_0x4cecf8(0xe7)]),_0x803df0=_0xafe30b[_0x4cecf8(0x3c3)]('/')?_0xafe30b:_0xafe30b?'/'+_0xafe30b:'';_0x508cd5[_0x4cecf8(0x218)]=normalizePath(_0x100291+_0x803df0),_0x508cd5['updatedAt']=nowISO();}}),library[_0x2d845d(0x1ef)]['forEach'](_0x5cb12a=>{const _0x64f774=_0x2d845d;if(isUnderPath(_0x5cb12a[_0x64f774(0x218)],_0x1b4c66)){const _0x488ca1=normalizePath(_0x5cb12a['folder'])[_0x64f774(0x15c)](normalizePath(_0x1b4c66)[_0x64f774(0xe7)]),_0x590e81=_0x488ca1[_0x64f774(0x3c3)]('/')?_0x488ca1:_0x488ca1?'/'+_0x488ca1:'';_0x5cb12a[_0x64f774(0x218)]=normalizePath(_0x100291+_0x590e81);}}),touchLibrary();}function adminDeleteFolder(){const _0x1988b9=_0x3c626c,_0x2178fd=getAdminTargetPath();if(!_0x2178fd){alert('Set\x20Target\x20folder\x20path\x20to\x20the\x20folder\x20you\x20want\x20to\x20delete.');return;}const _0x41c234=!!document[_0x1988b9(0x138)](_0x1988b9(0x2f7))?.['checked'];if(!confirm(_0x1988b9(0x39f)+_0x2178fd+'\x0a\x0aThis\x20will\x20affect\x20subfolders\x20and\x20content\x20inside.'))return;const _0xb27581=parentPath(_0x2178fd);library[_0x1988b9(0x23a)]=library[_0x1988b9(0x23a)][_0x1988b9(0x3b2)](_0x983b2a=>!isUnderPath(_0x983b2a[_0x1988b9(0x13a)],_0x2178fd)),_0x41c234?(library[_0x1988b9(0x13e)]=library[_0x1988b9(0x13e)][_0x1988b9(0x3b2)](_0x2582a2=>!isUnderPath(_0x2582a2[_0x1988b9(0x218)],_0x2178fd)),library['pdfs']=library[_0x1988b9(0x1ef)][_0x1988b9(0x3b2)](_0x5c1fc1=>!isUnderPath(_0x5c1fc1['folder'],_0x2178fd))):(library[_0x1988b9(0x13e)][_0x1988b9(0x18f)](_0x223cc7=>{const _0x38fa45=_0x1988b9;if(isUnderPath(_0x223cc7[_0x38fa45(0x218)],_0x2178fd))_0x223cc7['folder']=_0xb27581;}),library[_0x1988b9(0x1ef)]['forEach'](_0x23aec0=>{const _0x1c10c4=_0x1988b9;if(isUnderPath(_0x23aec0[_0x1c10c4(0x218)],_0x2178fd))_0x23aec0['folder']=_0xb27581;})),touchLibrary(),adminRefreshAll(),alert(_0x1988b9(0x2b6));}function adminHowItWorks(){const _0x25e241=_0x3c626c;alert(_0x25e241(0x35a)+_0x25e241(0x268)+_0x25e241(0x300)+'•\x20Export\x20library.json\x20in\x20Backup\x20tab\x20and\x20COMMIT\x20it\x20to\x20GitHub\x20so\x20everyone\x20can\x20see\x20the\x20updates.');}async function importLibraryFromFile(_0x1aae5d,{statusEl:statusEl=null}={}){const _0x488215=_0x3c626c;if(!_0x1aae5d)return![];const _0x40653e=await readFileAsText(_0x1aae5d),_0x38c8f6=JSON[_0x488215(0x2f8)](_0x40653e);library=normalizeIncomingLibrary(_0x38c8f6),libraryLoadState={'ok':!![],'source':'import','error':null};const _0x3a1efa=touchLibrary();return updateAdminLibraryStatus(),showLibraryHintIfNeeded(),refreshUiAfterLibraryChange(),statusEl&&(statusEl[_0x488215(0x174)]=_0x3a1efa?_0x488215(0x221)+_0x1aae5d[_0x488215(0x29d)]+_0x488215(0x2d3):_0x488215(0x221)+_0x1aae5d['name']+'\x20(in-memory\x20only;\x20cache/storage\x20may\x20be\x20full).'),_0x3a1efa;}async function adminQuickImportLibrary(){const _0x161dae=_0x3c626c;if(session[_0x161dae(0x198)]!==_0x161dae(0x33b)){alert(_0x161dae(0x229));return;}const _0x2ef773=document[_0x161dae(0x138)](_0x161dae(0x168)),_0x529b7f=_0x2ef773?.[_0x161dae(0x180)]?.[0x0];if(!_0x529b7f){alert(_0x161dae(0x12d));return;}try{const _0x1c7616=await importLibraryFromFile(_0x529b7f);alert(_0x1c7616?_0x161dae(0x1df):_0x161dae(0x15d));}catch(_0x1c00f8){console[_0x161dae(0x202)](_0x1c00f8),alert(_0x161dae(0x290));}finally{if(_0x2ef773)_0x2ef773[_0x161dae(0x11c)]='';}}function userQuickImportLibrary(){const _0x7a69fb=_0x3c626c,_0x1503d7=document[_0x7a69fb(0x138)](_0x7a69fb(0x341));if(!_0x1503d7){alert(_0x7a69fb(0x11d));return;}_0x1503d7[_0x7a69fb(0x11c)]='',_0x1503d7[_0x7a69fb(0x116)]=async()=>{const _0xb5c5af=_0x7a69fb,_0x2d42e0=_0x1503d7[_0xb5c5af(0x180)]?.[0x0];if(!_0x2d42e0)return;const _0x490cf6=confirm(_0xb5c5af(0x1e7));if(!_0x490cf6){_0x1503d7[_0xb5c5af(0x11c)]='';return;}try{const _0x552fa6=await importLibraryFromFile(_0x2d42e0);alert(_0x552fa6?_0xb5c5af(0x2f3):_0xb5c5af(0x3cd));}catch(_0x3b86f5){console[_0xb5c5af(0x202)](_0x3b86f5),alert(_0xb5c5af(0x290));}finally{_0x1503d7[_0xb5c5af(0x11c)]='';}},_0x1503d7['click']();}async function adminImportLibrary(){const _0x424955=_0x3c626c,_0x952641=document[_0x424955(0x138)]('admin-backup-import-file'),_0x544523=document[_0x424955(0x138)](_0x424955(0x226)),_0x5f0c3a=_0x952641?.['files']?.[0x0];if(!_0x5f0c3a){alert(_0x424955(0x12d));return;}try{const _0x422306=await importLibraryFromFile(_0x5f0c3a,{'statusEl':_0x544523});alert(_0x422306?_0x424955(0x3ad):'Imported\x20library.json,\x20but\x20could\x20not\x20save\x20to\x20cache\x20(storage\x20might\x20be\x20full).\x20You\x20can\x20still\x20Export\x20+\x20commit\x20to\x20GitHub.');}catch(_0x301b45){console[_0x424955(0x202)](_0x301b45),alert('Invalid\x20library.json');}finally{if(_0x952641)_0x952641[_0x424955(0x11c)]='';}}function adminExportLibrary(){touchLibrary();const _0x1ff1be={...library,'updatedAt':library['updatedAt']||nowISO()};downloadJSON(LIBRARY_FILENAME,_0x1ff1be);}function adminExportLibraryJS(){const _0x1e7e89=_0x3c626c;touchLibrary();const _0x16eb33={...library,'updatedAt':library[_0x1e7e89(0x23f)]||nowISO()},_0xc13129=_0x1e7e89(0x29a)+LIBRARY_GLOBAL_VAR+'\x20=\x20'+JSON['stringify'](_0x16eb33,null,0x2)+';\x0a';downloadText(LIBRARY_JS_FILENAME,_0xc13129,_0x1e7e89(0x376));}function adminSearch(_0x506437){const _0x5850e0=_0x3c626c,_0x56c6bd=String(_0x506437||'')[_0x5850e0(0x3b9)]()['toLowerCase']();if(!_0x56c6bd)return[];const _0xd151d4=[];return library[_0x5850e0(0x23a)]['forEach'](_0x11faa2=>{const _0x1e0bf7=_0x5850e0;_0x11faa2[_0x1e0bf7(0x13a)][_0x1e0bf7(0x327)]()[_0x1e0bf7(0x2cb)](_0x56c6bd)&&_0xd151d4[_0x1e0bf7(0x16f)]({'type':_0x1e0bf7(0x218),'label':_0x11faa2[_0x1e0bf7(0x13a)],'value':_0x11faa2[_0x1e0bf7(0x13a)]});}),library[_0x5850e0(0x13e)][_0x5850e0(0x18f)](_0x1bce79=>{const _0x3e79ab=_0x5850e0,_0x3587ed=(_0x1bce79[_0x3e79ab(0x206)]+'\x20'+_0x1bce79[_0x3e79ab(0x218)])[_0x3e79ab(0x327)]();_0x3587ed[_0x3e79ab(0x2cb)](_0x56c6bd)&&_0xd151d4[_0x3e79ab(0x16f)]({'type':_0x3e79ab(0x28b),'label':_0x1bce79['title'],'sub':_0x1bce79['folder'],'value':_0x1bce79['id']});}),library[_0x5850e0(0x1ef)][_0x5850e0(0x18f)](_0x4e27b2=>{const _0x88325f=_0x5850e0,_0x348194=(_0x4e27b2[_0x88325f(0x206)]+'\x20'+_0x4e27b2[_0x88325f(0x218)])[_0x88325f(0x327)]();_0x348194[_0x88325f(0x2cb)](_0x56c6bd)&&_0xd151d4['push']({'type':'pdf','label':_0x4e27b2[_0x88325f(0x206)],'sub':_0x4e27b2[_0x88325f(0x218)],'value':_0x4e27b2['id']});}),_0xd151d4[_0x5850e0(0x15c)](0x0,0x19);}function adminRenderSearchResults(_0x56cf02){const _0x55d472=_0x3c626c,_0x232f7b=document[_0x55d472(0x138)](_0x55d472(0x2d8));if(!_0x232f7b)return;const _0x3cc72d=String(_0x56cf02||'')[_0x55d472(0x3b9)]();if(!_0x3cc72d){_0x232f7b[_0x55d472(0x35c)][_0x55d472(0x1d0)]('hidden'),_0x232f7b[_0x55d472(0x199)]='';return;}const _0x25f251=adminSearch(_0x3cc72d);if(_0x25f251['length']===0x0){_0x232f7b[_0x55d472(0x35c)][_0x55d472(0x1c2)](_0x55d472(0x1d9)),_0x232f7b[_0x55d472(0x199)]='<div\x20class=\x22admin-help\x22\x20style=\x22padding:12px;\x22>No\x20results.</div>';return;}_0x232f7b[_0x55d472(0x35c)][_0x55d472(0x1c2)](_0x55d472(0x1d9)),_0x232f7b['innerHTML']='',_0x25f251[_0x55d472(0x18f)](_0x3089cd=>{const _0x25705f=_0x55d472,_0x205410=document[_0x25705f(0x12e)](_0x25705f(0x245));_0x205410[_0x25705f(0x194)]='admin-search-item',_0x205410[_0x25705f(0x199)]=_0x25705f(0x2c5)+escapeHTML(_0x3089cd[_0x25705f(0x3c9)])+_0x25705f(0x1fc)+(_0x3089cd[_0x25705f(0x108)]?'<div\x20class=\x22admin-search-type\x22>'+escapeHTML(_0x3089cd['sub'])+'</div>':_0x25705f(0x37f)+escapeHTML(_0x3089cd[_0x25705f(0x356)]['toUpperCase']())+_0x25705f(0x28e))+_0x25705f(0x27d)+escapeHTML(_0x3089cd['type'][_0x25705f(0x38c)]())+_0x25705f(0x176),_0x205410['addEventListener'](_0x25705f(0x192),()=>{const _0x57c450=_0x25705f;if(_0x3089cd[_0x57c450(0x356)]===_0x57c450(0x218))setAdminTargetPath(_0x3089cd[_0x57c450(0x11c)]),setAdminCreateType(_0x57c450(0x28b)),adminRefreshAll();else{if(_0x3089cd['type']==='quiz'){const _0x4f2550=library['quizSets'][_0x57c450(0x382)](_0xb0bd06=>_0xb0bd06['id']===_0x3089cd[_0x57c450(0x11c)]);_0x4f2550&&(setAdminTargetPath(_0x4f2550[_0x57c450(0x218)]),setAdminCreateType(_0x57c450(0x28b)),adminRefreshAll(),adminSelectQuizSet(_0x4f2550['id']));}else{if(_0x3089cd['type']==='pdf'){const _0x5f035f=getPdfById(_0x3089cd[_0x57c450(0x11c)]);_0x5f035f&&(setAdminTargetPath(_0x5f035f[_0x57c450(0x218)]),setAdminCreateType(_0x57c450(0x2e1)),adminRefreshAll());}}}_0x232f7b['classList'][_0x57c450(0x1d0)]('hidden'),_0x232f7b[_0x57c450(0x199)]='';const _0x4c01aa=document[_0x57c450(0x138)]('admin-search-input');if(_0x4c01aa)_0x4c01aa['value']='';}),_0x232f7b[_0x25705f(0x369)](_0x205410);});}function initAdminUI(){const _0x4989af=_0x3c626c;document['getElementById'](_0x4989af(0x37a))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>setAdminTab(_0x4989af(0x16c))),document[_0x4989af(0x138)](_0x4989af(0x26f))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>setAdminTab(_0x4989af(0x240))),document[_0x4989af(0x138)](_0x4989af(0x20f))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>setAdminTab(_0x4989af(0x3b5))),document[_0x4989af(0x138)](_0x4989af(0x2d0))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>setAdminTab(_0x4989af(0x33a))),document[_0x4989af(0x138)](_0x4989af(0x39b))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>{closeAdminPanel();}),document[_0x4989af(0x138)](_0x4989af(0xf6))?.['addEventListener']('click',()=>{adminSaveLibrary();}),document[_0x4989af(0x138)](_0x4989af(0x325))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>setAdminCreateType(_0x4989af(0x28b))),document[_0x4989af(0x138)]('admin-type-notes')?.['addEventListener'](_0x4989af(0x192),()=>setAdminCreateType(_0x4989af(0x2e1))),document[_0x4989af(0x138)](_0x4989af(0x135))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>setAdminCreateType(_0x4989af(0x218))),document['getElementById'](_0x4989af(0x160))?.['addEventListener'](_0x4989af(0x39a),_0x57f369=>{const _0x460d33=_0x4989af,_0x15d077=normalizePath(_0x57f369[_0x460d33(0xf0)]['value']||'');if(_0x15d077)setAdminTargetPath(_0x15d077);adminRefreshAll();}),document['getElementById'](_0x4989af(0x329))?.['addEventListener'](_0x4989af(0x144),()=>{const _0x11b201=_0x4989af;adminUpdatePathHelpers(),adminRefreshFolderList();if(adminCreateType===_0x11b201(0x2e1))adminRefreshPdfList();}),document[_0x4989af(0x138)]('admin-copy-path')?.['addEventListener'](_0x4989af(0x192),adminCopyTargetPath),document[_0x4989af(0x138)](_0x4989af(0x295))?.['addEventListener'](_0x4989af(0x192),adminPreviewQuizSets),document[_0x4989af(0x138)](_0x4989af(0x32a))?.[_0x4989af(0x2c9)]('click',adminPreviewPdfs),document[_0x4989af(0x138)]('admin-quiz-create-btn')?.[_0x4989af(0x2c9)]('click',adminCreateQuizSet),document[_0x4989af(0x138)](_0x4989af(0x2ff))?.[_0x4989af(0x2c9)](_0x4989af(0x39a),_0x61b08e=>{const _0x3634ed=_0x4989af;adminSelectQuizSet(_0x61b08e['target'][_0x3634ed(0x11c)]);}),document[_0x4989af(0x138)](_0x4989af(0x2e6))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>{const _0x52c686=_0x4989af,_0x30787c=document['getElementById'](_0x52c686(0xe0));if(_0x30787c)_0x30787c[_0x52c686(0x11c)]=getAdminTargetPath();}),document[_0x4989af(0x138)](_0x4989af(0x1dd))?.['addEventListener'](_0x4989af(0x192),adminMoveSelectedQuizSet),document[_0x4989af(0x138)](_0x4989af(0x1c4))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminDeleteSelectedQuizSet),document[_0x4989af(0x138)](_0x4989af(0x3c2))?.[_0x4989af(0x2c9)]('click',adminImportQuestionsJson),document[_0x4989af(0x138)](_0x4989af(0x215))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminExportSelectedQuizSet),document[_0x4989af(0x138)](_0x4989af(0x148))?.['addEventListener'](_0x4989af(0x192),adminAddQuestion),document['getElementById']('admin-q-clear-btn')?.[_0x4989af(0x2c9)]('click',adminClearQuestionBuilder),document[_0x4989af(0x138)](_0x4989af(0x1f2))?.[_0x4989af(0x2c9)]('click',()=>adminUploadPdf(adminGetPdfKind())),document[_0x4989af(0x138)](_0x4989af(0x30c))?.['addEventListener'](_0x4989af(0x192),()=>adminAttachPdfUrl(adminGetPdfKind())),document[_0x4989af(0x138)](_0x4989af(0x2ad))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminCreateFolder),document['getElementById'](_0x4989af(0x2e7))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminOpenTarget),document[_0x4989af(0x138)](_0x4989af(0x34e))?.['addEventListener'](_0x4989af(0x192),adminRenameFolder),document[_0x4989af(0x138)](_0x4989af(0x339))?.[_0x4989af(0x2c9)]('click',adminMoveFolder),document['getElementById']('admin-folder-delete-btn')?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminDeleteFolder),document[_0x4989af(0x138)](_0x4989af(0x2e9))?.[_0x4989af(0x2c9)]('click',adminHowItWorks),document[_0x4989af(0x138)](_0x4989af(0x230))?.['addEventListener']('click',()=>setAdminTargetPath('')),document['getElementById'](_0x4989af(0x234))?.[_0x4989af(0x2c9)](_0x4989af(0x144),_0x27c69a=>{const _0x38e57b=_0x4989af;adminRenderSearchResults(_0x27c69a['target'][_0x38e57b(0x11c)]);}),document[_0x4989af(0x138)](_0x4989af(0xee))?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>{const _0x2bd6ef=_0x4989af,_0x216e49=document['getElementById'](_0x2bd6ef(0x234));if(_0x216e49)_0x216e49[_0x2bd6ef(0x11c)]='';adminRenderSearchResults('');}),document[_0x4989af(0x138)]('admin-backup-export')?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminExportLibrary),document[_0x4989af(0x138)]('admin-backup-export-js')?.[_0x4989af(0x2c9)]('click',adminExportLibraryJS),document[_0x4989af(0x138)](_0x4989af(0x118))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminImportLibrary),document['getElementById']('admin-create-account-btn')?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminCreateAccountServer),document[_0x4989af(0x138)](_0x4989af(0x2cf))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminRefreshServerAccounts),document[_0x4989af(0x138)]('admin-refresh-online-btn')?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>{renderAdminOnlineUsers(),renderAdminLog(),liveRequestAdminRefresh();}),document['getElementById']('admin-clear-log-btn')?.[_0x4989af(0x2c9)](_0x4989af(0x192),()=>{liveAdminLog=[],renderAdminLog();}),document[_0x4989af(0x138)](_0x4989af(0x2ae))?.[_0x4989af(0x2c9)]('click',adminSaveBackendUrlFromUI),document[_0x4989af(0x138)](_0x4989af(0x396))?.[_0x4989af(0x2c9)](_0x4989af(0x192),adminClearBackendUrlFromUI),document[_0x4989af(0x138)](_0x4989af(0x2bb))?.[_0x4989af(0x2c9)](_0x4989af(0x163),_0xd2fbef=>{const _0x4e46b1=_0x4989af;_0xd2fbef[_0x4e46b1(0x2bf)]==='Enter'&&(_0xd2fbef['preventDefault'](),adminSaveBackendUrlFromUI());}),setAdminCreateType(_0x4989af(0x28b));}document['addEventListener'](_0x3c626c(0x355),()=>{initAdminUI();try{adminRefreshBackendUrlUI();}catch(_0x16a986){}});function showLibraryHint(_0x3cf8c9){}try{window[_0x3c626c(0x250)]=function connectToBackend(){try{liveBackendUrl=getConfiguredBackendUrl();}catch(_0x26a9ed){}try{liveAuthToken=getLiveToken();}catch(_0x4f35f3){}try{liveConnect();}catch(_0x287c6b){}},window[_0x3c626c(0x22a)]=window['connectToBackend'];}catch(_0x161351){}const LIVE_MANAGED_UPLOAD_PREFIX=_0x3c626c(0x2f4),ONLINE_USERS_COLLAPSED_KEY=_0x3c626c(0x343),SCORE_HISTORY_COLLAPSED_KEY=_0x3c626c(0x26d),PROGRESS_COLLAPSED_KEY='padayon_progress_collapsed_v1';let onlineUsersCollapsed=!![],scoreHistoryCollapsed=!![],progressCollapsed=!![],liveMyScoreHistory=[],liveMyProgress=[],currentQuizMeta={'id':null,'title':'','folder':'','source':_0x3c626c(0x13b),'randomized':![]},currentQuestionBank=[],adminEditingQuestionIndex=-0x1;function sessionIsAdmin(){const _0xd0e79a=_0x3c626c;return String(session?.[_0xd0e79a(0x198)]||'')===_0xd0e79a(0x33b);}function sessionCanManageContent(){const _0x111e02=_0x3c626c;return[_0x111e02(0x33b),_0x111e02(0x154)][_0x111e02(0x2cb)](String(session?.['role']||''));}function readCollapsedPref(_0x458ee0,_0x9a4ad3=!![]){const _0x2c964e=_0x3c626c;try{const _0x497ae5=localStorage[_0x2c964e(0x263)](_0x458ee0);if(_0x497ae5===null)return _0x9a4ad3;return _0x497ae5==='1';}catch(_0x470ff5){return _0x9a4ad3;}}function saveCollapsedPref(_0x2b860d,_0x5df2fa){const _0x5e6d73=_0x3c626c;try{localStorage[_0x5e6d73(0x2ce)](_0x2b860d,_0x5df2fa?'1':'0');}catch(_0x38f8ed){}}function setSectionVisible(_0x3b2183,_0x5498c9){const _0x430f6f=_0x3c626c,_0x36fbf6=document[_0x430f6f(0x138)](_0x3b2183);if(!_0x36fbf6)return;_0x36fbf6[_0x430f6f(0x35c)][_0x430f6f(0x105)](_0x430f6f(0x1d9),!_0x5498c9),_0x36fbf6[_0x430f6f(0xf7)][_0x430f6f(0x37e)]=_0x5498c9?'':_0x430f6f(0x2a6);}function renderLandingCardToggles(){const _0x3843fa=_0x3c626c,_0x3b5789=document[_0x3843fa(0x138)]('online-users-toggle'),_0x269964=document[_0x3843fa(0x138)](_0x3843fa(0x2b9)),_0x31429b=document[_0x3843fa(0x138)](_0x3843fa(0x130));setSectionVisible(_0x3843fa(0xda),!onlineUsersCollapsed),setSectionVisible(_0x3843fa(0x25e),!scoreHistoryCollapsed),setSectionVisible(_0x3843fa(0x127),!progressCollapsed);if(_0x3b5789)_0x3b5789['textContent']=onlineUsersCollapsed?'SHOW':'HIDE';if(_0x269964)_0x269964[_0x3843fa(0x174)]=scoreHistoryCollapsed?_0x3843fa(0x294):_0x3843fa(0x266);if(_0x31429b)_0x31429b[_0x3843fa(0x174)]=progressCollapsed?'SHOW':_0x3843fa(0x266);}function toggleOnlineUsersCard(){onlineUsersCollapsed=!onlineUsersCollapsed,saveCollapsedPref(ONLINE_USERS_COLLAPSED_KEY,onlineUsersCollapsed),renderLandingCardToggles();}function toggleScoreHistoryCard(){scoreHistoryCollapsed=!scoreHistoryCollapsed,saveCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY,scoreHistoryCollapsed),renderLandingCardToggles();}function toggleProgressCard(){progressCollapsed=!progressCollapsed,saveCollapsedPref(PROGRESS_COLLAPSED_KEY,progressCollapsed),renderLandingCardToggles();}function initLandingCardToggles(){onlineUsersCollapsed=readCollapsedPref(ONLINE_USERS_COLLAPSED_KEY,!![]),scoreHistoryCollapsed=readCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY,!![]),progressCollapsed=readCollapsedPref(PROGRESS_COLLAPSED_KEY,!![]),renderLandingCardToggles();}function normalizeScoreHistoryItem(_0x710602){const _0x2ade73=_0x3c626c,_0x7043c7=Number(_0x710602?.[_0x2ade73(0x2ee)]||0x0),_0x4b3696=Number(_0x710602?.[_0x2ade73(0x29e)]||0x0),_0x5ac58c=Number[_0x2ade73(0x3b1)](Number(_0x710602?.['percent']))?Number(_0x710602['percent']):_0x4b3696>0x0?Math[_0x2ade73(0x3b8)](_0x7043c7/_0x4b3696*0x3e8)/0xa:0x0;return{'id':String(_0x710602?.['id']||''),'ts':Number(_0x710602?.['ts']||Date[_0x2ade73(0x238)]()),'recordedAt':String(_0x710602?.[_0x2ade73(0x3cf)]||''),'setId':String(_0x710602?.[_0x2ade73(0x196)]||''),'setTitle':String(_0x710602?.[_0x2ade73(0x2ca)]||'Untitled\x20Quiz'),'folder':String(_0x710602?.['folder']||''),'source':String(_0x710602?.[_0x2ade73(0x157)]||_0x2ade73(0x307)),'mode':String(_0x710602?.[_0x2ade73(0x273)]||_0x2ade73(0x1ad)),'score':_0x7043c7,'total':_0x4b3696,'percent':_0x5ac58c};}function normalizeProgressItem(_0x2d83ab){const _0x3f5989=_0x3c626c,_0x4274ce=Number(_0x2d83ab?.[_0x3f5989(0x2e8)]||0x0),_0x426f37=Number(_0x2d83ab?.['practiceCorrect']||0x0),_0xf3f8f6=Number(_0x2d83ab?.[_0x3f5989(0x364)]||0x0),_0x1d4c07=Number(_0x2d83ab?.[_0x3f5989(0x241)]||0x0),_0x28a7db=Number(_0x2d83ab?.['bestPercent']||0x0),_0x3e3017=Number(_0x2d83ab?.[_0x3f5989(0x17f)]||0x0);return{'key':String(_0x2d83ab?.[_0x3f5989(0x2bf)]||''),'setId':String(_0x2d83ab?.[_0x3f5989(0x196)]||''),'setTitle':String(_0x2d83ab?.['setTitle']||_0x3f5989(0x35f)),'folder':String(_0x2d83ab?.['folder']||''),'source':String(_0x2d83ab?.[_0x3f5989(0x157)]||_0x3f5989(0x307)),'practiceAttempts':_0x4274ce,'practiceCorrect':_0x426f37,'examAttempts':_0xf3f8f6,'completedExams':_0x1d4c07,'bestScore':Number(_0x2d83ab?.[_0x3f5989(0x3b0)]||0x0),'bestPercent':_0x28a7db,'lastScore':Number(_0x2d83ab?.['lastScore']||0x0),'lastPercent':_0x3e3017,'lastMode':String(_0x2d83ab?.[_0x3f5989(0x220)]||_0x3f5989(0x30a)),'lastAction':String(_0x2d83ab?.[_0x3f5989(0x338)]||'view'),'lastEventAt':String(_0x2d83ab?.['lastEventAt']||_0x2d83ab?.[_0x3f5989(0x3cf)]||''),'practiceAccuracy':_0x4274ce>0x0?Math['round'](_0x426f37/_0x4274ce*0x3e8)/0xa:0x0};}async function liveApiFetchForm(_0x28b8f6,{method:method=_0x3c626c(0x27e),body:_0x3c6406,headers:headers={}}={}){const _0x3b57ef=_0x3c626c;if(!liveIsEnabled())throw new Error('Backend\x20URL\x20not\x20configured.');const _0x29b593=trimSlash(liveBackendUrl)+String(_0x28b8f6||''),_0x6ce7ee={...headers};if(liveAuthToken)_0x6ce7ee['Authorization']=_0x3b57ef(0x3ba)+liveAuthToken;const _0x46850b=await fetch(_0x29b593,{'method':method,'headers':_0x6ce7ee,'body':_0x3c6406}),_0x42eae8=await _0x46850b[_0x3b57ef(0x3a6)]();let _0x200e9b=null;try{_0x200e9b=_0x42eae8?JSON[_0x3b57ef(0x2f8)](_0x42eae8):null;}catch(_0x15c96a){_0x200e9b=null;}if(!_0x46850b['ok']){const _0x2ad584=_0x200e9b&&(_0x200e9b[_0x3b57ef(0x202)]||_0x200e9b[_0x3b57ef(0x111)])?_0x200e9b[_0x3b57ef(0x202)]||_0x200e9b['message']:_0x42eae8||_0x3b57ef(0x311)+_0x46850b[_0x3b57ef(0x32c)];throw new Error(_0x2ad584);}return _0x200e9b;}function getManagedUploadRelativePath(_0x382a08){const _0x1575f2=_0x3c626c,_0x1437ac=String(_0x382a08||'')['trim']();if(!_0x1437ac)return'';if(_0x1437ac[_0x1575f2(0x3c3)](LIVE_MANAGED_UPLOAD_PREFIX))return _0x1437ac;try{if(liveBackendUrl&&/^https?:\/\//i[_0x1575f2(0x19a)](_0x1437ac)){const _0x43edc0=new URL(trimSlash(liveBackendUrl)),_0xce3af9=new URL(_0x1437ac,_0x43edc0[_0x1575f2(0x2e5)]);if(_0xce3af9[_0x1575f2(0x190)][_0x1575f2(0x3c3)](LIVE_MANAGED_UPLOAD_PREFIX))return _0xce3af9[_0x1575f2(0x190)];}}catch(_0x33f930){}return'';}async function liveUploadPdfFile(_0x12e8a4){const _0x58555e=_0x3c626c;if(!liveIsEnabled()||!liveAuthToken)throw new Error(_0x58555e(0x201));const _0x35fcad=new FormData();_0x35fcad[_0x58555e(0x182)](_0x58555e(0x397),_0x12e8a4);const _0x46e00a=await liveApiFetchForm(_0x58555e(0x25d),{'method':_0x58555e(0x27e),'body':_0x35fcad});return _0x46e00a?.[_0x58555e(0x397)]||null;}async function liveDeleteManagedPdf(_0x32ec4f){const _0x159a5c=_0x3c626c,_0x95c36=getManagedUploadRelativePath(_0x32ec4f);if(!_0x95c36||!liveIsEnabled()||!liveAuthToken)return![];try{return await liveApiFetch(_0x159a5c(0x25d),{'method':_0x159a5c(0x208),'body':{'path':_0x95c36}}),!![];}catch(_0x38a40d){return console['warn']('Managed\x20PDF\x20delete\x20failed:',_0x38a40d),![];}}async function liveFetchMyScoreHistory(){const _0x2e8b88=_0x3c626c;if(!liveIsEnabled()||!liveAuthToken||!session?.[_0x2e8b88(0x109)])return liveMyScoreHistory=[],renderMyScoreHistory(),![];try{const _0x5b3d3a=await liveApiFetch('/api/scores',{'method':_0x2e8b88(0x2d5)});return liveMyScoreHistory=Array['isArray'](_0x5b3d3a?.[_0x2e8b88(0x27c)])?_0x5b3d3a['items'][_0x2e8b88(0x379)](normalizeScoreHistoryItem):[],renderMyScoreHistory(),!![];}catch(_0x6ee1a4){return console[_0x2e8b88(0x2fd)](_0x2e8b88(0x235),_0x6ee1a4),renderMyScoreHistory(),![];}}async function liveSaveScoreHistory(_0x297f2b){const _0xf80853=_0x3c626c;if(!liveIsEnabled()||!liveAuthToken||!session?.[_0xf80853(0x109)])return![];try{return await liveApiFetch(_0xf80853(0x1c6),{'method':_0xf80853(0x27e),'body':_0x297f2b}),await liveFetchMyScoreHistory(),!![];}catch(_0x406bae){return console['warn'](_0xf80853(0x17d),_0x406bae),![];}}async function liveFetchMyProgress(){const _0x4d1f50=_0x3c626c;if(!liveIsEnabled()||!liveAuthToken||!session?.[_0x4d1f50(0x109)])return liveMyProgress=[],renderMyProgress(),![];try{const _0x2ee96a=await liveApiFetch(_0x4d1f50(0x265),{'method':'GET'});return liveMyProgress=Array[_0x4d1f50(0x1bd)](_0x2ee96a?.['items'])?_0x2ee96a[_0x4d1f50(0x27c)]['map'](normalizeProgressItem):[],renderMyProgress(),!![];}catch(_0x30f87d){return console['warn'](_0x4d1f50(0x332),_0x30f87d),renderMyProgress(),![];}}async function liveSaveProgress(_0x269c41){const _0x3e447f=_0x3c626c;if(!liveIsEnabled()||!liveAuthToken||!session?.[_0x3e447f(0x109)])return![];try{return await liveApiFetch(_0x3e447f(0x265),{'method':_0x3e447f(0x27e),'body':_0x269c41}),await liveFetchMyProgress(),!![];}catch(_0xd6b79a){return console[_0x3e447f(0x2fd)](_0x3e447f(0x29b),_0xd6b79a),![];}}function renderMyScoreHistory(){const _0x1c1b6b=_0x3c626c,_0x372a0c=document[_0x1c1b6b(0x138)](_0x1c1b6b(0x331)),_0x48446f=document[_0x1c1b6b(0x138)]('score-history-count'),_0x388727=document[_0x1c1b6b(0x138)](_0x1c1b6b(0x21e));if(!_0x372a0c||!_0x48446f||!_0x388727)return;const _0x1d26b1=Array[_0x1c1b6b(0x1bd)](liveMyScoreHistory)?liveMyScoreHistory:[];_0x48446f[_0x1c1b6b(0x174)]=String(_0x1d26b1[_0x1c1b6b(0xe7)]);if(!session?.[_0x1c1b6b(0x109)]){_0x372a0c[_0x1c1b6b(0x174)]='Login\x20to\x20view\x20your\x20recent\x20exam\x20scores.',_0x388727[_0x1c1b6b(0x199)]=_0x1c1b6b(0x289);return;}if(!liveIsEnabled()){_0x372a0c[_0x1c1b6b(0x174)]=_0x1c1b6b(0x393),_0x388727[_0x1c1b6b(0x199)]=_0x1c1b6b(0x1a7);return;}if(!liveAuthToken){_0x372a0c[_0x1c1b6b(0x174)]='Login\x20required.',_0x388727[_0x1c1b6b(0x199)]=_0x1c1b6b(0x3a0);return;}if(_0x1d26b1[_0x1c1b6b(0xe7)]===0x0){_0x372a0c['textContent']=_0x1c1b6b(0x38f),_0x388727[_0x1c1b6b(0x199)]='<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>No\x20saved\x20exam\x20history\x20yet.</div>';return;}_0x372a0c[_0x1c1b6b(0x174)]=_0x1c1b6b(0x18c),_0x388727['innerHTML']=_0x1d26b1[_0x1c1b6b(0x15c)](0x0,0x6)[_0x1c1b6b(0x379)](_0x5b50d8=>{const _0x104575=_0x1c1b6b,_0x3612fc=_0x5b50d8['ts']?new Date(_0x5b50d8['ts'])[_0x104575(0x381)]():'',_0x1674eb=escapeHTML(_0x5b50d8[_0x104575(0x2ca)]||'Untitled\x20Quiz'),_0x873c32=escapeHTML((_0x5b50d8[_0x104575(0x273)]||_0x104575(0x1ad))[_0x104575(0x38c)]()),_0x408b8b=escapeHTML(String(_0x5b50d8[_0x104575(0x2ee)])+'/'+String(_0x5b50d8[_0x104575(0x29e)])),_0x259e06=escapeHTML(Number(_0x5b50d8[_0x104575(0x141)]||0x0)[_0x104575(0xfe)](0x1)+'%'),_0x44c29e=escapeHTML(_0x3612fc);return _0x104575(0x3bc)+_0x1674eb+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-xs\x20font-mono\x20text-[#00f3ff]\x22>'+_0x408b8b+_0x104575(0x189)+_0x259e06+_0x104575(0x27a)+_0x873c32+(_0x44c29e?_0x104575(0x189)+_0x44c29e:'')+'</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20';})[_0x1c1b6b(0x3b4)]('');}function renderMyProgress(){const _0x314899=_0x3c626c,_0x266bde=document[_0x314899(0x138)](_0x314899(0x361)),_0x11b829=document[_0x314899(0x138)](_0x314899(0xf8)),_0x53eb40=document[_0x314899(0x138)](_0x314899(0x172));if(!_0x266bde||!_0x11b829||!_0x53eb40)return;const _0x284255=Array['isArray'](liveMyProgress)?liveMyProgress:[];_0x11b829['textContent']=String(_0x284255[_0x314899(0xe7)]);if(!session?.['username']){_0x266bde[_0x314899(0x174)]=_0x314899(0x385),_0x53eb40['innerHTML']=_0x314899(0x289);return;}if(!liveIsEnabled()){_0x266bde[_0x314899(0x174)]=_0x314899(0x393),_0x53eb40[_0x314899(0x199)]='<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(backend\x20not\x20configured)</div>';return;}if(!liveAuthToken){_0x266bde[_0x314899(0x174)]=_0x314899(0x18a),_0x53eb40[_0x314899(0x199)]=_0x314899(0x3a0);return;}if(_0x284255[_0x314899(0xe7)]===0x0){_0x266bde[_0x314899(0x174)]='Practice\x20and\x20exam\x20activity\x20will\x20build\x20your\x20progress.',_0x53eb40[_0x314899(0x199)]='<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>No\x20progress\x20tracked\x20yet.</div>';return;}_0x266bde[_0x314899(0x174)]='Practice\x20accuracy\x20and\x20exam\x20best\x20scores\x20per\x20quiz.',_0x53eb40['innerHTML']=_0x284255['slice'](0x0,0x6)[_0x314899(0x379)](_0x155cb8=>{const _0x4bff84=_0x314899,_0x1f2cef=escapeHTML(_0x155cb8[_0x4bff84(0x2ca)]||_0x4bff84(0x35f)),_0x261c81=_0x155cb8[_0x4bff84(0x170)]+'/'+_0x155cb8[_0x4bff84(0x2e8)],_0x1885f5=_0x155cb8[_0x4bff84(0x241)]>0x0?_0x155cb8[_0x4bff84(0x3b0)]+'\x20('+_0x155cb8[_0x4bff84(0x337)][_0x4bff84(0xfe)](0x1)+'%)':'--',_0x165800=_0x155cb8[_0x4bff84(0x2bc)]?escapeHTML(new Date(_0x155cb8[_0x4bff84(0x2bc)])[_0x4bff84(0x381)]()):'';return'\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22border\x20border-gray-800\x20rounded-lg\x20px-3\x20py-2\x20bg-black/20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20flex-col\x20gap-1\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-sm\x20text-white\x20font-semibold\x22>'+_0x1f2cef+_0x4bff84(0x15b)+escapeHTML(_0x261c81)+_0x4bff84(0x10c)+escapeHTML(_0x155cb8[_0x4bff84(0x187)][_0x4bff84(0xfe)](0x1)+'%')+_0x4bff84(0x1eb)+escapeHTML(String(_0x1885f5))+_0x4bff84(0x386)+(_0x165800?_0x4bff84(0x1c7)+_0x165800:_0x4bff84(0x38d))+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20';})[_0x314899(0x3b4)]('');}function cloneQuestion(_0x9b421e){const _0x1df56d=_0x3c626c;return{'id':_0x9b421e['id'],'key':_0x9b421e[_0x1df56d(0x2bf)],'topic':_0x9b421e[_0x1df56d(0x31f)]||_0x1df56d(0x33c),'q':_0x9b421e['q'],'options':_0x9b421e[_0x1df56d(0x249)]?{..._0x9b421e[_0x1df56d(0x249)]}:{'a':'','b':'','c':'','d':''},'ans':_0x9b421e[_0x1df56d(0x260)]||(_0x9b421e[_0x1df56d(0x249)]&&_0x9b421e['key']?_0x9b421e[_0x1df56d(0x249)][_0x9b421e['key']]:''),'soln':_0x9b421e[_0x1df56d(0x33d)]||'','caltech':_0x9b421e[_0x1df56d(0x161)]||null};}function cloneQuestions(_0x580c52){const _0x360ee0=_0x3c626c;return Array[_0x360ee0(0x1bd)](_0x580c52)?_0x580c52[_0x360ee0(0x379)](cloneQuestion):[];}function updateRoleBasedUi(){const _0x5424cb=_0x3c626c,_0xeccb41=document[_0x5424cb(0x138)](_0x5424cb(0xde)),_0x561529=document[_0x5424cb(0x138)](_0x5424cb(0x1a5)),_0x4d43c6=document[_0x5424cb(0x138)](_0x5424cb(0x26f)),_0x383a1c=document[_0x5424cb(0x138)]('admin-nav-logs'),_0x1cb24d=sessionCanManageContent(),_0x231a04=sessionIsAdmin();if(_0xeccb41)_0xeccb41[_0x5424cb(0x35c)][_0x5424cb(0x105)](_0x5424cb(0x1d9),!_0x1cb24d);if(_0x561529)_0x561529['classList'][_0x5424cb(0x105)](_0x5424cb(0x1d9),!_0x1cb24d);if(_0x4d43c6)_0x4d43c6[_0x5424cb(0x35c)][_0x5424cb(0x105)](_0x5424cb(0x1d9),!_0x231a04);if(_0x383a1c)_0x383a1c[_0x5424cb(0x35c)][_0x5424cb(0x105)](_0x5424cb(0x1d9),!_0x231a04);}function updateQuizMetaBanner(){const _0x52e6cb=_0x3c626c,_0x181484=document[_0x52e6cb(0x138)](_0x52e6cb(0x142));if(!_0x181484)return;const _0x54dc51=currentQuizMeta?.[_0x52e6cb(0x206)]||String(document[_0x52e6cb(0x138)](_0x52e6cb(0x275))?.['innerText']||'')['trim']()||_0x52e6cb(0x1ee),_0x5ef5f0=currentQuizMeta?.[_0x52e6cb(0x218)]?_0x52e6cb(0x189)+currentQuizMeta['folder']:'',_0x43ae81=currentQuizMeta?.[_0x52e6cb(0x157)]?_0x52e6cb(0x189)+String(currentQuizMeta[_0x52e6cb(0x157)])[_0x52e6cb(0x38c)]():'',_0x5809e1=currentQuizMeta?.[_0x52e6cb(0x14d)]?_0x52e6cb(0x32f):'',_0x42d318=Array[_0x52e6cb(0x1bd)](currentQuestions)?currentQuestions[_0x52e6cb(0xe7)]:0x0;_0x181484[_0x52e6cb(0x174)]=''+_0x54dc51+_0x5ef5f0+_0x43ae81+_0x5809e1+'\x20•\x20'+_0x42d318+_0x52e6cb(0x107)+(_0x42d318===0x1?'':'S');}function renumberQuestions(_0x2b0fa2){const _0x599fc6=_0x3c626c;if(!Array[_0x599fc6(0x1bd)](_0x2b0fa2))return;_0x2b0fa2[_0x599fc6(0x18f)]((_0x458fbc,_0x2b92bc)=>{_0x458fbc['id']=_0x2b92bc+0x1;});}function adminSetQuestionBuilderMode(_0x38b03f){const _0xb742b0=_0x3c626c,_0xe92b03=document[_0xb742b0(0x138)](_0xb742b0(0x148)),_0x231fc1=document[_0xb742b0(0x138)]('admin-q-builder-status'),_0x45ef96=adminGetSelectedSet();if(_0xe92b03)_0xe92b03[_0xb742b0(0x174)]=_0x38b03f?_0xb742b0(0x125):_0xb742b0(0x317);if(_0x231fc1){if(!_0x45ef96)_0x231fc1[_0xb742b0(0x174)]=_0xb742b0(0x1a1);else{if(_0x38b03f&&_0x45ef96[_0xb742b0(0xe4)]?.[adminEditingQuestionIndex])_0x231fc1[_0xb742b0(0x174)]='Editing\x20question\x20#'+(adminEditingQuestionIndex+0x1);else _0x231fc1[_0xb742b0(0x174)]=_0xb742b0(0x19b);}}}function adminLoadQuestionIntoBuilder(_0x199834){const _0x13860d=_0x3c626c,_0x417628=adminGetSelectedSet(),_0x507644=_0x417628?.[_0x13860d(0xe4)]?.[_0x199834];if(!_0x507644)return;adminEditingQuestionIndex=Number(_0x199834),document[_0x13860d(0x138)]('admin-q-topic')[_0x13860d(0x11c)]=_0x507644['topic']||'',document[_0x13860d(0x138)](_0x13860d(0x175))[_0x13860d(0x11c)]=_0x507644[_0x13860d(0x2bf)]||'a',document['getElementById'](_0x13860d(0x137))[_0x13860d(0x11c)]=_0x507644['q']||'',document[_0x13860d(0x138)]('admin-q-a')[_0x13860d(0x11c)]=_0x507644[_0x13860d(0x249)]?.['a']||'',document['getElementById'](_0x13860d(0x225))[_0x13860d(0x11c)]=_0x507644[_0x13860d(0x249)]?.['b']||'',document[_0x13860d(0x138)]('admin-q-c')[_0x13860d(0x11c)]=_0x507644[_0x13860d(0x249)]?.['c']||'',document['getElementById'](_0x13860d(0x326))['value']=_0x507644[_0x13860d(0x249)]?.['d']||'',document['getElementById'](_0x13860d(0x3ab))[_0x13860d(0x11c)]=_0x507644[_0x13860d(0x33d)]||'',document[_0x13860d(0x138)]('admin-q-caltech')[_0x13860d(0x11c)]=_0x507644['caltech']||'',adminSetQuestionBuilderMode(!![]),document[_0x13860d(0x138)]('admin-q-text')?.[_0x13860d(0x2e4)]();}function adminRenderQuestionList(){const _0x53df1b=_0x3c626c,_0x8a55c4=document['getElementById'](_0x53df1b(0x3a5));if(!_0x8a55c4)return;const _0x2c1aca=adminGetSelectedSet();if(!_0x2c1aca){_0x8a55c4[_0x53df1b(0x199)]='<div\x20class=\x22admin-help\x22>Select\x20a\x20quiz\x20set\x20to\x20manage\x20questions.</div>',adminSetQuestionBuilderMode(![]);return;}const _0x188ffd=Array[_0x53df1b(0x1bd)](_0x2c1aca[_0x53df1b(0xe4)])?_0x2c1aca[_0x53df1b(0xe4)]:[];if(_0x188ffd[_0x53df1b(0xe7)]===0x0){_0x8a55c4[_0x53df1b(0x199)]=_0x53df1b(0xfb),adminSetQuestionBuilderMode(adminEditingQuestionIndex>=0x0);return;}_0x8a55c4[_0x53df1b(0x199)]=_0x188ffd['map']((_0x1f5c21,_0x4fa395)=>{const _0x1e721a=_0x53df1b,_0x24b46d=escapeHTML(String(_0x1f5c21['q']||'Untitled\x20question')[_0x1e721a(0x15c)](0x0,0x78)),_0x18665b=escapeHTML(_0x1f5c21[_0x1e721a(0x31f)]||_0x1e721a(0x33c)),_0x384f90=escapeHTML(String(_0x1f5c21['key']||'a')[_0x1e721a(0x38c)]());return'\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>#'+(_0x4fa395+0x1)+_0x1e721a(0x189)+_0x24b46d+_0x1e721a(0x169)+_0x18665b+_0x1e721a(0xeb)+_0x384f90+_0x1e721a(0x1ed)+_0x4fa395+_0x1e721a(0x23c)+_0x4fa395+_0x1e721a(0x191)+_0x4fa395+_0x1e721a(0x303);})[_0x53df1b(0x3b4)](''),adminSetQuestionBuilderMode(adminEditingQuestionIndex>=0x0);}function adminDuplicateQuestion(_0x860bde){const _0x2fd440=_0x3c626c,_0x3c8798=adminGetSelectedSet(),_0x2944be=_0x3c8798?.[_0x2fd440(0xe4)]?.[_0x860bde];if(!_0x2944be)return;const _0x465ed1=cloneQuestion(_0x2944be);_0x465ed1['q']=String(_0x465ed1['q']||'')+_0x2fd440(0x100),_0x3c8798[_0x2fd440(0xe4)][_0x2fd440(0x304)](_0x860bde+0x1,0x0,_0x465ed1),renumberQuestions(_0x3c8798['questions']),_0x3c8798[_0x2fd440(0x23f)]=nowISO(),touchLibrary(),adminUpdateQuestionCount();}function adminDeleteQuestion(_0x5dc506){const _0x238de1=_0x3c626c,_0x5d4ad6=adminGetSelectedSet(),_0x3ace1e=_0x5d4ad6?.[_0x238de1(0xe4)]?.[_0x5dc506];if(!_0x3ace1e)return;if(!confirm(_0x238de1(0x2ed)+(_0x5dc506+0x1)+'?'))return;_0x5d4ad6['questions'][_0x238de1(0x304)](_0x5dc506,0x1),renumberQuestions(_0x5d4ad6[_0x238de1(0xe4)]),_0x5d4ad6[_0x238de1(0x23f)]=nowISO(),touchLibrary();if(adminEditingQuestionIndex===_0x5dc506)adminClearQuestionBuilder();else adminEditingQuestionIndex>_0x5dc506&&(adminEditingQuestionIndex-=0x1);adminUpdateQuestionCount();}async function liveFetchLibraryVersions(){const _0x52f7b5=_0x3c626c;if(!liveIsEnabled()||!liveAuthToken||!sessionCanManageContent())return renderAdminVersionHistory([]),[];try{const _0x277897=await liveApiFetch(_0x52f7b5(0x10e),{'method':_0x52f7b5(0x2d5)}),_0x64c70d=Array[_0x52f7b5(0x1bd)](_0x277897?.[_0x52f7b5(0x27c)])?_0x277897[_0x52f7b5(0x27c)]:[];return renderAdminVersionHistory(_0x64c70d),_0x64c70d;}catch(_0x35071e){return console[_0x52f7b5(0x2fd)](_0x52f7b5(0xff),_0x35071e),renderAdminVersionHistory([],String(_0x35071e?.[_0x52f7b5(0x111)]||_0x35071e)),[];}}function renderAdminVersionHistory(_0x289265,_0x2afb1d=''){const _0x1406fd=_0x3c626c,_0x22d5a2=document[_0x1406fd(0x138)](_0x1406fd(0x37c));if(!_0x22d5a2)return;if(!sessionCanManageContent()){_0x22d5a2[_0x1406fd(0x199)]=_0x1406fd(0x1fb);return;}if(_0x2afb1d){_0x22d5a2[_0x1406fd(0x199)]=_0x1406fd(0x1bc)+escapeHTML(_0x2afb1d)+_0x1406fd(0x28e);return;}if(!Array[_0x1406fd(0x1bd)](_0x289265)||_0x289265[_0x1406fd(0xe7)]===0x0){_0x22d5a2[_0x1406fd(0x199)]='<div\x20class=\x22admin-help\x22>No\x20backend\x20versions\x20yet.</div>';return;}_0x22d5a2['innerHTML']=_0x289265['map'](_0x58e69a=>{const _0x3c715d=_0x1406fd,_0x3a9e4f=_0x58e69a?.['ts']?new Date(_0x58e69a['ts'])['toLocaleString']():'',_0x2ebfd3=escapeHTML(_0x58e69a?.['updatedBy']||_0x3c715d(0x276)),_0x72bb2e=_0x58e69a?.[_0x3c715d(0x2be)]||{},_0x29d40a=Number(_0x72bb2e['quizSets']||0x0)+'\x20sets\x20•\x20'+Number(_0x72bb2e['pdfs']||0x0)+_0x3c715d(0x395)+Number(_0x72bb2e[_0x3c715d(0x23a)]||0x0)+_0x3c715d(0x3bb);return _0x3c715d(0x280)+escapeHTML(_0x3a9e4f||_0x3c715d(0x30f))+_0x3c715d(0x1e1)+_0x2ebfd3+_0x3c715d(0x189)+escapeHTML(_0x29d40a)+_0x3c715d(0x3cb)+(sessionIsAdmin()?_0x3c715d(0x348)+String(_0x58e69a['id']||'')['replace'](/'/g,'\x5c\x27')+'\x27)\x22>RESTORE</button>':_0x3c715d(0x3c5))+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20';})['join']('');}async function adminRestoreLibraryVersion(_0x29a8dd){const _0x11e8c3=_0x3c626c;if(!sessionIsAdmin()){alert('Admin\x20only.');return;}if(!_0x29a8dd)return;if(!confirm(_0x11e8c3(0x1af)))return;try{await liveApiFetch('/api/library/restore/'+encodeURIComponent(_0x29a8dd),{'method':_0x11e8c3(0x27e)}),await loadLibraryFromBackend(),await liveFetchLibraryVersions(),alert(_0x11e8c3(0x103));}catch(_0x2f0981){console[_0x11e8c3(0x2fd)](_0x2f0981),alert(_0x11e8c3(0x113)+String(_0x2f0981?.[_0x11e8c3(0x111)]||_0x2f0981));}}function randomSample(_0x8992fb,_0x424af5){const _0x16c92f=_0x3c626c,_0x54a7c2=cloneQuestions(_0x8992fb);for(let _0x1a6388=_0x54a7c2[_0x16c92f(0xe7)]-0x1;_0x1a6388>0x0;_0x1a6388-=0x1){const _0x4fe342=Math[_0x16c92f(0x2e3)](Math['random']()*(_0x1a6388+0x1));[_0x54a7c2[_0x1a6388],_0x54a7c2[_0x4fe342]]=[_0x54a7c2[_0x4fe342],_0x54a7c2[_0x1a6388]];}return _0x54a7c2['slice'](0x0,_0x424af5)[_0x16c92f(0x379)]((_0x51241f,_0x48f023)=>({..._0x51241f,'id':_0x48f023+0x1}));}function startRandomExam(){const _0x317653=_0x3c626c,_0x43f44e=Array[_0x317653(0x1bd)](currentQuestionBank)?currentQuestionBank:[];if(!_0x43f44e[_0x317653(0xe7)]){alert(_0x317653(0x184));return;}const _0x4c851b=Math[_0x317653(0x284)](_0x43f44e['length'],0x14),_0x3ca6d9=window[_0x317653(0x1fd)](_0x317653(0x147)+_0x43f44e[_0x317653(0xe7)]+')',String(_0x4c851b));if(_0x3ca6d9===null)return;const _0x55bf8e=Math[_0x317653(0x378)](0x1,Math[_0x317653(0x284)](_0x43f44e['length'],Number(_0x3ca6d9)||_0x4c851b));currentQuestions=randomSample(_0x43f44e,_0x55bf8e),currentQuizMeta={...currentQuizMeta,'randomized':!![]},currentMode='exam',resetExam(),setMode('exam'),updateQuizMetaBanner();try{liveSetActivity(_0x317653(0x2a8),{'view':_0x317653(0xf5),'details':(currentQuizMeta[_0x317653(0x206)]||_0x317653(0x1d3))+_0x317653(0x189)+_0x55bf8e+'\x20Q','path':currentQuizMeta['folder']||''});}catch(_0x4b712f){}}function adminRefreshAll(){const _0x47edc8=_0x3c626c;adminRefreshQuickPickOptions(),adminUpdatePathHelpers(),adminRefreshFolderList(),adminRefreshQuizSetSelect(),adminRefreshPdfList(),adminUpdateQuestionCount(),adminTab===_0x47edc8(0x33a)&&liveFetchLibraryVersions();}function adminUpdateQuestionCount(){const _0x546d2c=_0x3c626c,_0x1f3456=document[_0x546d2c(0x138)](_0x546d2c(0x340));if(_0x1f3456){const _0x10dffe=adminGetSelectedSet();_0x1f3456[_0x546d2c(0x174)]=String(_0x10dffe?.[_0x546d2c(0xe4)]?.[_0x546d2c(0xe7)]||0x0);}adminRenderQuestionList();}function adminSelectQuizSet(_0x1d52ba){const _0x554e46=_0x3c626c;adminSelectedQuizSetId=_0x1d52ba||'';const _0x1fc89c=document[_0x554e46(0x138)]('admin-quiz-select');if(_0x1fc89c)_0x1fc89c[_0x554e46(0x11c)]=adminSelectedQuizSetId;adminEditingQuestionIndex=-0x1,adminUpdateQuestionCount(),adminSetQuestionBuilderMode(![]);}function adminClearQuestionBuilder(){const _0x35c1b0=_0x3c626c,_0x512a9f=[_0x35c1b0(0x251),_0x35c1b0(0x137),_0x35c1b0(0x1d7),_0x35c1b0(0x225),'admin-q-c',_0x35c1b0(0x326),'admin-q-soln',_0x35c1b0(0x24b)];_0x512a9f[_0x35c1b0(0x18f)](_0x1e8666=>{const _0x45fd6e=_0x35c1b0,_0x192d46=document['getElementById'](_0x1e8666);if(_0x192d46)_0x192d46[_0x45fd6e(0x11c)]='';});const _0x40954e=document['getElementById']('admin-q-correct');if(_0x40954e)_0x40954e[_0x35c1b0(0x11c)]='a';adminEditingQuestionIndex=-0x1,adminSetQuestionBuilderMode(![]);}function adminAddQuestion(){const _0x471982=_0x3c626c,_0x4b2611=adminGetSelectedSet();if(!_0x4b2611){alert(_0x471982(0x1a1));return;}const _0x4c7202=String(document[_0x471982(0x138)](_0x471982(0x251))?.[_0x471982(0x11c)]||'')[_0x471982(0x3b9)](),_0x5139b5=String(document[_0x471982(0x138)](_0x471982(0x137))?.[_0x471982(0x11c)]||'')[_0x471982(0x3b9)](),_0x255760=String(document[_0x471982(0x138)](_0x471982(0x1d7))?.[_0x471982(0x11c)]||'')['trim'](),_0x4c9c2f=String(document[_0x471982(0x138)]('admin-q-b')?.[_0x471982(0x11c)]||'')[_0x471982(0x3b9)](),_0x53dad6=String(document[_0x471982(0x138)](_0x471982(0xe2))?.[_0x471982(0x11c)]||'')[_0x471982(0x3b9)](),_0x17404f=String(document[_0x471982(0x138)]('admin-q-d')?.['value']||'')[_0x471982(0x3b9)](),_0x387c7a=String(document[_0x471982(0x138)](_0x471982(0x3ab))?.[_0x471982(0x11c)]||'')['trim'](),_0x2b371d=String(document['getElementById'](_0x471982(0x24b))?.['value']||'')[_0x471982(0x3b9)](),_0x5beb6c=String(document[_0x471982(0x138)]('admin-q-correct')?.[_0x471982(0x11c)]||'a')['toLowerCase']();if(!_0x5139b5){alert(_0x471982(0x10b));return;}if(!_0x255760||!_0x4c9c2f||!_0x53dad6||!_0x17404f){alert('Please\x20fill\x20Options\x20A,\x20B,\x20C,\x20and\x20D.');return;}const _0xbc4234={'id':adminEditingQuestionIndex>=0x0?adminEditingQuestionIndex+0x1:(_0x4b2611[_0x471982(0xe4)]||[])[_0x471982(0xe7)]+0x1,'topic':_0x4c7202||_0x471982(0x33c),'q':_0x5139b5,'options':{'a':_0x255760,'b':_0x4c9c2f,'c':_0x53dad6,'d':_0x17404f},'key':['a','b','c','d']['includes'](_0x5beb6c)?_0x5beb6c:'a','ans':{'a':_0x255760,'b':_0x4c9c2f,'c':_0x53dad6,'d':_0x17404f}[_0x5beb6c]||_0x255760,'soln':_0x387c7a,'caltech':_0x2b371d||null},_0x1955d4=adminEditingQuestionIndex>=0x0&&!!_0x4b2611[_0x471982(0xe4)]?.[adminEditingQuestionIndex];if(!Array[_0x471982(0x1bd)](_0x4b2611['questions']))_0x4b2611[_0x471982(0xe4)]=[];_0x1955d4?_0x4b2611['questions'][adminEditingQuestionIndex]=_0xbc4234:_0x4b2611[_0x471982(0xe4)][_0x471982(0x16f)](_0xbc4234),renumberQuestions(_0x4b2611['questions']),_0x4b2611[_0x471982(0x23f)]=nowISO(),touchLibrary(),adminUpdateQuestionCount(),adminClearQuestionBuilder(),alert(_0x1955d4?_0x471982(0x1e0):'Question\x20added.');}async function adminUploadPdf(_0x50caed=_0x3c626c(0x2e1)){const _0x27fe4f=_0x3c626c,_0xd73811=document['getElementById']('admin-pdf-file'),_0x3e6521=_0xd73811?.[_0x27fe4f(0x180)]?.[0x0];if(!_0x3e6521){alert(_0x27fe4f(0x398));return;}const _0x8a8dfc=document[_0x27fe4f(0x138)](_0x27fe4f(0x313)),_0x88edb9=String(_0x8a8dfc?.[_0x27fe4f(0x11c)]||'')[_0x27fe4f(0x3b9)]()||_0x3e6521[_0x27fe4f(0x29d)],_0xc4e922=getAdminTargetPath()||'GLOBAL';ensureFolder(_0xc4e922);try{let _0x3b9ec4='';if(liveIsEnabled()&&liveAuthToken&&sessionCanManageContent()){const _0x119b0c=await liveUploadPdfFile(_0x3e6521);_0x3b9ec4=String(_0x119b0c?.['url']||_0x119b0c?.[_0x27fe4f(0x13a)]||'')[_0x27fe4f(0x3b9)]();if(!_0x3b9ec4)throw new Error(_0x27fe4f(0x2b0));}else{const _0x291d45=await readFileAsDataURL(_0x3e6521);_0x3b9ec4=_0x291d45;}library[_0x27fe4f(0x1ef)][_0x27fe4f(0x16f)]({'id':uid(_0x27fe4f(0x3ce)),'title':_0x88edb9,'folder':_0xc4e922,'kind':_0x50caed,'src':_0x3b9ec4,'createdAt':nowISO()});const _0x16293c=touchLibrary();if(_0xd73811)_0xd73811['value']='';if(_0x8a8dfc)_0x8a8dfc[_0x27fe4f(0x11c)]='';const _0x5422ad=document[_0x27fe4f(0x138)](_0x27fe4f(0xdb));if(_0x5422ad)_0x5422ad[_0x27fe4f(0x11c)]='';adminRefreshPdfList(),_0x3b9ec4['startsWith']('data:')?alert(_0x16293c?_0x27fe4f(0x1e2):_0x27fe4f(0x10a)):alert(_0x27fe4f(0x150));}catch(_0x22b242){console['error'](_0x22b242),alert('Failed\x20to\x20upload\x20PDF.\x20'+String(_0x22b242?.[_0x27fe4f(0x111)]||_0x22b242));}}function adminRefreshPdfList(){const _0x18509a=_0x3c626c,_0x1ebd36=document['getElementById'](_0x18509a(0x18b));if(!_0x1ebd36)return;const _0x40d369=getAdminTargetPath(),_0x175d46=(library[_0x18509a(0x1ef)]||[])['filter'](_0x32cc3f=>{const _0x39ed26=normalizePath(_0x32cc3f['folder']||'');if(!_0x40d369)return isGlobalFolder(_0x39ed26)||!_0x39ed26;return isUnderPath(_0x39ed26,_0x40d369);})[_0x18509a(0x15c)]()[_0x18509a(0x2f5)]((_0x140c37,_0x1b1300)=>String(_0x140c37['title']||'')[_0x18509a(0x31e)](String(_0x1b1300[_0x18509a(0x206)]||'')));if(_0x175d46[_0x18509a(0xe7)]===0x0){_0x1ebd36[_0x18509a(0x199)]=_0x18509a(0x1e6);return;}_0x1ebd36[_0x18509a(0x199)]='',_0x175d46[_0x18509a(0x18f)](_0x48206d=>{const _0x201ac8=_0x18509a,_0x142a23=document[_0x201ac8(0x12e)]('div');_0x142a23[_0x201ac8(0x194)]=_0x201ac8(0x115);const _0x16dfb3=!!getManagedUploadRelativePath(_0x48206d[_0x201ac8(0x15f)]);_0x142a23[_0x201ac8(0x199)]=_0x201ac8(0x13c)+escapeHTML(_0x48206d[_0x201ac8(0x206)])+_0x201ac8(0x28c)+escapeHTML(_0x48206d[_0x201ac8(0x26a)])+'\x20•\x20'+escapeHTML(_0x48206d[_0x201ac8(0x218)])+(_0x16dfb3?'\x20•\x20managed\x20upload':'')+_0x201ac8(0x1b8);const [_0x10e199,_0x38cd80]=_0x142a23[_0x201ac8(0x2d7)](_0x201ac8(0x330));_0x10e199['addEventListener'](_0x201ac8(0x192),()=>openPdfOverlay(_0x48206d['id'],_0x201ac8(0xea))),_0x38cd80[_0x201ac8(0x2c9)](_0x201ac8(0x192),async()=>{const _0x1382c8=_0x201ac8;if(!confirm('Delete\x20PDF:\x20\x22'+_0x48206d[_0x1382c8(0x206)]+'\x22?'))return;await liveDeleteManagedPdf(_0x48206d['src']),library[_0x1382c8(0x1ef)]=library[_0x1382c8(0x1ef)][_0x1382c8(0x3b2)](_0x41116f=>_0x41116f['id']!==_0x48206d['id']),touchLibrary(),adminRefreshPdfList();}),_0x1ebd36[_0x201ac8(0x369)](_0x142a23);});}function handleLiveMessage(_0x375c41){const _0x149f6e=_0x3c626c,_0x149b18=String(_0x375c41[_0x149f6e(0x356)]||'');if(_0x149b18===_0x149f6e(0x104)){alert(_0x375c41['reason']||'This\x20account\x20was\x20logged\x20in\x20on\x20another\x20device.'),logoutToLogin();return;}if(_0x149b18===_0x149f6e(0x3d0)){liveOnlinePublic=Array[_0x149f6e(0x1bd)](_0x375c41[_0x149f6e(0x178)])?_0x375c41['users']:[],renderOnlineUsersWidget();return;}if(_0x149b18==='presence:admin'){liveOnlineAdmin=Array[_0x149f6e(0x1bd)](_0x375c41['users'])?_0x375c41[_0x149f6e(0x178)]:[],liveOnlinePublic=liveOnlineAdmin['map'](_0x236651=>({'username':_0x236651[_0x149f6e(0x109)],'role':_0x236651[_0x149f6e(0x198)]})),renderOnlineUsersWidget(),renderAdminOnlineUsers();return;}if(_0x149b18===_0x149f6e(0x33f)){const _0x3df25f=Number(_0x375c41['ms']||0x0);if(_0x3df25f&&_0x3df25f>getLibraryUpdatedAtMs(library)){loadLibraryFromBackend();if(sessionCanManageContent())liveFetchLibraryVersions();}return;}if(_0x149b18==='log:batch'){Array[_0x149f6e(0x1bd)](_0x375c41[_0x149f6e(0x27c)])&&(liveAdminLog=_0x375c41[_0x149f6e(0x27c)][_0x149f6e(0x15c)](-0xc8),renderAdminLog());return;}if(_0x149b18===_0x149f6e(0x34a)){const _0x2e226e=_0x375c41[_0x149f6e(0x122)];if(_0x2e226e&&typeof _0x2e226e===_0x149f6e(0x34d)){liveAdminLog[_0x149f6e(0x16f)](_0x2e226e);if(liveAdminLog[_0x149f6e(0xe7)]>0xc8)liveAdminLog=liveAdminLog[_0x149f6e(0x15c)](-0xc8);renderAdminLog();}return;}if(_0x149b18===_0x149f6e(0x193)){updateLiveStatusUI(_0x375c41),liveFetchMyScoreHistory(),liveFetchMyProgress();if(sessionCanManageContent()&&adminTab==='backup')liveFetchLibraryVersions();sessionIsAdmin()&&(safeLiveSend({'type':_0x149f6e(0x217)}),safeLiveSend({'type':_0x149f6e(0x3b3)}));}}function updateLiveStatusUI(_0x33eabc=null){const _0x5d4e85=_0x3c626c,_0x1ba53a=document[_0x5d4e85(0x138)](_0x5d4e85(0x1b1));if(_0x1ba53a){if(!session?.[_0x5d4e85(0x109)])_0x1ba53a['textContent']=_0x5d4e85(0x1a2);else{if(!liveIsEnabled())_0x1ba53a[_0x5d4e85(0x174)]=_0x5d4e85(0x393);else{if(liveWsConnected)_0x1ba53a[_0x5d4e85(0x174)]='Live\x20connected.';else _0x1ba53a[_0x5d4e85(0x174)]=_0x5d4e85(0x139);}}}const _0x5ae84c=document['getElementById']('admin-live-status');if(_0x5ae84c){if(!liveIsEnabled())_0x5ae84c[_0x5d4e85(0x174)]=_0x5d4e85(0x2b1);else{if(liveWsConnected)_0x5ae84c['textContent']=_0x5d4e85(0x2d4);else _0x5ae84c['textContent']='Backend:\x20connecting…';}}const _0x5262dd=document['getElementById'](_0x5d4e85(0x224));if(_0x5262dd){if(!liveIsEnabled())_0x5262dd[_0x5d4e85(0x174)]=_0x5d4e85(0x2b1);else{if(!liveAuthToken)_0x5262dd['textContent']=_0x5d4e85(0x2f2);else _0x5262dd[_0x5d4e85(0x174)]=liveWsConnected?_0x5d4e85(0x334):_0x5d4e85(0x38a);}}renderMyScoreHistory(),renderMyProgress();}function logoutToLogin(){const _0x3c9d8a=_0x3c626c;try{liveSetActivity(_0x3c9d8a(0x380),{'view':_0x3c9d8a(0x25b)});}catch(_0x294823){}try{liveDisconnect();}catch(_0x2dded2){}try{setLiveToken('');}catch(_0xe3db62){}session={'username':null,'role':null},liveMyScoreHistory=[],liveMyProgress=[],currentQuizMeta={'id':null,'title':'','folder':'','source':_0x3c9d8a(0x13b),'randomized':![]},currentQuestionBank=[];try{liveOnlinePublic=[],liveOnlineAdmin=[],renderOnlineUsersWidget(),renderAdminOnlineUsers(),renderMyScoreHistory(),renderMyProgress(),updateLiveStatusUI();}catch(_0x46a4e1){}updateRoleBasedUi(),document[_0x3c9d8a(0x138)](_0x3c9d8a(0xec))?.[_0x3c9d8a(0x35c)][_0x3c9d8a(0x1d0)](_0x3c9d8a(0x1d9)),document[_0x3c9d8a(0x2d7)](_0x3c9d8a(0x353))[_0x3c9d8a(0x18f)](_0x44d4b6=>_0x44d4b6[_0x3c9d8a(0x35c)][_0x3c9d8a(0x1d0)](_0x3c9d8a(0x1d9)));const _0x1485d7=document[_0x3c9d8a(0x138)]('main-app');_0x1485d7&&(_0x1485d7[_0x3c9d8a(0x35c)][_0x3c9d8a(0x1d0)](_0x3c9d8a(0x1d9)),_0x1485d7['style'][_0x3c9d8a(0x12c)]='0');document[_0x3c9d8a(0x138)](_0x3c9d8a(0xea))?.['classList'][_0x3c9d8a(0x1d0)]('hidden');const _0x9206a=document[_0x3c9d8a(0x138)](_0x3c9d8a(0x20d));_0x9206a&&(_0x9206a['style'][_0x3c9d8a(0x37e)]='block',_0x9206a['style'][_0x3c9d8a(0x12c)]='1');}async function verifyLogin(){const _0x42a485=_0x3c626c,_0x581ce6=String(document[_0x42a485(0x138)]('username')?.[_0x42a485(0x11c)]||'')[_0x42a485(0x3b9)](),_0x3c72ad=String(document[_0x42a485(0x138)]('password')?.[_0x42a485(0x11c)]||''),_0x568ecb=document['getElementById'](_0x42a485(0x20d)),_0x4ee797=document[_0x42a485(0x138)](_0x42a485(0xec)),_0x462db8=document[_0x42a485(0x138)](_0x42a485(0x31d));setLiveToken('');if(!_0x581ce6||!_0x3c72ad){_0x462db8&&(_0x462db8[_0x42a485(0x174)]='PLEASE\x20ENTER\x20USERNAME\x20AND\x20PASSWORD',_0x462db8['classList'][_0x42a485(0x1c2)](_0x42a485(0x1d9)));return;}const _0x2e5191=window[_0x42a485(0x2b7)]&&typeof grecaptcha[_0x42a485(0x384)]===_0x42a485(0x354)?grecaptcha[_0x42a485(0x384)]():'';if(!_0x2e5191){_0x462db8&&(_0x462db8[_0x42a485(0x174)]='PLEASE\x20CONFIRM\x20YOU\x20ARE\x20NOT\x20A\x20ROBOT',_0x462db8['classList'][_0x42a485(0x1c2)]('hidden'));return;}let _0x49e337=null;if(liveIsEnabled()){const _0x3f4d36=await liveTryBackendLogin(_0x581ce6,_0x3c72ad,_0x2e5191);if(_0x3f4d36?.['ok'])_0x49e337={'username':_0x3f4d36[_0x42a485(0x2c2)]?.[_0x42a485(0x109)]||_0x581ce6,'role':_0x3f4d36['user']?.['role']||'user'};else{_0x462db8&&(_0x462db8[_0x42a485(0x174)]=(_0x3f4d36?.['error']?.[_0x42a485(0x111)]||_0x42a485(0x1c8))[_0x42a485(0x38c)](),_0x462db8[_0x42a485(0x35c)][_0x42a485(0x1c2)]('hidden'));const _0x355c11=document[_0x42a485(0x138)](_0x42a485(0x32d));if(_0x355c11)_0x355c11[_0x42a485(0x11c)]='';if(window[_0x42a485(0x2b7)]&&typeof grecaptcha[_0x42a485(0x219)]===_0x42a485(0x354))grecaptcha['reset']();updateLiveStatusUI();return;}}else{_0x462db8&&(_0x462db8['textContent']='BACKEND\x20NOT\x20AVAILABLE',_0x462db8[_0x42a485(0x35c)][_0x42a485(0x1c2)](_0x42a485(0x1d9)));return;}if(_0x462db8)_0x462db8[_0x42a485(0x35c)]['add']('hidden');hideLoginError(),session={'username':_0x49e337[_0x42a485(0x109)],'role':_0x49e337[_0x42a485(0x198)]},setRememberMe(_0x581ce6,_0x3c72ad),updateRoleBasedUi();try{liveBackendUrl=getConfiguredBackendUrl(),liveAuthToken=getLiveToken(),updateLiveStatusUI(),liveConnect();}catch(_0x5edf1b){}_0x568ecb&&(_0x568ecb[_0x42a485(0xf7)][_0x42a485(0x12c)]='0',_0x568ecb[_0x42a485(0xf7)]['transition']=_0x42a485(0x306)),setTimeout(()=>{const _0x2ef20e=_0x42a485;if(_0x568ecb)_0x568ecb[_0x2ef20e(0xf7)]['display']=_0x2ef20e(0x2a6);if(_0x4ee797)_0x4ee797['classList'][_0x2ef20e(0x1c2)](_0x2ef20e(0x1d9));try{liveSetActivity(_0x2ef20e(0x39c),{'view':_0x2ef20e(0x28a)});}catch(_0x111087){}renderLandingCardToggles(),renderMyScoreHistory(),renderMyProgress();},0x1f4);}function loadQuiz(_0x49e691){const _0xc3d75b=_0x3c626c,_0x283c85=document['getElementById']('main-app'),_0x4a9ae5=document[_0xc3d75b(0x138)](_0xc3d75b(0x275));let _0x14c410='';if(_0x49e691==='math')currentQuestionBank=typeof mathData!=='undefined'?cloneQuestions(mathData):[],currentQuestions=cloneQuestions(currentQuestionBank),_0x4a9ae5&&(_0x4a9ae5[_0xc3d75b(0x199)]=_0xc3d75b(0xf1),_0x4a9ae5[_0xc3d75b(0x194)]=_0xc3d75b(0x3c6)),_0x14c410=_0xc3d75b(0xf1),activeMenu=_0xc3d75b(0x21b);else{if(_0x49e691===_0xc3d75b(0x21c))currentQuestionBank=typeof esasData!==_0xc3d75b(0x3a9)?cloneQuestions(esasData):[],currentQuestions=cloneQuestions(currentQuestionBank),_0x4a9ae5&&(_0x4a9ae5[_0xc3d75b(0x199)]='ESAS',_0x4a9ae5[_0xc3d75b(0x194)]=_0xc3d75b(0xdf)),_0x14c410='ESAS',activeMenu='submenu-taypi';else{if(_0x49e691==='ug1')currentQuestionBank=typeof esasUG1Data!==_0xc3d75b(0x3a9)?cloneQuestions(esasUG1Data):[],currentQuestions=cloneQuestions(currentQuestionBank),_0x4a9ae5&&(_0x4a9ae5['innerHTML']='PAST\x20BOARD\x201',_0x4a9ae5[_0xc3d75b(0x194)]=_0xc3d75b(0x3c6)),_0x14c410=_0xc3d75b(0x352),activeMenu=_0xc3d75b(0x22f);else{if(_0x49e691===_0xc3d75b(0xed))currentQuestionBank=typeof esasUG2Data!=='undefined'?cloneQuestions(esasUG2Data):[],currentQuestions=cloneQuestions(currentQuestionBank),_0x4a9ae5&&(_0x4a9ae5['innerHTML']=_0xc3d75b(0x18d),_0x4a9ae5['className']=_0xc3d75b(0x3c6)),_0x14c410=_0xc3d75b(0x18d),activeMenu=_0xc3d75b(0x22f);else{if(_0x49e691===_0xc3d75b(0x1d4))currentQuestionBank=typeof esasUG3Data!==_0xc3d75b(0x3a9)?cloneQuestions(esasUG3Data):[],currentQuestions=cloneQuestions(currentQuestionBank),_0x4a9ae5&&(_0x4a9ae5[_0xc3d75b(0x199)]='PAST\x20BOARD\x203',_0x4a9ae5[_0xc3d75b(0x194)]=_0xc3d75b(0x3c6)),_0x14c410='PAST\x20BOARD\x203',activeMenu='submenu-past-board-list';else{alert(_0xc3d75b(0x27b));return;}}}}}currentQuizMeta={'id':String(_0x49e691||''),'title':_0x14c410||String(_0x49e691||'')[_0xc3d75b(0x38c)](),'folder':_0x49e691===_0xc3d75b(0x1ea)||_0x49e691==='esas'?_0xc3d75b(0x128):_0xc3d75b(0x37d),'source':_0xc3d75b(0x13b),'randomized':![]},document[_0xc3d75b(0x2d7)](_0xc3d75b(0x353))[_0xc3d75b(0x18f)](_0x3d5871=>_0x3d5871['classList'][_0xc3d75b(0x1d0)]('hidden'));if(_0x283c85)_0x283c85['classList']['remove'](_0xc3d75b(0x1d9));currentMode=_0xc3d75b(0x2a3),resetExam(),resetPractice(),setMode(_0xc3d75b(0x2a3)),updateQuizMetaBanner();try{liveSetActivity(_0xc3d75b(0x39e),{'view':_0xc3d75b(0xf5),'details':_0x14c410||String(_0x49e691||'')[_0xc3d75b(0x38c)]()}),liveSaveProgress({'setId':currentQuizMeta['id'],'setTitle':currentQuizMeta[_0xc3d75b(0x206)],'folder':currentQuizMeta['folder'],'source':currentQuizMeta[_0xc3d75b(0x157)],'mode':'review','action':_0xc3d75b(0x129)});}catch(_0x265bc3){}setTimeout(()=>{const _0x90c2a3=_0xc3d75b;if(_0x283c85)_0x283c85[_0x90c2a3(0xf7)]['opacity']='1';},0x64);}function _0x108a(){const _0x365ab2=['</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>','concat','</div>','level-1-menu','Invalid\x20library.json','createdAt','visibility','Option\x20','SHOW','admin-preview-quiz','UNDERGROUNDS','\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-lg\x20font-medium\x20text-gray-200\x22>','\x20\x20[','repo','//\x20Auto-generated\x20by\x20PADAYON\x20Admin\x0a//\x20Offline\x20fallback\x20for\x20file://\x20mode\x20(fetching\x20library.json\x20is\x20blocked\x20by\x20the\x20browser).\x0awindow.','Progress\x20save\x20failed:','submenu-pawer','name','total','values','ADMIN','UNDERGROUNDS\x20→\x20CALCULATOR\x20TECHNIQUES\x20(Notes)','isCorrect','review','\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20','<div\x20class=\x22admin-help\x22>Connecting…</div>','none','Submit\x20Exam','Start\x20Random\x20Exam','Please\x20fill\x20Options\x20A,\x20B,\x20C,\x20and\x20D.','clipboard','<div\x20class=\x22mt-2\x20bg-[#1a1a24]\x20p-2\x20rounded\x20border\x20border-gray-700\x20font-mono\x20text-xs\x20text-gray-400\x22>⌨️\x20','372UeuxdY','admin-folder-create-btn','admin-backend-url-save-btn','total-score','Backend\x20upload\x20did\x20not\x20return\x20a\x20file\x20URL.','Backend:\x20URL\x20not\x20set.','broadcast','Score:\x20','online-users-list','EXHALE\x20FILE/PRACTICE\x20QUIZ','Folder\x20deleted.','grecaptcha','onmessage','score-history-toggle','Folder\x20renamed.','admin-backend-url-input','lastEventAt','RUNNING','summary','key','reverse','\x27).classList.toggle(\x27hidden\x27)\x22\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20class=\x22mt-auto\x20w-full\x20py-2\x20bg-[#1f1f2e]\x20hover:bg-[#2d2d3a]\x20text-gray-300\x20text-sm\x20font-bold\x20uppercase\x20tracking-widest\x20transition-colors\x20border-t\x20border-gray-700\x20flex\x20justify-center\x20items-center\x20gap-2\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>View\x20Protocol</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22soln-','user','http://','Backend:\x20connected.','\x0a\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-search-label\x22>','<span\x20class=\x22admin-pill\x22>🟢\x20','LIBRARY_UPDATED','/api/library','addEventListener','setTitle','includes','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x20mt-2\x22>','quiz-browser-title','setItem','admin-refresh-accounts-btn','admin-nav-backup','offline\x20cache','solution','\x20(saved\x20to\x20cache).','Backend:\x20connected\x20(live).','GET','Authorization','querySelectorAll','admin-search-results','saligao','online-users-count','T-AY-PI\x20(Quiz\x20Sets)','<span\x20class=\x22bg-gray-800\x20border\x20border-[#00f3ff]\x20text-[#00f3ff]\x20text-xs\x20px-2\x20py-1\x20rounded\x20font-mono\x20flex\x20items-center\x20gap-1\x22><span\x20class=\x22w-2\x20h-2\x20rounded-full\x20bg-[#00f3ff]\x20animate-pulse\x22></span>\x20CALTECH</span>','file:','admin-backend-url-status','PLEASE\x20ENTER\x20USERNAME\x20AND\x20PASSWORD','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20md:col-span-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-300\x20font-mono\x20text-sm\x22>No\x20custom\x20quiz\x20sets\x20found\x20in\x20<span\x20class=\x22text-[#00f3ff]\x22>','notes','<div\x20class=\x22admin-help\x22>Failed\x20to\x20load\x20accounts.\x20','floor','focus','origin','admin-quiz-use-target-btn','admin-folder-open-btn','practiceAttempts','admin-folder-how-btn','text-[#00ff9d]','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x20duration-200\x20hover:bg-[#1a1a24]\x20group\x22\x20onclick=\x22loadQuizCustom(\x27','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>Role:\x20','Delete\x20question\x20#','score','btn-','option','1309VIMaQb','Backend:\x20not\x20authenticated\x20(login\x20required).','Update\x20imported\x20and\x20saved\x20locally.','/uploads/pdfs/','sort','library.json','admin-folder-delete-contents','parse','archives','readyState','</span>','padayon_auth_token_v1','warn','You\x27re\x20opening\x20via\x20file://,\x20so\x20the\x20browser\x20blocks\x20fetch()\x20for\x20library.json.\x20Use\x20a\x20local\x20server\x20(VSCode\x20Live\x20Server\x20/\x20python\x20-m\x20http.server)\x20OR\x20use\x20library.js\x20(offline\x20bundle).','admin-quiz-select','•\x20Archive\x20Folder\x20tool\x20edits\x20the\x20folder\x20in\x20Target\x20folder\x20path.\x0a','borderColor','Quiz\x20Browser:\x20Go\x20Up',')\x22>DELETE</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','splice','EXHALE\x20FILE/EXAM','opacity\x200.5s','custom','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','&gt;','study','Copy\x20failed.\x20You\x20can\x20manually\x20select\x20and\x20copy\x20the\x20Target\x20path\x20input.','admin-pdf-attach-url-btn','UNDERGROUNDS\x20→\x20PROBLEM\x20EXERCISES\x20(Quiz\x20Sets)','Create\x20failed:\x20','Unknown\x20time','PATH:\x20','HTTP\x20','PAWER-LAYN\x20FILE','admin-pdf-title','notes-overlay','Open\x20Terms\x20&\x20Objectives','selectPracticeOption(','SAVE\x20QUESTION','from','Live\x20library\x20push\x20failed:','inactive','lib','Failed\x20to\x20load\x20server\x20accounts.','login-msg','localeCompare','topic','removeItem','findIndex','library.js','visibilitychange','fixed','admin-type-quiz','admin-q-d','toLowerCase','wss://','admin-target-path','admin-preview-pdfs','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20md:col-span-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-300\x20font-mono\x20text-sm\x22>No\x20PDFs\x20or\x20folders\x20found\x20in\x20<span\x20class=\x22text-[#00f3ff]\x22>','status','password','Open\x20Quiz\x20Browser','\x20•\x20RANDOM\x20EXAM','button','score-history-sub','Progress\x20fetch\x20failed:','Folder\x20moved.','Backend:\x20authenticated\x20+\x20live\x20connected.','30925WGSMGa','PDF\x20URL\x20attached.\x20(Export\x20library.json\x20in\x20Backup\x20to\x20share)','bestPercent','lastAction','admin-folder-move-btn','backup','admin','Custom','soln','admin-panel-quiz','library:changed','admin-q-count','user-import-file','Start\x20Custom\x20Quiz','padayon_online_users_collapsed_v1','admin-tab-content','string','replace','pdf-frame','<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22\x20onclick=\x22adminRestoreLibraryVersion(\x27','.pdf','log:append','dataUrl','<div\x20class=\x22admin-help\x22>No\x20users\x20online.</div>','object','admin-folder-rename-btn','log:batch','/\x20--','no_backend','PAST\x20BOARD\x201','.menu-overlay','function','DOMContentLoaded','type','Invalid\x20JSON\x20file.','mode-btn\x20','forgot-username','How\x20folders\x20work:\x0a\x0a','Custom\x20path\x20(not\x20linked\x20in\x20UI\x20yet)','classList','<div\x20class=\x22admin-help\x22>Backend\x20URL\x20not\x20set.</div>','Back\x20to\x20Terms\x20List','Untitled\x20Quiz','contains','progress-sub','left','href','examAttempts','readAsDataURL','transition','Close\x20Admin\x20Panel','T-AY-PI/ESAS','appendChild','onclick','padayon_client_id_v1','Delete\x20selected\x20quiz\x20set:\x20\x22','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-4\x20pt-4\x20border-t\x20border-gray-800\x20text-sm\x20animate-fade-in\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-300\x20bg-gray-900/80\x20p-3\x20rounded\x20border-l-2\x20border-[#00ff9d]\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-[#00ff9d]\x20text-xs\x20font-bold\x20mb-1\x22>SOLUTION:</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','PDF','\x22\x20class=\x22','padayon_library_cache_v2','Deleted.','admin-create-password','fernandez','PREVIEW\x20PDFs','Target\x20folder\x20path:\x0a','application/javascript','PDF_VIEWER','max','map','admin-nav-content','cortez','admin-version-history-list','UNDERGROUNDS/TERMS\x20&\x20OBJECTIVES/ESAS\x20PAST\x20BOARD','display','<div\x20class=\x22admin-search-type\x22>','Logout','toLocaleString','find','.json','getResponse','Login\x20to\x20sync\x20your\x20study\x20progress.','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-[11px]\x20font-mono\x20text-gray-500\x22>','text-yellow-500','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22><span\x20class=\x22admin-pill\x22>OPEN</span></div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','submenu-undergrounds','Backend:\x20authenticated\x20(connecting\x20live)…','PLEASE\x20CONFIRM\x20YOU\x20ARE\x20NOT\x20A\x20ROBOT','toUpperCase','Waiting\x20for\x20new\x20activity','captcha_required','Your\x20exam\x20submissions\x20will\x20appear\x20here.','disabled','createObjectURL','Target\x20path\x20is\x20empty.','Backend\x20URL\x20not\x20set.','ROOT\x20(not\x20linked\x20to\x20a\x20menu)','\x20pdfs\x20•\x20','admin-backend-url-clear-btn','file','Choose\x20a\x20PDF\x20file\x20first.','<div\x20class=\x22admin-help\x22>Admin\x20only.</div>','change','admin-close','Landing','presence:admin','Start\x20Built-in\x20Quiz','Delete\x20folder\x20(recursive):\x0a','<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(not\x20authenticated)</div>','has','Moved\x20quiz\x20set.','\x20correct','version','admin-question-list','text','Quiz\x20set\x20not\x20found\x20in\x20library.','PAWER-LAYN\x20FILE/EXAM','undefined','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>🟢\x20','admin-q-soln','\x27,\x20\x27','Imported\x20library.json\x20and\x20saved\x20to\x20cache.\x20Export\x20+\x20commit\x20to\x20GitHub\x20to\x20share\x20with\x20friends.','EXHALE\x20FILE','library.json\x20not\x20found\x20(or\x20invalid).\x20You\x20can\x20import\x20one\x20in\x20Backup\x20tab,\x20then\x20export\x20a\x20fresh\x20library.json.','bestScore','isFinite','filter','log:request','join','logs','cyron','Close\x20Quiz\x20Browser','round','trim','Bearer\x20','\x20folders','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22border\x20border-gray-800\x20rounded-lg\x20px-3\x20py-2\x20bg-black/20\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20flex-col\x20md:flex-row\x20md:items-center\x20md:justify-between\x20gap-1\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-sm\x20text-white\x20font-semibold\x22>','13928mCUTpa','ug1','70hpwoBj','.\x20To\x20share\x20on\x20GitHub\x20Pages:\x20export\x20library.json\x20and\x20commit\x20it.','Copied\x20target\x20path.','admin-import-btn','startsWith','Backend\x20URL\x20not\x20configured.','<span\x20class=\x22admin-pill\x22>VIEW\x20ONLY</span>','text-[#00f3ff]','global/','Choose\x20a\x20JSON\x20file\x20first.','label','This\x20account\x20was\x20logged\x20in\x20on\x20another\x20device.','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22\x20style=\x22display:flex;\x20gap:8px;\x20flex-wrap:wrap;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','admin-folder-rename','Update\x20imported,\x20but\x20could\x20not\x20save\x20locally\x20(storage\x20may\x20be\x20full).','pdf','recordedAt','presence:public','\x20.admin-type-dot','online-users-body','admin-pdf-url','\x27);\x20adminRefreshAll();\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>📁\x20','hello','admin-card','text-[#ff00ff]','admin-quiz-move-path','questions-container','admin-q-c','\x20is\x20empty.\x0a\x0aCall\x20admin\x20to\x20put\x20something\x20here.','questions','<div\x20class=\x22admin-help\x22>Loading…</div>','score-display','length','keypress','padayon_library_sync_v1','admin-overlay','\x20•\x20Correct:\x20','landing-page','ug2','admin-search-clear','NOTES','target','MATHEMATICS','PAWER-LAYN\x20FILE\x20→\x20EXAM\x20(Quiz\x20Sets)','Folder\x20already\x20exists:\x20','_lastSentAt','QUIZ_ENGINE','admin-save','style','progress-count','Admin\x20or\x20editor\x20only.','writeText','<div\x20class=\x22admin-help\x22>No\x20questions\x20yet.</div>','MENUS','admin-version-refresh-btn','toFixed','Version\x20history\x20fetch\x20failed:','\x20(Copy)','admin-folder-move-parent','PAST\x20BOARD\x203','Library\x20version\x20restored.','force_logout','toggle','cursor-not-allowed','\x20QUESTION','sub','username','PDF\x20attached,\x20but\x20browser\x20storage\x20is\x20full.\x20Use\x20backend\x20upload\x20or\x20attach\x20by\x20URL.','Question\x20text\x20is\x20required.','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>Accuracy:\x20<span\x20class=\x22text-[#00f3ff]\x22>','checked','/api/library/versions','Enter\x20a\x20new\x20parent\x20path.','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-2\x20p-3\x20bg-black/40\x20border-l-2\x20border-yellow-500\x20text-yellow-500\x20font-mono\x20text-sm\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20ANSWER:\x20','message','Enter\x20new\x20folder\x20name.','Restore\x20failed:\x20','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','admin-list-item','onchange','\x20selected','admin-backup-import-btn','Set\x20Target\x20folder\x20path\x20to\x20the\x20folder\x20you\x20want\x20to\x20rename.','practice','pdf-overlay','value','Import\x20control\x20not\x20found.','rgba(255,\x200,\x2085,\x200.55)','maceda','Browsing\x20Categories','position','item','forgotPassLink','reason','UPDATE\x20QUESTION','selected','progress-body','T-AY-PI','view','COMPLETED','PAWER-LAYN\x20FILE\x20→\x20PRACTICE\x20QUIZ\x20(Quiz\x20Sets)','opacity','Choose\x20a\x20library.json\x20file\x20first.','createElement','</span>.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20font-mono\x20text-xs\x20mt-2\x22>Ask\x20admin\x20to\x20create\x20quiz\x20sets\x20in\x20Admin\x20Panel\x20→\x20Quiz\x20Set.</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','progress-toggle','Server\x20accounts:\x200','Question\x20added.','CATEGORIES','set','admin-type-folder','(not\x20set)','admin-q-text','getElementById','Connecting…','path','built_in','\x0a\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>','exam-status','quizSets','Admin\x20or\x20editor\x20access\x20only.','Paste\x20a\x20PDF\x20URL/path\x20first.','percent','quiz-meta-banner','CUSTOM\x20SET','input','random','arcenas','How\x20many\x20questions\x20for\x20the\x20random\x20exam?\x20(1-','admin-q-add-btn','admin-tab-accounts','PADAYON_BACKEND_URL','active','gian','randomized','opt-btn','admin-pdf-kind','PDF\x20uploaded\x20to\x20backend\x20and\x20linked\x20to\x20the\x20library.','exec','ESAS','token','editor','-9999px','<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(login\x20required)</span>','source','UNDERGROUNDS/PROBLEM\x20EXERCISES','427617XmmCiB','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22grid\x20grid-cols-1\x20md:grid-cols-3\x20gap-2\x20text-[11px]\x20font-mono\x20text-gray-400\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>Practice:\x20<span\x20class=\x22text-[#00f3ff]\x22>','slice','Library\x20imported,\x20but\x20could\x20not\x20save\x20to\x20cache\x20(storage\x20might\x20be\x20full).','client','src','admin-quick-pick','caltech','<div\x20class=\x22bg-[#1a1a24]\x20p-3\x20rounded\x20border\x20border-gray-700\x20font-mono\x20text-sm\x20text-gray-300\x20leading-8\x22>','keydown','activity','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22\x20onclick=\x22setAdminTargetPath(\x27','quiz_set','</span>.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20font-mono\x20text-xs\x20mt-2\x22>Ask\x20admin\x20to\x20upload\x20PDFs\x20in\x20Admin\x20Panel\x20→\x20Notes\x20(PDF),\x20or\x20create\x20folders\x20in\x20Admin\x20Panel\x20→\x20Archive\x20Folder.</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','admin-quick-import-file','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>','selectExamOption(','url','content','<span\x20class=\x22text-xs\x20text-[#ff00ff]\x20border\x20border-[#ff00ff]\x20px-2\x20rounded\x20uppercase\x20tracking-wider\x22>','empty','push','practiceCorrect','userAgent','progress-list','Enter','textContent','admin-q-correct','</div>\x0a\x20\x20\x20\x20','PAWER-LAYN\x20FILE/PRACTICE\x20QUIZ','users','has_token','Server\x20accounts:\x20','\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-center\x20justify-between\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-3xl\x20text-[#00f3ff]\x22>🧠</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>','\x20correct-ans','Score\x20history\x20save\x20failed:','main-app','lastPercent','files','activeElement','append','treb','Open\x20a\x20quiz\x20set\x20first.','rememberMe','admin-pdf-file','practiceAccuracy','Current:\x20','\x20•\x20','Login\x20required.','admin-pdf-list','Stored\x20on\x20backend\x20per\x20account.','PAST\x20BOARD\x202','stringify','forEach','pathname',')\x22>DUPLICATE</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22\x20style=\x22border-color:\x20rgba(255,\x200,\x2085,\x200.55);\x22\x20onclick=\x22adminDeleteQuestion(','click','hello:ack','className','BACKEND\x20NOT\x20AVAILABLE','setId','Backend:\x20connecting…','role','innerHTML','test','Create\x20a\x20new\x20question.','bundle','CONNECTING','Live\x20WS\x20init\x20failed:','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20','onerror','Select\x20a\x20quiz\x20set\x20first.','Login\x20to\x20see\x20online\x20users.','setAttribute','submenu-','admin-quick-import','split','<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(backend\x20not\x20configured)</div>','Open\x20PDF','random_exam_submit','cristopher','readAsText','repeat','exam','PDF\x20not\x20found\x20in\x20library.','Restore\x20this\x20library\x20version?\x20This\x20will\x20replace\x20the\x20current\x20library\x20and\x20notify\x20connected\x20users.','\x20<span\x20class=\x22text-gray-500\x20text-xs\x20ml-2\x22>[Option\x20','online-users-sub','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20text-center\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x22\x20onclick=\x22quizBrowserGoToFolder(\x27','UNDERGROUNDS/FORMULAS',',\x20\x27','innerText','ws://','<option\x20value=\x22\x22>--\x20Select\x20existing\x20set\x20--</option>','</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x20align-items:center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22>VIEW</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22\x20style=\x22border-color:\x20rgba(255,\x200,\x2085,\x200.55);\x22>DELETE</button>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','Online','querySelector','no_token','<div\x20class=\x22admin-help\x22>Failed\x20to\x20load\x20version\x20history.\x20','isArray','admin-tab-backup','PDF\x20attached.\x20(Export\x20library.json\x20in\x20Backup\x20to\x20share)','Backend:\x20authenticated\x20(loading\x20accounts)…','PAWER-LAYN\x20FILE/NOTES','remove','reduce','admin-quiz-delete-btn','<span\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(backend\x20not\x20configured)</span>','/api/scores','Updated\x20•\x20','INVALID\x20CREDENTIALS\x20OR\x20CAPTCHA\x20FAILED','quiz-browser-overlay','</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','93392JEDAjc','/api/accounts','Exit\x20Quiz','UNDERGROUNDS/CALCULATOR\x20TECHNIQUES','display:none;','add','PREVIEW\x20QUIZ\x20SETS','backend','QUIZ','ug3','Notes:\x20Go\x20Up','\x20dimmed','admin-q-a','pdf-overlay-title','hidden','body','no_session','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22cyber-card\x20p-6\x20rounded-lg\x20text-center\x20cursor-pointer\x20hover:border-[#00f3ff]\x20transition-all\x22\x20onclick=\x22openPdfOverlay(\x27','admin-quiz-move-btn','animate-pulse','Library\x20imported\x20and\x20saved\x20to\x20cache.','Question\x20updated.','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-sub\x22>By\x20','PDF\x20attached\x20locally.\x20For\x20large\x20files,\x20backend\x20upload\x20is\x20recommended.','pdf-download','onload','PDF\x20URL\x20attached,\x20but\x20browser\x20storage\x20is\x20blocked/full.\x0a\x0a👉\x20To\x20persist/share:\x20use\x20Backup\x20→\x20Export\x20library.json.','<div\x20class=\x22admin-help\x22>No\x20PDFs\x20attached.</div>','Import\x20library.json?\x0a\x0aThis\x20will\x20replace\x20your\x20current\x20local\x20quiz/notes\x20library\x20on\x20this\x20device.','practice-dashboard','Open\x20','math','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>Best\x20Exam:\x20<span\x20class=\x22text-[#00f3ff]\x22>','admin-online-users-list','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-right\x22\x20style=\x22display:flex;\x20gap:8px;\x20flex-wrap:wrap;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22\x20onclick=\x22adminLoadQuestionIntoBuilder(','Quiz','pdfs','Set\x20Target\x20folder\x20path\x20to\x20the\x20folder\x20you\x20want\x20to\x20move.','toString','admin-pdf-upload-btn','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex-1\x22>','storage','Open\x20Past\x20Board\x20List','application/json','quiz-browser-list','UNKNOWN','preventDefault','onopen','<div\x20class=\x22admin-help\x22>Admin\x20or\x20editor\x20only.</div>','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','prompt','Library\x20not\x20found\x20or\x20invalid.\x20Trying\x20offline\x20fallbacks…','result','GLOBAL','Backend\x20login\x20required\x20for\x20PDF\x20upload.','error','https://','choices','cache','title','Failed\x20to\x20read\x20file','DELETE','ramos','admin-library-status','admin-library-hint','\x20wrong','login-page','PADAYON_LIBRARY','admin-nav-logs','scrollTo','submenu-exhale','rheygie','440811RSTnpS','\x20set','admin-export-btn','admin-folder-name','presence:request','folder','reset','OPEN','submenu-taypi','esas','ROOT','score-history-list','QUIZ_BROWSER','lastMode','Imported\x20','submenu-terms','PADAYON\x20PORTAL\x20-\x20Forgot\x20Password','admin-account-status','admin-q-b','admin-backup-status','postMessage','opacity-50','Admin\x20only.','initLive','Folder\x20created:\x20','/api/auth/login','\x20wrong-ans','292128fAvVZz','submenu-past-board-list','admin-folder-root-btn','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20justify-between\x20items-start\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22flex\x20items-center\x20gap-3\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22text-3xl\x20font-bold\x20text-gray-700\x20font-mono\x22>#','admin-path-visibility','Enter\x20username\x20and\x20password.','admin-search-input','Score\x20history\x20fetch\x20failed:','Notes:\x20Open\x20Folder','115438mGOFGK','now','[onclick]','folders','T-AY-PI/MATHEMATICS',')\x22>EDIT</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22admin-mini-btn\x22\x20type=\x22button\x22\x20onclick=\x22adminDuplicateQuestion(','Open\x20Category','Open\x20Admin\x20Panel','updatedAt','accounts','completedExams','protocol','replaceAll','notes-overlay-path','div','smooth','VIEW:\x20','archive','options','GLOBAL\x20(shows\x20in\x20all\x20quiz\x20browsers\x20&\x20notes\x20roots)','admin-q-caltech','T-AY-PI/OTHERS','cyber-card\x20rounded-lg\x20p-6\x20flex\x20flex-col\x20gap-4','admin-path-normalized','Enter\x20a\x20quiz\x20set\x20title.','connectToBackend','admin-q-topic','(root)','&#039;','felizarta','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22opt-letter\x22>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','<span\x20class=\x22text-gray-500\x22>(no\x20solution\x20provided)</span>','admin-panel-folder','\x0aLast\x20password\x20I\x20remember:\x20','&body=','LOGIN','admin-server-accounts-list','/api/uploads/pdf','score-history-body','block','ans','toISOString','QUIZ\x20SETS','getItem','PDF\x20attached,\x20but\x20browser\x20storage\x20is\x20full\x20(PDF\x20embed\x20can\x20be\x20very\x20large).\x0a\x0a✅\x20It\x20will\x20still\x20work\x20right\x20now.\x0a👉\x20To\x20share/persist:\x20use\x20Backup\x20→\x20Export\x20library.json,\x20or\x20attach\x20by\x20URL\x20(recommended\x20for\x20GitHub).','/api/progress','HIDE','quillopo','•\x20Target\x20folder\x20path\x20=\x20where\x20quiz\x20sets/PDFs\x20are\x20attached.\x0a','Untitled','kind','question','Close\x20Notes','padayon_score_history_collapsed_v1','entries','admin-nav-accounts','carl','EXHALE\x20FILE/NOTES','Back\x20from\x20PDF','mode','Quiz\x20Browser:\x20Open\x20Folder','active-module-title','system','Admin\x20access\x20only.','\x20Q</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22mt-4\x20font-bold\x20text-lg\x20text-white\x20group-hover:text-[#00f3ff]\x20transition-colors\x22>','&amp;','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22text-[11px]\x20font-mono\x20text-gray-500\x20mt-1\x22>','Module\x20Under\x20Construction','items','\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-search-type\x22>','POST','download','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-left\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22admin-list-title\x22>','all','admin-activity-log','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20','min','padayon_remember','Creating…','rgba(0,\x20255,\x20157,\x200.55)','admin-folder-list','<div\x20class=\x22text-gray-500\x20text-xs\x20font-mono\x22>(login\x20required)</div>','LANDING','quiz'];_0x108a=function(){return _0x365ab2;};return _0x108a();}function loadQuizCustom(_0x136fce,_0x5e2cfd){const _0x200838=_0x3c626c,_0x3d9d2f=library['quizSets'][_0x200838(0x382)](_0x2c837e=>_0x2c837e['id']===_0x136fce);if(!_0x3d9d2f){alert(_0x200838(0x3a7));return;}const _0x47c21e=document[_0x200838(0x138)](_0x200838(0x17e)),_0x55123e=document[_0x200838(0x138)](_0x200838(0x275));currentQuestionBank=cloneQuestions(_0x3d9d2f[_0x200838(0xe4)]),currentQuestions=cloneQuestions(_0x3d9d2f['questions']);_0x55123e&&(_0x55123e[_0x200838(0x199)]=escapeHTML(_0x3d9d2f[_0x200838(0x206)]||_0x200838(0x143)),_0x55123e[_0x200838(0x194)]=_0x200838(0x3c6));activeMenu=_0x5e2cfd||quizBrowserBackMenuId||_0x200838(0x28f),currentQuizMeta={'id':_0x3d9d2f['id'],'title':_0x3d9d2f[_0x200838(0x206)]||_0x200838(0x143),'folder':_0x3d9d2f['folder']||'','source':_0x200838(0x307),'randomized':![]},document[_0x200838(0x2d7)](_0x200838(0x353))[_0x200838(0x18f)](_0x1d90bc=>_0x1d90bc[_0x200838(0x35c)][_0x200838(0x1d0)](_0x200838(0x1d9)));if(_0x47c21e)_0x47c21e[_0x200838(0x35c)]['remove']('hidden');currentMode='review',resetExam(),resetPractice(),setMode(_0x200838(0x2a3)),updateQuizMetaBanner();try{liveSetActivity('Start\x20Custom\x20Quiz',{'view':_0x200838(0xf5),'path':_0x3d9d2f[_0x200838(0x218)]||'','details':_0x3d9d2f['title']||_0x200838(0x143)}),liveSaveProgress({'setId':currentQuizMeta['id'],'setTitle':currentQuizMeta[_0x200838(0x206)],'folder':currentQuizMeta['folder'],'source':currentQuizMeta['source'],'mode':_0x200838(0x2a3),'action':'view'});}catch(_0x5bbd6f){}setTimeout(()=>{const _0x227704=_0x200838;if(_0x47c21e)_0x47c21e[_0x227704(0xf7)]['opacity']='1';},0x64);}function selectPracticeOption(_0x5b9975,_0x2e611f){const _0x1d93a9=_0x3c626c;if(practiceAttempts[_0x5b9975])return;const _0x116415=currentQuestions[_0x1d93a9(0x382)](_0x502681=>_0x502681['id']===_0x5b9975);if(!_0x116415)return;practiceAttempts[_0x5b9975]={'selected':_0x2e611f,'isCorrect':_0x2e611f===_0x116415[_0x1d93a9(0x2bf)]},renderQuestions();try{liveSaveProgress({'setId':currentQuizMeta['id']||null,'setTitle':currentQuizMeta[_0x1d93a9(0x206)]||String(document[_0x1d93a9(0x138)](_0x1d93a9(0x275))?.[_0x1d93a9(0x1b5)]||'')['trim']()||_0x1d93a9(0x35f),'folder':currentQuizMeta['folder']||'','source':currentQuizMeta[_0x1d93a9(0x157)]||_0x1d93a9(0x307),'mode':'practice','action':'practice_answer','correct':_0x2e611f===_0x116415[_0x1d93a9(0x2bf)]});}catch(_0x54f4eb){}}function submitExam(){const _0x32e011=_0x3c626c;if(examSubmitted)return;examSubmitted=!![];let _0x2cfed1=0x0;currentQuestions[_0x32e011(0x18f)](_0x461f4a=>{const _0x4a1cce=_0x32e011;if(userAnswers[_0x461f4a['id']]===_0x461f4a[_0x4a1cce(0x2bf)])_0x2cfed1++;});if(scoreDisplay)scoreDisplay[_0x32e011(0x1b5)]=String(_0x2cfed1);const _0x48f0d3=document['getElementById'](_0x32e011(0x2af));if(_0x48f0d3)_0x48f0d3['innerText']='/\x20'+currentQuestions[_0x32e011(0xe7)];try{liveSetActivity('Submit\x20Exam',{'view':_0x32e011(0xf5),'details':_0x32e011(0x2b3)+_0x2cfed1+'/'+currentQuestions[_0x32e011(0xe7)]});}catch(_0x30f79c){}examStatus&&(examStatus[_0x32e011(0x1b5)]=_0x32e011(0x12a),examStatus[_0x32e011(0x35c)]['remove'](_0x32e011(0x387)),examStatus['classList'][_0x32e011(0x1d0)](_0x32e011(0x2ea)));submitBtn&&(submitBtn[_0x32e011(0x35c)]['add'](_0x32e011(0x228),_0x32e011(0x106)),submitBtn['disabled']=!![]);try{const _0x58ce26=currentQuizMeta[_0x32e011(0x14d)]?'random_exam':_0x32e011(0x1ad);liveSaveScoreHistory({'setId':currentQuizMeta['id']||null,'setTitle':currentQuizMeta['title']||String(document[_0x32e011(0x138)](_0x32e011(0x275))?.[_0x32e011(0x1b5)]||'')[_0x32e011(0x3b9)]()||_0x32e011(0x35f),'folder':currentQuizMeta[_0x32e011(0x218)]||'','source':currentQuizMeta['source']||_0x32e011(0x307),'mode':_0x58ce26,'score':_0x2cfed1,'total':currentQuestions[_0x32e011(0xe7)]}),liveSaveProgress({'setId':currentQuizMeta['id']||null,'setTitle':currentQuizMeta[_0x32e011(0x206)]||String(document['getElementById'](_0x32e011(0x275))?.[_0x32e011(0x1b5)]||'')[_0x32e011(0x3b9)]()||_0x32e011(0x35f),'folder':currentQuizMeta[_0x32e011(0x218)]||'','source':currentQuizMeta[_0x32e011(0x157)]||'custom','mode':_0x58ce26,'action':currentQuizMeta[_0x32e011(0x14d)]?_0x32e011(0x1a9):'exam_submit','score':_0x2cfed1,'total':currentQuestions[_0x32e011(0xe7)]});}catch(_0xe8053){}renderQuestions(),window[_0x32e011(0x210)]({'top':0x0,'behavior':_0x32e011(0x246)});}function adminSaveLibrary(){const _0xe91bea=_0x3c626c;if(!sessionCanManageContent()){alert(_0xe91bea(0xf9));return;}touchLibrary();try{scheduleLiveLibraryPush(!![]);}catch(_0x4c5062){}liveIsEnabled()&&liveAuthToken&&liveFetchLibraryVersions(),adminExportLibrary();}async function adminQuickImportLibrary(){const _0x20522b=_0x3c626c;if(!sessionCanManageContent()){alert(_0x20522b(0xf9));return;}const _0x158b6d=document[_0x20522b(0x138)](_0x20522b(0x168)),_0x2cc2f3=_0x158b6d?.[_0x20522b(0x180)]?.[0x0];if(!_0x2cc2f3){alert('Choose\x20a\x20library.json\x20file\x20first.');return;}try{const _0x42124a=await importLibraryFromFile(_0x2cc2f3);alert(_0x42124a?_0x20522b(0x1df):_0x20522b(0x15d));}catch(_0x1250fc){console[_0x20522b(0x202)](_0x1250fc),alert(_0x20522b(0x290));}finally{if(_0x158b6d)_0x158b6d['value']='';}}function openAdminPanel(){const _0x2d3c5b=_0x3c626c;if(!sessionCanManageContent()){alert(_0x2d3c5b(0x13f));return;}document[_0x2d3c5b(0x2d7)]('.menu-overlay')['forEach'](_0xe64305=>_0xe64305['classList'][_0x2d3c5b(0x1d0)](_0x2d3c5b(0x1d9)));const _0x24995b=document[_0x2d3c5b(0x138)](_0x2d3c5b(0x17e));_0x24995b&&(_0x24995b['classList']['add'](_0x2d3c5b(0x1d9)),_0x24995b['style'][_0x2d3c5b(0x12c)]='0');document['getElementById'](_0x2d3c5b(0xea))?.['classList'][_0x2d3c5b(0x1c2)]('hidden'),setAdminTab('content'),updateRoleBasedUi();try{liveSetActivity(_0x2d3c5b(0x23e),{'view':_0x2d3c5b(0x2a0)});}catch(_0x24742b){}try{if(sessionIsAdmin())liveRequestAdminRefresh();}catch(_0x534c73){}updateAdminLibraryStatus(),showLibraryHintIfNeeded(),adminRefreshAll();}function setAdminTab(_0x3d3dad){const _0xeee11d=_0x3c626c;if(!sessionCanManageContent())return;!sessionIsAdmin()&&(_0x3d3dad==='accounts'||_0x3d3dad==='logs')&&(_0x3d3dad=_0xeee11d(0x16c));adminTab=_0x3d3dad;const _0x50f113={'content':_0xeee11d(0x344),'accounts':_0xeee11d(0x149),'logs':'admin-tab-logs','backup':_0xeee11d(0x1be)};Object['entries'](_0x50f113)[_0xeee11d(0x18f)](([_0x264d41,_0x37774c])=>{const _0x3d1059=_0xeee11d;document[_0x3d1059(0x138)](_0x37774c)?.['classList'][_0x3d1059(0x105)](_0x3d1059(0x1d9),_0x264d41!==_0x3d3dad);});const _0x3556cf={'content':_0xeee11d(0x37a),'accounts':_0xeee11d(0x26f),'logs':_0xeee11d(0x20f),'backup':_0xeee11d(0x2d0)};Object[_0xeee11d(0x29f)](_0x3556cf)[_0xeee11d(0x18f)](_0x2ea62d=>document[_0xeee11d(0x138)](_0x2ea62d)?.[_0xeee11d(0x35c)][_0xeee11d(0x1c2)]('active')),document[_0xeee11d(0x138)](_0x3556cf[_0x3d3dad])?.['classList']['add'](_0xeee11d(0x14b)),updateRoleBasedUi();try{_0x3d3dad===_0xeee11d(0x3b5)&&sessionIsAdmin()&&(adminRefreshBackendUrlUI(),renderAdminOnlineUsers(),renderAdminLog(),liveRequestAdminRefresh()),_0x3d3dad===_0xeee11d(0x240)&&sessionIsAdmin()&&adminRefreshServerAccounts(),_0x3d3dad===_0xeee11d(0x33a)&&liveFetchLibraryVersions();}catch(_0x5b91d8){}}document[_0x3c626c(0x2c9)](_0x3c626c(0x355),()=>{const _0x4c34fa=_0x3c626c;initLandingCardToggles(),renderMyScoreHistory(),renderMyProgress(),updateRoleBasedUi(),document[_0x4c34fa(0x138)](_0x4c34fa(0xfd))?.[_0x4c34fa(0x2c9)](_0x4c34fa(0x192),liveFetchLibraryVersions);});
+/*
+  PADAYON PORTAL
+  - Quiz engine (built-in database.js)
+  - Admin Content Manager (library.json)
+  - Notes/PDF viewer
+
+  IMPORTANT:
+  This is a static site. Admin cannot push to GitHub automatically.
+  To share to friends: export library.json in Admin > Backup and commit it.
+*/
+
+// =========================
+// Accounts
+// =========================
+const ACCOUNTS = [
+  { username: 'admin', password: 'admin', role: 'admin' },
+  { username: 'saligao', password: 'carl', role: 'user' },
+  { username: 'ramos', password: 'carl', role: 'user' },
+  { username: 'fernandez', password: 'cristopher', role: 'user' },
+  { username: 'cortez', password: 'cyron', role: 'user' },
+  { username: 'castillo', password: 'gian', role: 'user' },
+  { username: 'maceda', password: 'mj', role: 'user' },
+  { username: 'quillopo', password: 'pj', role: 'user' },
+  { username: 'arcenas', password: 'rheygie', role: 'user' },
+  { username: 'felizarta', password: 'treb', role: 'user' },
+];
+
+let session = {
+  username: null,
+  role: null, // 'admin' | 'user'
+};
+
+let activeMenu = 'submenu-taypi'; // back target for quiz
+
+// =========================
+// Library (shared content)
+// =========================
+const LIBRARY_FILENAME = 'library.json';
+const LIBRARY_JS_FILENAME = 'library.js';
+const LIBRARY_CACHE_KEY = 'padayon_library_cache_v2';
+const LIBRARY_GLOBAL_VAR = 'PADAYON_LIBRARY';
+
+// Cross-tab live sync (admin uploads -> user view updates instantly in another tab)
+const LIBRARY_SYNC_CHANNEL = 'padayon_library_sync_v1';
+let librarySyncChannel = null;
+let librarySyncInitialized = false;
+let lastAppliedLibraryUpdatedAtMs = 0;
+
+// =========================
+// Live Backend (Render)
+// - Online users (presence)
+// - Live activity tracking (what screen users are on)
+// - Live library sync (admin edits instantly appear on clients)
+// =========================
+const LIVE_BACKEND_URL_KEY = 'padayon_backend_url';
+const LIVE_TOKEN_KEY = 'padayon_auth_token_v1';
+
+let liveBackendUrl = '';
+let liveAuthToken = '';
+let liveWs = null;
+let liveWsConnected = false;
+let liveReconnectTimer = null;
+let liveReconnectDelayMs = 1000;
+let liveClientId = null;
+
+let liveOnlinePublic = []; // [{ username, role }]
+let liveOnlineAdmin = [];  // [{ username, role, activity, path, view, connectedAt, lastSeen, clientId }]
+let liveAdminLog = [];     // [{ ts, username, message }]
+let liveLastPresenceHash = '';
+let liveLibraryPushTimer = null;
+let liveLastLibraryPushedAtMs = 0;
+
+function trimSlash(url) {
+  return String(url || '').trim().replace(/\/+$/, '');
+}
+
+function getConfiguredBackendUrl() {
+  // Priority: localStorage (admin can change without editing index.html), then window.PADAYON_BACKEND_URL.
+  let url = '';
+
+  try {
+    url = trimSlash(localStorage.getItem(LIVE_BACKEND_URL_KEY) || '');
+  } catch (_) {
+    url = '';
+  }
+
+  if (!url) {
+    try {
+      url = trimSlash(window.PADAYON_BACKEND_URL || '');
+    } catch (_) {
+      url = '';
+    }
+  }
+
+  // If user typed a domain without protocol, assume https.
+  if (url && !/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+  }
+
+  // Persist config into localStorage so you don't lose it.
+  try {
+    if (url) localStorage.setItem(LIVE_BACKEND_URL_KEY, url);
+  } catch (_) {}
+
+  return url;
+}
+
+function setConfiguredBackendUrl(url) {
+  let clean = trimSlash(url);
+  if (clean && !/^https?:\/\//i.test(clean)) clean = 'https://' + clean;
+
+  try {
+    if (clean) localStorage.setItem(LIVE_BACKEND_URL_KEY, clean);
+    else localStorage.removeItem(LIVE_BACKEND_URL_KEY);
+  } catch (_) {}
+
+  liveBackendUrl = clean;
+  updateLiveStatusUI();
+}
+
+// --- Admin UI: Backend URL (stored in localStorage) ---
+function adminRefreshBackendUrlUI() {
+  const inp = document.getElementById('admin-backend-url-input');
+  const status = document.getElementById('admin-backend-url-status');
+
+  const url = getConfiguredBackendUrl();
+
+  // Avoid overwriting while typing
+  if (inp && document.activeElement !== inp) {
+    inp.value = url || '';
+  }
+
+  if (status) {
+    status.textContent = 'Current: ' + (url || '(not set)');
+  }
+}
+
+async function liveReloginFromRememberIfPossible() {
+  if (!liveIsEnabled()) return { ok: false, reason: 'no_backend' };
+  if (!session?.username) return { ok: false, reason: 'no_session' };
+  if (liveAuthToken) return { ok: true, reason: 'has_token' };
+
+  // re-login without captcha is no longer allowed
+  return { ok: false, reason: 'captcha_required' };
+}
+
+
+async function adminSaveBackendUrlFromUI() {
+  const inp = document.getElementById('admin-backend-url-input');
+  if (!inp) return;
+
+  const prev = trimSlash(liveBackendUrl);
+  const nextRaw = String(inp.value || '').trim();
+
+  setConfiguredBackendUrl(nextRaw);
+  liveBackendUrl = getConfiguredBackendUrl();
+
+  const next = trimSlash(liveBackendUrl);
+
+  // If backend changed, clear token so we don't send a token for the wrong server.
+  if (prev !== next) {
+    setLiveToken('');
+  }
+
+  // Reconnect live presence
+  try { liveDisconnect(); } catch (_) {}
+
+  // Attempt to re-auth using Remember Me (optional)
+  try {
+    if (session?.username && liveIsEnabled()) {
+      liveAuthToken = getLiveToken();
+      await liveReloginFromRememberIfPossible();
+      liveAuthToken = getLiveToken();
+      liveConnect();
+      // Pull latest library immediately
+      loadLibraryFromBackend();
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  adminRefreshBackendUrlUI();
+}
+
+function adminClearBackendUrlFromUI() {
+  setConfiguredBackendUrl('');
+  setLiveToken('');
+
+  try { liveDisconnect(); } catch (_) {}
+
+  // Reset UI state
+  try {
+    liveOnlinePublic = [];
+    liveOnlineAdmin = [];
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    renderAdminLog();
+    updateLiveStatusUI();
+  } catch (_) {}
+
+  adminRefreshBackendUrlUI();
+}
+
+function getLiveToken() {
+  try {
+    return String(localStorage.getItem(LIVE_TOKEN_KEY) || '').trim();
+  } catch (_) {
+    return '';
+  }
+}
+
+function setLiveToken(token) {
+  const t = String(token || '').trim();
+  try {
+    if (t) localStorage.setItem(LIVE_TOKEN_KEY, t);
+    else localStorage.removeItem(LIVE_TOKEN_KEY);
+  } catch (_) {}
+  liveAuthToken = t;
+}
+
+function httpToWsUrl(httpUrl) {
+  const u = String(httpUrl || '').trim();
+  if (!u) return '';
+  if (u.startsWith('https://')) return 'wss://' + u.slice('https://'.length);
+  if (u.startsWith('http://')) return 'ws://' + u.slice('http://'.length);
+  // Default: assume https
+  return 'wss://' + u.replace(/^wss?:\/\//, '');
+}
+
+function liveIsEnabled() {
+  return !!(liveBackendUrl && liveBackendUrl.startsWith('http'));
+}
+
+async function liveApiFetch(path, { method = 'GET', body = null, headers = {} } = {}) {
+  if (!liveIsEnabled()) throw new Error('Backend URL not configured.');
+  const url = trimSlash(liveBackendUrl) + String(path || '');
+
+  const h = {
+    'Content-Type': 'application/json',
+    ...headers,
+  };
+  if (liveAuthToken) h['Authorization'] = 'Bearer ' + liveAuthToken;
+
+  const res = await fetch(url, {
+    method,
+    headers: h,
+    body: body ? JSON.stringify(body) : null,
+  });
+
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = null; }
+
+  if (!res.ok) {
+    const msg = (json && (json.error || json.message)) ? (json.error || json.message) : (text || `HTTP ${res.status}`);
+    throw new Error(msg);
+  }
+
+  return json;
+}
+
+async function liveTryBackendLogin(username, password, captchaToken) {
+  if (!liveIsEnabled()) return { ok: false, reason: 'no_backend' };
+
+  try {
+    const json = await liveApiFetch('/api/auth/login', {
+      method: 'POST',
+      body: {
+        username,
+        password,
+        captchaToken
+      },
+    });
+
+    if (json?.token) {
+      setLiveToken(json.token);
+      return {
+        ok: true,
+        token: json.token,
+        user: json.user || { username, role: 'user' }
+      };
+    }
+
+    return { ok: false, reason: 'no_token' };
+  } catch (err) {
+    return { ok: false, reason: 'error', error: err };
+  }
+}
+
+function liveConnect() {
+  if (!liveIsEnabled()) {
+    updateLiveStatusUI();
+    return;
+  }
+
+  if (!liveClientId) {
+    // Stable per-device id (helps admin see duplicates).
+    try {
+      const stored = localStorage.getItem('padayon_client_id_v1');
+      if (stored) liveClientId = stored;
+    } catch (_) {}
+    if (!liveClientId) {
+      liveClientId = uid('client');
+      try { localStorage.setItem('padayon_client_id_v1', liveClientId); } catch (_) {}
+    }
+  }
+
+  // Already connected/connecting
+  if (liveWs && (liveWs.readyState === WebSocket.OPEN || liveWs.readyState === WebSocket.CONNECTING)) {
+    updateLiveStatusUI();
+    return;
+  }
+
+  const wsUrl = httpToWsUrl(liveBackendUrl) + '/ws';
+  try {
+    liveWs = new WebSocket(wsUrl);
+  } catch (err) {
+    console.warn('Live WS init failed:', err);
+    liveWs = null;
+    scheduleLiveReconnect();
+    updateLiveStatusUI();
+    return;
+  }
+
+  liveWs.onopen = () => {
+    liveWsConnected = true;
+    liveReconnectDelayMs = 1000;
+    updateLiveStatusUI();
+
+    // Authenticate / identify.
+    safeLiveSend({
+      type: 'hello',
+      token: liveAuthToken || null,
+      username: session?.username || null,
+      role: session?.role || null,
+      clientId: liveClientId,
+      ua: navigator.userAgent,
+      ts: Date.now(),
+    });
+
+    // Send initial activity
+    try { liveSetActivity('Online', { view: currentViewName() }); } catch (_) {}
+  };
+
+  liveWs.onmessage = (ev) => {
+    const raw = String(ev?.data || '');
+    if (!raw) return;
+    let msg = null;
+    try { msg = JSON.parse(raw); } catch (_) { return; }
+    if (!msg || typeof msg !== 'object') return;
+    handleLiveMessage(msg);
+  };
+
+  liveWs.onclose = () => {
+    liveWsConnected = false;
+    updateLiveStatusUI();
+    scheduleLiveReconnect();
+  };
+
+  liveWs.onerror = () => {
+    // onclose will fire after
+    updateLiveStatusUI();
+  };
+
+  updateLiveStatusUI();
+}
+
+function liveDisconnect() {
+  try { if (liveReconnectTimer) clearTimeout(liveReconnectTimer); } catch (_) {}
+  liveReconnectTimer = null;
+  liveReconnectDelayMs = 1000;
+
+  try {
+    if (liveWs) liveWs.close();
+  } catch (_) {}
+
+  liveWs = null;
+  liveWsConnected = false;
+  updateLiveStatusUI();
+}
+
+function scheduleLiveReconnect() {
+  if (!liveIsEnabled()) return;
+  if (liveReconnectTimer) return;
+
+  const delay = Math.min(15000, Math.max(1000, liveReconnectDelayMs));
+  liveReconnectDelayMs = Math.min(15000, delay * 1.6);
+
+  liveReconnectTimer = setTimeout(() => {
+    liveReconnectTimer = null;
+    // Only reconnect if user is logged in
+    if (session?.username) liveConnect();
+  }, delay);
+}
+
+function safeLiveSend(obj) {
+  try {
+    if (!liveWs || liveWs.readyState !== WebSocket.OPEN) return false;
+    liveWs.send(JSON.stringify(obj));
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function currentViewName() {
+  // coarse view name for activity tracking
+  if (!session?.username) return 'LOGIN';
+  if (!document.getElementById('admin-overlay')?.classList.contains('hidden')) return 'ADMIN';
+  if (!document.getElementById('pdf-overlay')?.classList.contains('hidden')) return 'PDF_VIEWER';
+  if (!document.getElementById('notes-overlay')?.classList.contains('hidden')) return 'NOTES';
+  if (!document.getElementById('quiz-browser-overlay')?.classList.contains('hidden')) return 'QUIZ_BROWSER';
+  if (!document.getElementById('main-app')?.classList.contains('hidden')) return 'QUIZ_ENGINE';
+  if (!document.getElementById('level-1-menu')?.classList.contains('hidden')) return 'CATEGORIES';
+  // any submenu
+  return 'MENUS';
+}
+
+function liveSetActivity(activity, extra = {}) {
+  // Rate limit + avoid spamming identical state.
+  const now = Date.now();
+  const payload = {
+    type: 'activity',
+    activity: String(activity || '').slice(0, 180),
+    view: extra.view || currentViewName(),
+    path: extra.path || null,
+    details: extra.details || null,
+    ts: now,
+  };
+
+  // Only send if connected.
+  if (!liveWsConnected) return;
+
+  // Don't send too often.
+  if (liveSetActivity._lastSentAt && (now - liveSetActivity._lastSentAt) < 350) return;
+  liveSetActivity._lastSentAt = now;
+
+  safeLiveSend(payload);
+}
+
+function handleLiveMessage(msg) {
+  const t = String(msg.type || '');
+
+  if (t === 'force_logout') {
+  alert(msg.reason || 'This account was logged in on another device.');
+  logoutToLogin();
+  return;
+}
+
+  if (t === 'presence:public') {
+    liveOnlinePublic = Array.isArray(msg.users) ? msg.users : [];
+    renderOnlineUsersWidget();
+    return;
+  }
+
+  if (t === 'presence:admin') {
+    liveOnlineAdmin = Array.isArray(msg.users) ? msg.users : [];
+    // Derive a public list too so the Categories widget still works for admin.
+    liveOnlinePublic = liveOnlineAdmin.map(u => ({ username: u.username, role: u.role }));
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    return;
+  }
+
+  if (t === 'library:changed') {
+    const ms = Number(msg.ms || 0);
+    // Only fetch if newer than our current library.
+    if (ms && ms > getLibraryUpdatedAtMs(library)) {
+      loadLibraryFromBackend();
+    }
+    return;
+  }
+
+  if (t === 'log:batch') {
+    if (Array.isArray(msg.items)) {
+      liveAdminLog = msg.items.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'log:append') {
+    const item = msg.item;
+    if (item && typeof item === 'object') {
+      liveAdminLog.push(item);
+      if (liveAdminLog.length > 200) liveAdminLog = liveAdminLog.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'hello:ack') {
+    // Server acknowledged connection.
+    updateLiveStatusUI(msg);
+    // Ask for snapshots when admin.
+    if (session?.role === 'admin') {
+      safeLiveSend({ type: 'presence:request' });
+      safeLiveSend({ type: 'log:request' });
+    }
+    return;
+  }
+}
+
+function updateLiveStatusUI(serverHello = null) {
+  // Category widget subtitle
+  const sub = document.getElementById('online-users-sub');
+  if (sub) {
+    if (!session?.username) sub.textContent = 'Login to see online users.';
+    else if (!liveIsEnabled()) sub.textContent = 'Backend URL not set.';
+    else if (liveWsConnected) sub.textContent = 'Live connected.';
+    else sub.textContent = 'Connecting…';
+  }
+
+  // Admin tab status
+  const adminStatus = document.getElementById('admin-live-status');
+  if (adminStatus) {
+    if (!liveIsEnabled()) adminStatus.textContent = 'Backend: URL not set.';
+    else if (liveWsConnected) adminStatus.textContent = 'Backend: connected (live).';
+    else adminStatus.textContent = 'Backend: connecting…';
+  }
+
+  const acctStatus = document.getElementById('admin-account-status');
+  if (acctStatus) {
+    if (!liveIsEnabled()) acctStatus.textContent = 'Backend: URL not set.';
+    else if (!liveAuthToken) acctStatus.textContent = 'Backend: not authenticated (login required).';
+    else acctStatus.textContent = liveWsConnected ? 'Backend: authenticated + live connected.' : 'Backend: authenticated (connecting live)…';
+  }
+}
+
+function renderOnlineUsersWidget() {
+  const countEl = document.getElementById('online-users-count');
+  const listEl = document.getElementById('online-users-list');
+  if (!countEl || !listEl) return;
+
+  // Prefer public list (for users). Admin still sees public list here.
+  const users = Array.isArray(liveOnlinePublic) ? liveOnlinePublic : [];
+  countEl.textContent = String(users.length);
+
+  if (!session?.username) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(login required)</span>';
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(backend not configured)</span>';
+    return;
+  }
+
+  if (!liveWsConnected) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">(connecting…)</span>';
+    return;
+  }
+
+  if (users.length === 0) {
+    listEl.innerHTML = '<span class="text-gray-500 text-xs font-mono">No one online.</span>';
+    return;
+  }
+
+  // Pills
+  listEl.innerHTML = users.map(u => {
+    const name = escapeHTML(u?.username || 'user');
+    return `<span class="admin-pill">🟢 ${name}</span>`;
+  }).join('');
+}
+
+function renderAdminOnlineUsers() {
+  const box = document.getElementById('admin-online-users-list');
+  if (!box) return;
+
+  if (session?.role !== 'admin') {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    return;
+  }
+
+  if (!liveWsConnected) {
+    box.innerHTML = '<div class="admin-help">Connecting…</div>';
+    return;
+  }
+
+  const users = Array.isArray(liveOnlineAdmin) ? liveOnlineAdmin : [];
+  if (users.length === 0) {
+    box.innerHTML = '<div class="admin-help">No users online.</div>';
+    return;
+  }
+
+  box.innerHTML = users.map(u => {
+    const name = escapeHTML(u.username || 'user');
+    const role = escapeHTML(u.role || 'user');
+    const activity = escapeHTML(u.activity || 'Online');
+    const path = u.path ? escapeHTML(String(u.path)) : '';
+    const view = u.view ? escapeHTML(String(u.view)) : '';
+
+    const meta = [activity, view ? ('VIEW: ' + view) : null, path ? ('PATH: ' + path) : null].filter(Boolean).join(' • ');
+
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">🟢 ${name}</div>
+          <div class="admin-list-sub">${meta || ''}</div>
+        </div>
+        <div class="admin-list-right"><span class="admin-pill">${role}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAdminLog() {
+  const box = document.getElementById('admin-activity-log');
+  if (!box) return;
+  if (session?.role !== 'admin') {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    return;
+  }
+  if (!liveWsConnected) {
+    box.innerHTML = '<div class="admin-help">Connecting…</div>';
+    return;
+  }
+
+  const items = Array.isArray(liveAdminLog) ? liveAdminLog.slice(-120) : [];
+  if (items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No activity yet.</div>';
+    return;
+  }
+
+  box.innerHTML = items.slice().reverse().map(it => {
+    const ts = it?.ts ? new Date(it.ts).toLocaleString() : '';
+    const u = escapeHTML(it?.username || '');
+    const m = escapeHTML(it?.message || '');
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">${u ? (u + ' • ') : ''}${escapeHTML(ts)}</div>
+          <div class="admin-list-sub">${m}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function liveRequestAdminRefresh() {
+  if (session?.role !== 'admin') return;
+  safeLiveSend({ type: 'presence:request' });
+  safeLiveSend({ type: 'log:request' });
+}
+
+function scheduleLiveLibraryPush(immediate = false) {
+  if (session?.role !== 'admin') return;
+  if (!liveIsEnabled()) return;
+  if (!liveAuthToken) return;
+
+  const libMs = getLibraryUpdatedAtMs(library);
+  if (libMs <= liveLastLibraryPushedAtMs) return;
+
+  try { if (liveLibraryPushTimer) clearTimeout(liveLibraryPushTimer); } catch (_) {}
+  liveLibraryPushTimer = setTimeout(() => {
+    liveLibraryPushTimer = null;
+    livePushLibraryToBackend();
+  }, immediate ? 10 : 900);
+}
+
+async function livePushLibraryToBackend() {
+  if (session?.role !== 'admin') return;
+  if (!liveIsEnabled()) return;
+  if (!liveAuthToken) return;
+
+  const libMs = getLibraryUpdatedAtMs(library);
+  if (libMs <= liveLastLibraryPushedAtMs) return;
+
+  try {
+    // Don't mutate library.updatedAt here; touchLibrary() already did.
+    await liveApiFetch('/api/library', { method: 'PUT', body: library });
+    liveLastLibraryPushedAtMs = libMs;
+    // Let server broadcast to all clients; admin doesn't need special handling.
+  } catch (err) {
+    console.warn('Live library push failed:', err);
+  }
+}
+
+async function loadLibraryFromBackend() {
+  if (!liveIsEnabled()) return false;
+  try {
+    const json = await liveApiFetch('/api/library', { method: 'GET' });
+    const fetched = normalizeIncomingLibrary(json);
+
+    const fetchedMs = getLibraryUpdatedAtMs(fetched);
+    const currentMs = getLibraryUpdatedAtMs(library);
+    if (fetchedMs && fetchedMs > currentMs) {
+      library = fetched;
+      libraryLoadState = { ok: true, source: 'backend', error: null };
+      persistLibraryToCache();
+      lastAppliedLibraryUpdatedAtMs = fetchedMs;
+      try { refreshUiAfterLibraryChange(); } catch (_) {}
+      try { updateAdminLibraryStatus(); } catch (_) {}
+      return true;
+    }
+    return false;
+  } catch (err) {
+    // ignore
+    return false;
+  }
+}
+
+function emptyLibrary() {
+  return {
+    version: 2,
+    updatedAt: null,
+    folders: [], // array of { path: string, createdAt?: string }
+    quizSets: [], // array of { id, title, folder, createdAt, updatedAt, questions: [] }
+    pdfs: [], // array of { id, title, folder, kind: 'notes'|'archive', src: 'data:application/pdf;base64,...' or URL, createdAt }
+  };
+}
+
+let library = emptyLibrary();
+let libraryLoadState = { ok: false, source: 'empty', error: null };
+
+// Used to avoid overwriting local edits when an async fetch finishes.
+let libraryBootstrappedFromFallback = false;
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function uid(prefix) {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizePath(input) {
+  if (typeof input !== 'string') return '';
+  let p = input.replace(/\\/g, '/');
+  p = p.split('/').map(s => s.trim()).filter(Boolean).join('/');
+  return p;
+}
+
+function samePath(a, b) {
+  return normalizePath(a).toLowerCase() === normalizePath(b).toLowerCase();
+}
+
+function isUnderPath(child, parent) {
+  const c = normalizePath(child).toLowerCase();
+  const p = normalizePath(parent).toLowerCase();
+  if (!p) return true;
+  return c === p || c.startsWith(p + '/');
+}
+
+function parentPath(path) {
+  const p = normalizePath(path);
+  const parts = p.split('/').filter(Boolean);
+  if (parts.length <= 1) return '';
+  return parts.slice(0, -1).join('/');
+}
+
+function baseName(path) {
+  const p = normalizePath(path);
+  const parts = p.split('/').filter(Boolean);
+  return parts[parts.length - 1] || '';
+}
+
+function getAllFolderPaths() {
+  const map = new Map();
+  (library.folders || []).forEach(f => {
+    const p = normalizePath(f?.path || '');
+    if (p) map.set(p.toLowerCase(), p);
+  });
+  (library.quizSets || []).forEach(s => {
+    const p = normalizePath(s?.folder || '');
+    if (p) map.set(p.toLowerCase(), p);
+  });
+  (library.pdfs || []).forEach(p0 => {
+    const p = normalizePath(p0?.folder || '');
+    if (p) map.set(p.toLowerCase(), p);
+  });
+  return Array.from(map.values());
+}
+
+function getImmediateChildFolders(parent) {
+  const parentN = normalizePath(parent);
+  const parentLower = parentN.toLowerCase();
+  const candidates = getAllFolderPaths();
+  const out = new Map(); // lower child path -> {path,name}
+
+  candidates.forEach(fp0 => {
+    const fp = normalizePath(fp0);
+    if (!fp) return;
+    const fl = fp.toLowerCase();
+
+    if (!parentN) {
+      // Root: child is first segment
+      const seg = fp.split('/')[0];
+      if (!seg) return;
+      const child = normalizePath(seg);
+      out.set(child.toLowerCase(), { path: child, name: seg });
+      return;
+    }
+
+    if (fl === parentLower) return;
+    if (!fl.startsWith(parentLower + '/')) return;
+
+    const rest = fp.slice(parentN.length + 1);
+    const seg = rest.split('/')[0];
+    if (!seg) return;
+    const child = normalizePath(parentN + '/' + seg);
+    out.set(child.toLowerCase(), { path: child, name: seg });
+  });
+
+  return Array.from(out.values()).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function ensureFolder(path, lib = library) {
+  // Ensure the full folder path *and its ancestors* exist.
+  // This prevents child folders from appearing outside their parent category.
+  const p = normalizePath(path);
+  if (!p) return false;
+
+  const parts = p.split('/').filter(Boolean);
+  let cur = '';
+  let changed = false;
+
+  for (const part of parts) {
+    cur = cur ? `${cur}/${part}` : part;
+    const exists = lib.folders.some(f => samePath(f.path, cur));
+    if (!exists) {
+      lib.folders.push({ path: cur, createdAt: nowISO() });
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
+function persistLibraryToCache() {
+  try {
+    localStorage.setItem(LIBRARY_CACHE_KEY, JSON.stringify(library));
+    return true;
+  } catch (_) {
+    // ignore quota / private mode
+    return false;
+  }
+}
+
+function touchLibrary() {
+  library.updatedAt = nowISO();
+  const ok = persistLibraryToCache();
+  if (ok) {
+    lastAppliedLibraryUpdatedAtMs = getLibraryUpdatedAtMs(library);
+    broadcastLibraryUpdated();
+  }
+
+  // ✅ Live sync (if backend is configured): push updates to server so all clients update instantly.
+  // Debounced to avoid spamming.
+  try { scheduleLiveLibraryPush(false); } catch (_) {}
+
+  return ok;
+}
+
+function normalizeIncomingLibrary(data) {
+  // Accept v2 (preferred)
+  if (data && typeof data === 'object' && data.version === 2) {
+    const out = emptyLibrary();
+    out.updatedAt = data.updatedAt || null;
+    out.folders = Array.isArray(data.folders) ? data.folders.filter(Boolean).map(f => ({
+      path: normalizePath(f.path || ''),
+      createdAt: f.createdAt || null,
+    })).filter(f => f.path) : [];
+
+    out.quizSets = Array.isArray(data.quizSets) ? data.quizSets.map(s => ({
+      id: String(s.id || uid('qs')),
+      title: String(s.title || 'Untitled'),
+      folder: normalizePath(s.folder || 'GLOBAL'),
+      createdAt: s.createdAt || null,
+      updatedAt: s.updatedAt || null,
+      questions: Array.isArray(s.questions) ? s.questions : [],
+    })) : [];
+
+    out.pdfs = Array.isArray(data.pdfs) ? data.pdfs.map(p => ({
+      id: String(p.id || uid('pdf')),
+      title: String(p.title || 'PDF'),
+      folder: normalizePath(p.folder || 'GLOBAL'),
+      kind: (p.kind === 'archive' ? 'archive' : 'notes'),
+      src: String(p.src || ''),
+      createdAt: p.createdAt || null,
+    })) : [];
+
+    // Folders implied by content
+    out.quizSets.forEach(s => ensureFolder(s.folder, out));
+    out.pdfs.forEach(p => ensureFolder(p.folder, out));
+    return out;
+  }
+
+  // Accept old v1 (from earlier drafts): { quizSets:[], notes:[], archives:[], folders:{...} }
+  if (data && typeof data === 'object' && data.version === 1) {
+    const out = emptyLibrary();
+    out.updatedAt = data.updatedAt || null;
+
+    if (Array.isArray(data.quizSets)) {
+      out.quizSets = data.quizSets.map(s => ({
+        id: String(s.id || uid('qs')),
+        title: String(s.title || 'Untitled'),
+        folder: normalizePath(s.folder || 'GLOBAL'),
+        createdAt: s.createdAt || null,
+        updatedAt: s.updatedAt || null,
+        questions: Array.isArray(s.questions) ? s.questions : [],
+      }));
+    }
+
+    const pdfs = [];
+    if (Array.isArray(data.notes)) {
+      data.notes.forEach(p => pdfs.push({ ...p, kind: 'notes' }));
+    }
+    if (Array.isArray(data.archives)) {
+      data.archives.forEach(p => pdfs.push({ ...p, kind: 'archive' }));
+    }
+
+    out.pdfs = pdfs.map(p => ({
+      id: String(p.id || uid('pdf')),
+      title: String(p.title || 'PDF'),
+      folder: normalizePath(p.folder || 'GLOBAL'),
+      kind: (p.kind === 'archive' ? 'archive' : 'notes'),
+      src: String(p.src || p.dataUrl || p.url || ''),
+      createdAt: p.createdAt || null,
+    }));
+
+    // folders
+    out.quizSets.forEach(s => ensureFolder(s.folder, out));
+    out.pdfs.forEach(p => ensureFolder(p.folder, out));
+    return out;
+  }
+
+  // fallback
+  return emptyLibrary();
+}
+
+function getLibraryUpdatedAtMs(lib) {
+  const t = Date.parse(String(lib?.updatedAt || ''));
+  return Number.isFinite(t) ? t : 0;
+}
+
+function readLibraryCache() {
+  try {
+    const raw = localStorage.getItem(LIBRARY_CACHE_KEY);
+    if (!raw) return null;
+    const json = JSON.parse(raw);
+    return normalizeIncomingLibrary(json);
+  } catch (_) {
+    return null;
+  }
+}
+
+function isOverlayOpen(id) {
+  const el = document.getElementById(id);
+  return !!el && !el.classList.contains('hidden');
+}
+
+function refreshUiAfterLibraryChange() {
+  // Admin panel
+  if (isOverlayOpen('admin-overlay')) {
+    try { updateAdminLibraryStatus(); } catch (_) {}
+    try { adminRefreshAll(); } catch (_) {}
+  }
+
+  // Quiz browser overlay
+  if (isOverlayOpen('quiz-browser-overlay')) {
+    try { renderQuizBrowser(); } catch (_) {}
+  }
+
+  // Notes overlay
+  if (isOverlayOpen('notes-overlay')) {
+    try { renderNotesOverlayList(notesCurrentFolder); } catch (_) {}
+  }
+}
+
+function maybeReloadLibraryFromCache(reason = 'cache') {
+  const cached = readLibraryCache();
+  if (!cached) return false;
+
+  const cachedMs = getLibraryUpdatedAtMs(cached);
+  const currentMs = getLibraryUpdatedAtMs(library);
+  if (cachedMs <= currentMs) return false;
+
+  library = normalizeIncomingLibrary(cached);
+  libraryLoadState = { ok: true, source: 'cache', error: null };
+  lastAppliedLibraryUpdatedAtMs = cachedMs;
+
+  // Keep the UI in sync (user tab should see admin uploads instantly)
+  try { refreshUiAfterLibraryChange(); } catch (_) {}
+  return true;
+}
+
+function broadcastLibraryUpdated() {
+  // localStorage setItem already triggers the `storage` event on other tabs.
+  // BroadcastChannel is used as an extra fast-path.
+  if (!librarySyncChannel) return;
+  try {
+    librarySyncChannel.postMessage({
+      type: 'LIBRARY_UPDATED',
+      updatedAt: library?.updatedAt || null,
+      ms: getLibraryUpdatedAtMs(library),
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
+function initLibraryLiveSync() {
+  if (librarySyncInitialized) return;
+  librarySyncInitialized = true;
+
+  // BroadcastChannel (best) + storage event (fallback)
+  try {
+    librarySyncChannel = new BroadcastChannel(LIBRARY_SYNC_CHANNEL);
+    librarySyncChannel.onmessage = (ev) => {
+      if (ev?.data?.type !== 'LIBRARY_UPDATED') return;
+      // Apply only if it is newer
+      maybeReloadLibraryFromCache('broadcast');
+    };
+  } catch (_) {
+    librarySyncChannel = null;
+  }
+
+  // This fires in *other* tabs when localStorage changes.
+  window.addEventListener('storage', (e) => {
+    if (e?.key !== LIBRARY_CACHE_KEY) return;
+    maybeReloadLibraryFromCache('storage');
+  });
+
+  // When the user returns to the tab, refresh once.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) maybeReloadLibraryFromCache('visibility');
+  });
+}
+
+function loadLibraryFromFallbacks() {
+  const candidates = [];
+
+  // 1) Offline cache (latest local edits)
+  try {
+    const raw = localStorage.getItem(LIBRARY_CACHE_KEY);
+    if (raw) {
+      const json = JSON.parse(raw);
+      const norm = normalizeIncomingLibrary(json);
+      candidates.push({ source: 'cache', lib: norm, ms: getLibraryUpdatedAtMs(norm) });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  // 2) Bundled library.js (offline fallback file)
+  try {
+    const bundled = window[LIBRARY_GLOBAL_VAR];
+    if (bundled && typeof bundled === 'object') {
+      const norm = normalizeIncomingLibrary(bundled);
+      candidates.push({ source: 'bundle', lib: norm, ms: getLibraryUpdatedAtMs(norm) });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  if (candidates.length === 0) return false;
+
+  // Pick newest by updatedAt; tie-breaker: prefer cache (unsaved work).
+  candidates.sort((a, b) => {
+    if (b.ms !== a.ms) return b.ms - a.ms;
+    if (a.source === b.source) return 0;
+    return a.source === 'cache' ? -1 : 1;
+  });
+
+  const best = candidates[0];
+  library = best.lib;
+  libraryLoadState = { ok: true, source: best.source, error: null };
+  libraryBootstrappedFromFallback = true;
+  return true;
+}
+
+async function loadLibraryFromRepo() {
+  const isFile = window.location.protocol === 'file:';
+
+  // Bootstrap from fallbacks first so the UI has *something* immediately.
+  // This also prevents async fetch() from overwriting newer local edits.
+  if (!libraryBootstrappedFromFallback) {
+    loadLibraryFromFallbacks();
+  }
+
+  // If you're running via file:// the browser blocks fetch() for local JSON.
+  // In that case: use offline fallbacks (cache + bundled library.js).
+  if (isFile) {
+    const ok = loadLibraryFromFallbacks();
+    if (!ok) {
+      library = emptyLibrary();
+      libraryLoadState = { ok: false, source: 'empty', error: new Error('file:// cannot fetch library.json') };
+    } else {
+      persistLibraryToCache();
+    }
+
+    updateAdminLibraryStatus();
+    if (!document.getElementById('admin-overlay')?.classList.contains('hidden')) adminRefreshAll();
+    return;
+  }
+
+  // Normal (http/https) load
+  try {
+    const res = await fetch(LIBRARY_FILENAME, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const fetched = normalizeIncomingLibrary(json);
+
+    // If we already have a (newer) cache/bundle edit, keep it.
+    const fetchedMs = getLibraryUpdatedAtMs(fetched);
+    const currentMs = getLibraryUpdatedAtMs(library);
+
+    if (!libraryLoadState.ok || fetchedMs > currentMs) {
+      library = fetched;
+      libraryLoadState = { ok: true, source: 'repo', error: null };
+      persistLibraryToCache();
+    } else {
+      // Keep local copy (cache/bundle/import) because it's newer.
+      libraryLoadState = { ok: true, source: libraryLoadState.source || 'cache', error: null };
+    }
+  } catch (err) {
+    console.warn('Library not found or invalid. Trying offline fallbacks…', err);
+
+    const ok = loadLibraryFromFallbacks();
+    if (!ok) {
+      library = emptyLibrary();
+      libraryLoadState = { ok: false, source: 'empty', error: err };
+      console.warn('Library not found or invalid. Using empty library.', err);
+    } else {
+      persistLibraryToCache();
+    }
+  }
+
+  // Track current version so cross-tab sync can compare properly
+  lastAppliedLibraryUpdatedAtMs = getLibraryUpdatedAtMs(library);
+
+  // Update admin status pill if admin panel exists
+  updateAdminLibraryStatus();
+
+  // Update any open overlay lists
+  if (!document.getElementById('admin-overlay')?.classList.contains('hidden')) {
+    adminRefreshAll();
+  }
+}
+
+function downloadJSON(filename, obj) {
+  const content = JSON.stringify(obj, null, 2);
+  const blob = new Blob([content], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadText(filename, text, mime = 'text/plain') {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Admin “Save” = export current library.json (so it can be uploaded/committed to GitHub)
+function adminSaveLibrary() {
+  if (session.role !== 'admin') {
+    alert('Admin only.');
+    return;
+  }
+
+  // Ensure a fresh updatedAt timestamp for the export.
+  touchLibrary();
+
+  // ✅ Also push to backend (if configured) so clients update instantly.
+  try { scheduleLiveLibraryPush(true); } catch (_) {}
+
+  // Download the JSON (same as Backup → Export library.json)
+  adminExportLibrary();
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// =========================
+// Login / Session
+// =========================
+function findAccount(usernameRaw, passwordRaw) {
+  const u = String(usernameRaw || '').trim();
+  const p = String(passwordRaw || '');
+  return ACCOUNTS.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p) || null;
+}
+
+function showLoginError() {
+  const msg = document.getElementById('login-msg');
+  if (msg) {
+    msg.classList.remove('hidden');
+    msg.classList.add('animate-pulse');
+  }
+}
+
+function hideLoginError() {
+  const msg = document.getElementById('login-msg');
+  if (msg) msg.classList.add('hidden');
+}
+
+function setRememberMe(username, password) {
+  const chk = document.getElementById('rememberMe');
+  if (!chk) return;
+
+  if (chk.checked) {
+    const payload = { username, password };
+    localStorage.setItem('padayon_remember', JSON.stringify(payload));
+  } else {
+    localStorage.removeItem('padayon_remember');
+  }
+}
+
+function initRememberMe() {
+  try {
+    const raw = localStorage.getItem('padayon_remember');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data) return;
+
+    const u = document.getElementById('username');
+    const p = document.getElementById('password');
+    const chk = document.getElementById('rememberMe');
+
+    if (u && typeof data.username === 'string') u.value = data.username;
+    if (p && typeof data.password === 'string') p.value = data.password;
+    if (chk) chk.checked = true;
+  } catch {
+    // ignore
+  }
+}
+
+// === LOGIN LOGIC (called by HTML) ===
+async function verifyLogin() {
+  const userIn = String(document.getElementById('username')?.value || '').trim();
+  const passIn = String(document.getElementById('password')?.value || '');
+
+  const loginPage = document.getElementById('login-page');
+  const landingPage = document.getElementById('landing-page');
+  const msg = document.getElementById('login-msg');
+
+  // Reset any stale backend token from an older login.
+  setLiveToken('');
+
+  if (!userIn || !passIn) {
+    if (msg) {
+      msg.textContent = 'PLEASE ENTER USERNAME AND PASSWORD';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  // Read reCAPTCHA token from the checkbox widget.
+  // Google supports getting the token with grecaptcha.getResponse().
+const captchaToken =
+    (window.grecaptcha && typeof grecaptcha.getResponse === 'function')
+      ? grecaptcha.getResponse()
+      : '';
+
+  if (!captchaToken) {
+    if (msg) {
+      msg.textContent = 'PLEASE CONFIRM YOU ARE NOT A ROBOT';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  let acct = null;
+
+  // IMPORTANT:
+  // Secure login should go through backend verification.
+  // Backend must verify captchaToken with Google using the secret key.
+  if (liveIsEnabled()) {
+    const res = await liveTryBackendLogin(userIn, passIn, captchaToken);
+
+    if (res?.ok) {
+      acct = {
+        username: res.user?.username || userIn,
+        role: res.user?.role || 'user',
+      };
+    } else {
+      if (msg) {
+        msg.textContent = (res?.error?.message || 'INVALID CREDENTIALS OR CAPTCHA FAILED').toUpperCase();
+        msg.classList.remove('hidden');
+      }
+
+      const pw = document.getElementById('password');
+      if (pw) pw.value = '';
+
+      if (window.grecaptcha && typeof grecaptcha.reset === 'function') {
+        grecaptcha.reset();
+      }
+
+      updateLiveStatusUI();
+      return;
+    }
+  } else {
+  if (msg) {
+    msg.textContent = 'BACKEND NOT AVAILABLE';
+    msg.classList.remove('hidden');
+  }
+  return;
+}
+
+  if (msg) msg.classList.add('hidden');
+
+  hideLoginError();
+  session = { username: acct.username, role: acct.role };
+  setRememberMe(userIn, passIn);
+
+  try {
+    liveBackendUrl = getConfiguredBackendUrl();
+    liveAuthToken = getLiveToken();
+    updateLiveStatusUI();
+    liveConnect();
+  } catch (_) {
+    // ignore
+  }
+
+  if (loginPage) {
+    loginPage.style.opacity = '0';
+    loginPage.style.transition = 'opacity 0.5s';
+  }
+
+  setTimeout(() => {
+    if (loginPage) loginPage.style.display = 'none';
+
+    const adminCard = document.getElementById('admin-card');
+    if (adminCard) adminCard.classList.toggle('hidden', session.role !== 'admin');
+
+    const adminQuickImport = document.getElementById('admin-quick-import');
+    if (adminQuickImport) adminQuickImport.classList.toggle('hidden', session.role !== 'admin');
+
+    if (landingPage) landingPage.classList.remove('hidden');
+
+    try { liveSetActivity('Landing', { view: 'LANDING' }); } catch (_) {}
+  }, 500);
+}
+
+function logoutToLogin() {
+  try { liveSetActivity('Logout', { view: 'LOGIN' }); } catch (_) {}
+
+  // Disconnect live backend presence
+  try { liveDisconnect(); } catch (_) {}
+  try { setLiveToken(''); } catch (_) {}
+
+  session = { username: null, role: null };
+
+  // Reset online UI
+  try {
+    liveOnlinePublic = [];
+    liveOnlineAdmin = [];
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    updateLiveStatusUI();
+  } catch (_) {}
+
+  // hide landing page
+  document.getElementById('landing-page')?.classList.add('hidden');
+
+  // hide everything
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+
+  // hide admin overlay
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+
+  // show login
+  const loginPage = document.getElementById('login-page');
+  if (loginPage) {
+    loginPage.style.display = 'block';
+    loginPage.style.opacity = '1';
+  }
+}
+
+// Enter key triggers login
+document.addEventListener('DOMContentLoaded', () => {
+  initRememberMe();
+
+  const pw = document.getElementById('password');
+  if (pw) {
+    pw.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        verifyLogin();
+      }
+    });
+  }
+
+  // Forgot password
+  const forgotLink = document.getElementById('forgotPassLink');
+  if (forgotLink) {
+    forgotLink.addEventListener('click', () => {
+      document.getElementById('forgot-modal')?.classList.remove('hidden');
+      document.getElementById('forgot-username')?.focus();
+    });
+  }
+
+  // Click backdrop to close modal
+  const forgotModal = document.getElementById('forgot-modal');
+  if (forgotModal) {
+    forgotModal.addEventListener('click', (e) => {
+      if (e.target === forgotModal) closeForgotModal();
+    });
+  }
+
+  // Load library as soon as DOM is ready
+  initLibraryLiveSync();
+  loadLibraryFromRepo();
+
+  // Live backend (Render) settings
+  liveBackendUrl = getConfiguredBackendUrl();
+  liveAuthToken = getLiveToken();
+  updateLiveStatusUI();
+
+  // If backend is configured, try loading library from there too.
+  // (This enables true live updates without importing/exporting.)
+  loadLibraryFromBackend();
+});
+
+function closeForgotModal() {
+  document.getElementById('forgot-modal')?.classList.add('hidden');
+}
+
+function sendForgotEmail() {
+  const u = String(document.getElementById('forgot-username')?.value || '').trim();
+  const lp = String(document.getElementById('forgot-lastpass')?.value || '').trim();
+
+  if (!u || !lp) {
+    alert('Please enter username and last password you remember.');
+    return;
+  }
+
+  const subject = encodeURIComponent('PADAYON PORTAL - Forgot Password');
+  const body = encodeURIComponent(
+    `Hi Admin,\n\nI forgot my password.\n\nUsername: ${u}\nLast password I remember: ${lp}\n\nThanks!`
+  );
+
+  // Opens default email client (static site cannot send directly)
+  window.location.href = `mailto:bartnu137@gmail.com?subject=${subject}&body=${body}`;
+
+  closeForgotModal();
+}
+
+// =========================
+// Navigation
+// =========================
+function goToLevel1() {
+  document.getElementById('landing-page')?.setAttribute('style', 'display:none;');
+  document.getElementById('level-1-menu')?.classList.remove('hidden');
+  try { liveSetActivity('Browsing Categories', { view: 'CATEGORIES' }); } catch (_) {}
+}
+
+function goToLevel2(category) {
+  document.getElementById('level-1-menu')?.classList.add('hidden');
+  ['submenu-undergrounds', 'submenu-taypi', 'submenu-exhale', 'submenu-pawer'].forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+  document.getElementById('submenu-' + category)?.classList.remove('hidden');
+  try { liveSetActivity('Open Category', { view: 'MENUS', details: String(category || '').toUpperCase() }); } catch (_) {}
+}
+
+function backToLevel1() {
+  ['submenu-undergrounds', 'submenu-taypi', 'submenu-exhale', 'submenu-pawer'].forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+  document.getElementById('level-1-menu')?.classList.remove('hidden');
+  try { liveSetActivity('Back to Categories', { view: 'CATEGORIES' }); } catch (_) {}
+}
+
+function openTermsMenu() {
+  document.getElementById('submenu-undergrounds')?.classList.add('hidden');
+  document.getElementById('submenu-terms')?.classList.remove('hidden');
+  try { liveSetActivity('Open Terms & Objectives', { view: 'MENUS', details: 'UNDERGROUNDS/TERMS & OBJECTIVES' }); } catch (_) {}
+}
+
+function closeTermsMenu() {
+  document.getElementById('submenu-terms')?.classList.add('hidden');
+  document.getElementById('submenu-undergrounds')?.classList.remove('hidden');
+  try { liveSetActivity('Back to UNDERGROUNDS', { view: 'MENUS' }); } catch (_) {}
+}
+
+function openPastBoardList() {
+  document.getElementById('submenu-terms')?.classList.add('hidden');
+  document.getElementById('submenu-past-board-list')?.classList.remove('hidden');
+  try { liveSetActivity('Open Past Board List', { view: 'MENUS' }); } catch (_) {}
+}
+
+function closePastBoardList() {
+  document.getElementById('submenu-past-board-list')?.classList.add('hidden');
+  document.getElementById('submenu-terms')?.classList.remove('hidden');
+  try { liveSetActivity('Back to Terms List', { view: 'MENUS' }); } catch (_) {}
+}
+
+function callAdminNotice(moduleName) {
+  alert(`${moduleName} is empty.\n\nCall admin to put something here.`);
+}
+
+// =========================
+// Notes / PDF viewer
+// =========================
+let notesBackMenuId = null;
+let notesRootFolder = null;
+let notesCurrentFolder = null;
+let notesCurrentKind = null; // 'notes'|'archive'|'all'
+let notesOverlayTitle = 'NOTES';
+
+function openNotesFolder(folderPath, title, backMenuId, kind = 'notes') {
+  notesBackMenuId = backMenuId;
+  notesRootFolder = normalizePath(folderPath);
+  notesCurrentFolder = notesRootFolder;
+  notesCurrentKind = kind;
+  notesOverlayTitle = title || 'NOTES';
+
+  // Hide back menu
+  if (backMenuId) document.getElementById(backMenuId)?.classList.add('hidden');
+
+  // Render list
+  const titleEl = document.getElementById('notes-overlay-title');
+  if (titleEl) titleEl.textContent = notesOverlayTitle;
+  renderNotesOverlayList();
+
+  document.getElementById('notes-overlay')?.classList.remove('hidden');
+
+  try {
+    const k = (kind === 'archive') ? 'ARCHIVE' : (kind === 'all' ? 'PDFs' : 'NOTES');
+    liveSetActivity('Open ' + k, { view: 'NOTES', path: notesCurrentFolder || notesRootFolder || '' });
+  } catch (_) {}
+}
+
+function closeNotesOverlay() {
+  document.getElementById('notes-overlay')?.classList.add('hidden');
+  if (notesBackMenuId) document.getElementById(notesBackMenuId)?.classList.remove('hidden');
+
+  try { liveSetActivity('Close Notes', { view: currentViewName() }); } catch (_) {}
+
+  notesBackMenuId = null;
+  notesRootFolder = null;
+  notesCurrentFolder = null;
+  notesCurrentKind = null;
+  notesOverlayTitle = 'NOTES';
+}
+
+function notesGoToFolder(folderPath) {
+  const dest = normalizePath(folderPath);
+  if (!dest) return;
+  // Restrict browsing to the root folder passed to openNotesFolder
+  if (notesRootFolder && !isUnderPath(dest, notesRootFolder)) return;
+  notesCurrentFolder = dest;
+  renderNotesOverlayList();
+
+  try { liveSetActivity('Notes: Open Folder', { view: 'NOTES', path: notesCurrentFolder || '' }); } catch (_) {}
+}
+
+function notesGoUp() {
+  const root = normalizePath(notesRootFolder || '');
+  const cur = normalizePath(notesCurrentFolder || root);
+  if (!cur) return;
+  if (samePath(cur, root)) return;
+
+  const parent = parentPath(cur);
+  if (root && !isUnderPath(parent, root)) {
+    notesCurrentFolder = root;
+  } else {
+    notesCurrentFolder = parent || root;
+  }
+  renderNotesOverlayList();
+
+  try { liveSetActivity('Notes: Go Up', { view: 'NOTES', path: notesCurrentFolder || '' }); } catch (_) {}
+}
+
+// BACK button behaviour for Notes:
+// - If inside a subfolder: go up to parent folder
+// - If at the notes root: close the overlay
+function notesBrowserBackOrClose() {
+  const root = normalizePath(notesRootFolder || '');
+  const cur = normalizePath(notesCurrentFolder || root);
+  if (root && cur && !samePath(cur, root)) {
+    notesGoUp();
+    return;
+  }
+  closeNotesOverlay();
+}
+
+function renderNotesOverlayList() {
+  const list = document.getElementById('notes-overlay-list');
+  if (!list) return;
+
+  const root = normalizePath(notesRootFolder || '');
+  const folder = normalizePath(notesCurrentFolder || root || '');
+  const kind = notesCurrentKind || 'notes'; // 'notes' | 'archive' | 'all'
+
+  // path label
+  const pathEl = document.getElementById('notes-overlay-path');
+  if (pathEl) {
+    pathEl.textContent = `PATH: ${folder || 'ROOT'}`;
+  }
+
+  const atRoot = samePath(folder, root);
+
+  const folders = getImmediateChildFolders(folder)
+    .filter(f => (root ? isUnderPath(f.path, root) : true))
+    .filter(f => !samePath(f.path, folder));
+
+  const pdfsHere = (library.pdfs || [])
+    .filter(p => (kind === 'all' ? true : p.kind === kind))
+    .filter(p => {
+      if (isGlobalFolder(p.folder)) return atRoot;
+
+      // IMPORTANT: show PDFs ONLY in the folder they were attached to.
+      // (Previously root view showed PDFs from all subfolders, which caused “duplicate” PDFs
+      // to appear both outside and inside the target folder.)
+      return samePath(p.folder, folder);
+    });
+
+  const cards = [];
+
+  // Folder cards
+  folders.forEach(f => {
+    const pdfCount = (library.pdfs || [])
+      .filter(p => (kind === 'all' ? true : p.kind === kind))
+      .filter(p => isUnderPath(p.folder, f.path)).length;
+
+    cards.push(`
+      <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] transition-all" onclick="notesGoToFolder('${f.path.replace(/'/g, "\\'")}')">
+        <div class="text-4xl mb-4 text-[#00f3ff]">📁</div>
+        <div class="font-bold text-lg">${escapeHTML(f.name)}</div>
+        <div class="text-gray-500 text-xs font-mono mt-2">${pdfCount} PDF${pdfCount === 1 ? '' : 's'}</div>
+      </div>
+    `);
+  });
+
+  // PDF cards
+  pdfsHere.forEach(p => {
+    const safeTitle = escapeHTML(p.title || 'PDF');
+    const sub = escapeHTML(isGlobalFolder(p.folder) ? 'GLOBAL' : (p.folder || 'ROOT'));
+    cards.push(`
+      <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] transition-all" onclick="openPdfOverlay('${p.id.replace(/'/g, "\\'")}')">
+        <div class="text-4xl mb-4 text-[#00f3ff]">📄</div>
+        <div class="font-bold text-lg">${safeTitle}</div>
+        <div class="text-gray-500 text-xs font-mono mt-2">${sub}</div>
+      </div>
+    `);
+  });
+
+  if (cards.length === 0) {
+    list.innerHTML = `
+      <div class="cyber-card p-6 rounded-lg md:col-span-3">
+        <div class="text-gray-300 font-mono text-sm">No PDFs or folders found in <span class="text-[#00f3ff]">${escapeHTML(folder || 'ROOT')}</span>.</div>
+        <div class="text-gray-500 font-mono text-xs mt-2">Ask admin to upload PDFs in Admin Panel → Notes (PDF), or create folders in Admin Panel → Archive Folder.</div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = cards.join('');
+}
+
+function getPdfById(id) {
+  return library.pdfs.find(p => p.id === id) || null;
+}
+
+// If opened from admin, we want to return to admin overlay instead of notes overlay.
+let pdfBackOverlayId = null;
+
+function openPdfOverlay(pdfId, backOverlayId = null) {
+  const pdf = getPdfById(pdfId);
+  if (!pdf) {
+    alert('PDF not found in library.');
+    return;
+  }
+
+  pdfBackOverlayId = backOverlayId;
+
+  // Hide whoever opened it
+  if (backOverlayId) {
+    document.getElementById(backOverlayId)?.classList.add('hidden');
+  }
+
+  // Hide notes overlay too (if it was the opener)
+  document.getElementById('notes-overlay')?.classList.add('hidden');
+
+  const titleEl = document.getElementById('pdf-overlay-title');
+  if (titleEl) titleEl.textContent = pdf.title || 'PDF';
+
+  const frame = document.getElementById('pdf-frame');
+  if (frame) frame.src = pdf.src;
+
+  const dl = document.getElementById('pdf-download');
+  if (dl) {
+    dl.href = pdf.src;
+    const filename = (pdf.title || 'notes').replace(/[^a-z0-9\-\_]+/gi, '_') + '.pdf';
+    dl.setAttribute('download', filename);
+  }
+
+  document.getElementById('pdf-overlay')?.classList.remove('hidden');
+
+  try {
+    liveSetActivity('Open PDF', {
+      view: 'PDF_VIEWER',
+      path: pdf.folder || '',
+      details: pdf.title || 'PDF',
+    });
+  } catch (_) {}
+}
+
+function closePdfOverlay() {
+  document.getElementById('pdf-overlay')?.classList.add('hidden');
+
+  const frame = document.getElementById('pdf-frame');
+  if (frame) frame.src = '';
+
+  if (pdfBackOverlayId) {
+    document.getElementById(pdfBackOverlayId)?.classList.remove('hidden');
+    pdfBackOverlayId = null;
+
+    try { liveSetActivity('Back from PDF', { view: currentViewName() }); } catch (_) {}
+    return;
+  }
+
+  document.getElementById('notes-overlay')?.classList.remove('hidden');
+
+  try { liveSetActivity('Back from PDF', { view: 'NOTES', path: notesCurrentFolder || '' }); } catch (_) {}
+}
+
+function escapeHTML(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+// =========================
+// Custom Quiz Sets Browser
+// =========================
+let quizBrowserBackMenuId = null;
+let quizBrowserRootFolder = null;
+let quizBrowserCurrentFolder = null;
+let quizBrowserTitle = 'QUIZ SETS';
+
+function isGlobalFolder(path) {
+  const p = normalizePath(path).toLowerCase();
+  return p === 'global' || p.startsWith('global/') || p === 'all' || p.startsWith('all/');
+}
+
+function openCustomQuizBrowser(prefixPath, backMenuId, title) {
+  quizBrowserBackMenuId = backMenuId;
+  quizBrowserRootFolder = normalizePath(prefixPath);
+  quizBrowserCurrentFolder = quizBrowserRootFolder;
+  quizBrowserTitle = title || 'QUIZ SETS';
+
+  if (backMenuId) document.getElementById(backMenuId)?.classList.add('hidden');
+
+  const titleEl = document.getElementById('quiz-browser-title');
+  if (titleEl) titleEl.textContent = quizBrowserTitle;
+
+  renderQuizBrowser();
+  document.getElementById('quiz-browser-overlay')?.classList.remove('hidden');
+
+  try {
+    liveSetActivity('Open Quiz Browser', { view: 'QUIZ_BROWSER', path: quizBrowserCurrentFolder || quizBrowserRootFolder || '' });
+  } catch (_) {}
+}
+
+function closeCustomQuizBrowser() {
+  document.getElementById('quiz-browser-overlay')?.classList.add('hidden');
+  if (quizBrowserBackMenuId) document.getElementById(quizBrowserBackMenuId)?.classList.remove('hidden');
+
+  try { liveSetActivity('Close Quiz Browser', { view: currentViewName() }); } catch (_) {}
+
+  quizBrowserBackMenuId = null;
+  quizBrowserRootFolder = null;
+  quizBrowserCurrentFolder = null;
+  quizBrowserTitle = 'QUIZ SETS';
+}
+
+function quizBrowserGoToFolder(folderPath) {
+  const dest = normalizePath(folderPath);
+  if (!dest) return;
+  if (quizBrowserRootFolder && !isUnderPath(dest, quizBrowserRootFolder)) return;
+  quizBrowserCurrentFolder = dest;
+  renderQuizBrowser();
+
+  try { liveSetActivity('Quiz Browser: Open Folder', { view: 'QUIZ_BROWSER', path: quizBrowserCurrentFolder || '' }); } catch (_) {}
+}
+
+function quizBrowserGoUp() {
+  const root = normalizePath(quizBrowserRootFolder || '');
+  const cur = normalizePath(quizBrowserCurrentFolder || root);
+  if (!cur) return;
+  if (samePath(cur, root)) return;
+
+  const parent = parentPath(cur);
+  if (root && !isUnderPath(parent, root)) {
+    quizBrowserCurrentFolder = root;
+  } else {
+    quizBrowserCurrentFolder = parent || root;
+  }
+  renderQuizBrowser();
+
+  try { liveSetActivity('Quiz Browser: Go Up', { view: 'QUIZ_BROWSER', path: quizBrowserCurrentFolder || '' }); } catch (_) {}
+}
+
+// BACK button behaviour for Quiz Browser:
+// - If inside a subfolder: go up to parent folder
+// - If at the category root: close the browser
+function quizBrowserBackOrClose() {
+  const root = normalizePath(quizBrowserRootFolder || '');
+  const cur = normalizePath(quizBrowserCurrentFolder || root);
+  if (root && cur && !samePath(cur, root)) {
+    quizBrowserGoUp();
+    return;
+  }
+  closeCustomQuizBrowser();
+}
+
+function renderQuizBrowser() {
+  const grid = document.getElementById('quiz-browser-list');
+  if (!grid) return;
+
+  const root = normalizePath(quizBrowserRootFolder || '');
+  const folder = normalizePath(quizBrowserCurrentFolder || root || '');
+
+  const pathEl = document.getElementById('quiz-browser-path');
+  if (pathEl) {
+    pathEl.textContent = `PATH: ${folder || 'ROOT'}`;
+  }
+
+  const atRoot = samePath(folder, root);
+
+  const folders = getImmediateChildFolders(folder)
+    .filter(f => (root ? isUnderPath(f.path, root) : true))
+    .filter(f => !samePath(f.path, folder));
+
+  // Show only sets directly inside the current folder.
+  // (GLOBAL sets are shown only at the category root.)
+  const setsHere = (library.quizSets || [])
+    .filter(s => {
+      if (isGlobalFolder(s.folder)) return atRoot;
+      return samePath(s.folder, folder);
+    });
+
+  const cards = [];
+
+  // Folder cards
+  folders.forEach(f => {
+    const setCount = (library.quizSets || []).filter(s => isUnderPath(s.folder, f.path) && !isGlobalFolder(s.folder)).length;
+    cards.push(`
+      <div class="cyber-card p-6 rounded-lg text-center cursor-pointer hover:border-[#00f3ff] transition-all" onclick="quizBrowserGoToFolder('${f.path.replace(/'/g, "\\'")}')">
+        <div class="text-4xl mb-4 text-[#00f3ff]">📁</div>
+        <div class="font-bold text-lg">${escapeHTML(f.name)}</div>
+        <div class="text-gray-500 text-xs font-mono mt-2">${setCount} set${setCount === 1 ? '' : 's'}</div>
+      </div>
+    `);
+  });
+
+  // Set cards
+  setsHere
+    .slice()
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')))
+    .forEach(s => {
+      const title = escapeHTML(s.title);
+      const count = Array.isArray(s.questions) ? s.questions.length : 0;
+      const folderLabel = escapeHTML(isGlobalFolder(s.folder) ? 'GLOBAL' : (s.folder || ''));
+      cards.push(`
+        <div class="cyber-card p-6 rounded-lg cursor-pointer hover:border-[#00f3ff] transition-all duration-200 hover:bg-[#1a1a24] group" onclick="loadQuizCustom('${s.id.replace(/'/g, "\\'")}', '${(quizBrowserBackMenuId || '').replace(/'/g, "\\'")}')">
+          <div class="flex items-center justify-between">
+            <div class="text-3xl text-[#00f3ff]">🧠</div>
+            <div class="text-gray-500 text-xs font-mono">${count} Q</div>
+          </div>
+          <div class="mt-4 font-bold text-lg text-white group-hover:text-[#00f3ff] transition-colors">${title}</div>
+          <div class="text-gray-600 text-[10px] font-mono mt-3">${folderLabel}</div>
+        </div>
+      `);
+    });
+
+  if (cards.length === 0) {
+    grid.innerHTML = `
+      <div class="cyber-card p-6 rounded-lg md:col-span-3">
+        <div class="text-gray-300 font-mono text-sm">No custom quiz sets found in <span class="text-[#00f3ff]">${escapeHTML(folder || 'ROOT')}</span>.</div>
+        <div class="text-gray-500 font-mono text-xs mt-2">Ask admin to create quiz sets in Admin Panel → Quiz Set.</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = cards.join('');
+}
+
+// =========================
+// Quiz Engine
+// =========================
+let currentMode = 'review';
+let currentQuestions = [];
+let userAnswers = {};
+let practiceAttempts = {};
+let examSubmitted = false;
+
+const container = document.getElementById('questions-container');
+const examDashboard = document.getElementById('exam-dashboard');
+const practiceDashboard = document.getElementById('practice-dashboard');
+const scoreDisplay = document.getElementById('score-display');
+const examStatus = document.getElementById('exam-status');
+const submitBtn = document.getElementById('submit-btn');
+
+function loadQuiz(type) {
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+
+  let liveTitle = '';
+
+  if (type === 'math') {
+    currentQuestions = typeof mathData !== 'undefined' ? [...mathData] : [];
+    if (title) {
+      title.innerHTML = 'MATHEMATICS';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'MATHEMATICS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'esas') {
+    currentQuestions = typeof esasData !== 'undefined' ? [...esasData] : [];
+    if (title) {
+      title.innerHTML = 'ESAS';
+      title.className = 'text-[#ff00ff]';
+    }
+    liveTitle = 'ESAS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'ug1') {
+    currentQuestions = typeof esasUG1Data !== 'undefined' ? [...esasUG1Data] : [];
+    if (title) {
+      title.innerHTML = 'PAST BOARD 1';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 1';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug2') {
+    currentQuestions = typeof esasUG2Data !== 'undefined' ? [...esasUG2Data] : [];
+    if (title) {
+      title.innerHTML = 'PAST BOARD 2';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 2';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug3') {
+    currentQuestions = typeof esasUG3Data !== 'undefined' ? [...esasUG3Data] : [];
+    if (title) {
+      title.innerHTML = 'PAST BOARD 3';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 3';
+    activeMenu = 'submenu-past-board-list';
+  } else {
+    alert('Module Under Construction');
+    return;
+  }
+
+  // Hide all overlays (including notes/quiz browser)
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+
+  try {
+    liveSetActivity('Start Built-in Quiz', {
+      view: 'QUIZ_ENGINE',
+      details: liveTitle || String(type || '').toUpperCase(),
+    });
+  } catch (_) {}
+
+  setTimeout(() => {
+    if (app) app.style.opacity = '1';
+  }, 100);
+}
+
+function loadQuizCustom(setId, backMenuId) {
+  const set = library.quizSets.find(s => s.id === setId);
+  if (!set) {
+    alert('Quiz set not found in library.');
+    return;
+  }
+
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+
+  // Deep clone to avoid accidental edits
+  currentQuestions = Array.isArray(set.questions) ? set.questions.map(q => ({
+    id: q.id,
+    key: q.key,
+    topic: q.topic || 'Custom',
+    q: q.q,
+    options: q.options || { a: '', b: '', c: '', d: '' },
+    ans: q.ans || ((q.options && q.key) ? q.options[q.key] : ''),
+    soln: q.soln || '',
+    caltech: q.caltech || null,
+  })) : [];
+
+  if (title) {
+    title.innerHTML = escapeHTML(set.title || 'CUSTOM SET');
+    title.className = 'text-[#00f3ff]';
+  }
+
+  // Set active menu back location
+  activeMenu = backMenuId || quizBrowserBackMenuId || 'level-1-menu';
+
+  // Hide all overlays
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+
+  try {
+    liveSetActivity('Start Custom Quiz', {
+      view: 'QUIZ_ENGINE',
+      path: set.folder || '',
+      details: set.title || 'CUSTOM SET',
+    });
+  } catch (_) {}
+
+  setTimeout(() => {
+    if (app) app.style.opacity = '1';
+  }, 100);
+}
+
+function backToQuizMenu() {
+  const app = document.getElementById('main-app');
+  if (!app) return;
+
+  try { liveSetActivity('Exit Quiz', { view: 'MENUS' }); } catch (_) {}
+
+  app.style.opacity = '0';
+  setTimeout(() => {
+    app.classList.add('hidden');
+    const menu = document.getElementById(activeMenu);
+    if (menu) menu.classList.remove('hidden');
+    else document.getElementById('level-1-menu')?.classList.remove('hidden');
+  }, 500);
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  ['review', 'practice', 'exam'].forEach(m => {
+    const btn = document.getElementById(`btn-${m}`);
+    if (btn) btn.className = `mode-btn ${mode === m ? 'active' : 'inactive'}`;
+  });
+  if (examDashboard) examDashboard.classList.toggle('hidden', mode !== 'exam');
+  if (practiceDashboard) practiceDashboard.classList.toggle('hidden', mode !== 'practice');
+  renderQuestions();
+
+  try {
+    const t = String(document.getElementById('active-module-title')?.innerText || '').trim();
+    const label = t ? (t + ' • ' + mode.toUpperCase()) : mode.toUpperCase();
+    liveSetActivity('Mode Change', { view: 'QUIZ_ENGINE', details: label });
+  } catch (_) {}
+}
+
+function resetExam() {
+  userAnswers = {};
+  examSubmitted = false;
+
+  if (examStatus) {
+    examStatus.innerText = 'RUNNING';
+    examStatus.classList.remove('text-[#00ff9d]');
+    examStatus.classList.add('text-yellow-500');
+  }
+
+  if (scoreDisplay) scoreDisplay.innerText = '--';
+
+  const totalDisplay = document.getElementById('total-score');
+  if (totalDisplay) totalDisplay.innerText = '/ --';
+
+  if (submitBtn) {
+    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    submitBtn.disabled = false;
+  }
+
+  renderQuestions();
+}
+
+function resetPractice() {
+  practiceAttempts = {};
+  renderQuestions();
+}
+
+function selectExamOption(qId, option) {
+  if (examSubmitted) return;
+  userAnswers[qId] = option;
+  renderQuestions();
+}
+
+function selectPracticeOption(qId, option) {
+  if (practiceAttempts[qId]) return;
+  const q = currentQuestions.find(item => item.id === qId);
+  if (!q) return;
+  practiceAttempts[qId] = { selected: option, isCorrect: option === q.key };
+  renderQuestions();
+}
+
+function submitExam() {
+  if (examSubmitted) return;
+  examSubmitted = true;
+
+  let score = 0;
+  currentQuestions.forEach(q => {
+    if (userAnswers[q.id] === q.key) score++;
+  });
+
+  if (scoreDisplay) scoreDisplay.innerText = String(score);
+
+  try {
+    liveSetActivity('Submit Exam', {
+      view: 'QUIZ_ENGINE',
+      details: `Score: ${score}/${currentQuestions.length}`,
+    });
+  } catch (_) {}
+
+  const totalDisplay = document.getElementById('total-score');
+  if (totalDisplay) totalDisplay.innerText = '/ ' + currentQuestions.length;
+
+  if (examStatus) {
+    examStatus.innerText = 'COMPLETED';
+    examStatus.classList.remove('text-yellow-500');
+    examStatus.classList.add('text-[#00ff9d]');
+  }
+
+  if (submitBtn) {
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    submitBtn.disabled = true;
+  }
+
+  renderQuestions();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestions() {
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  currentQuestions.forEach(item => {
+    const isExam = currentMode === 'exam';
+    const isPractice = currentMode === 'practice';
+    const hasCalTech = !!item.caltech;
+
+    let cardClass = 'cyber-card rounded-lg p-6 flex flex-col gap-4';
+    if (isExam && examSubmitted) {
+      const sel = userAnswers[item.id];
+      if (sel === item.key) cardClass += ' correct';
+      else if (sel) cardClass += ' wrong';
+    }
+    if (isPractice && practiceAttempts[item.id]) {
+      if (practiceAttempts[item.id].isCorrect) cardClass += ' correct';
+      else cardClass += ' wrong';
+    }
+
+    const caltechBadge = `<span class="bg-gray-800 border border-[#00f3ff] text-[#00f3ff] text-xs px-2 py-1 rounded font-mono flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse"></span> CALTECH</span>`;
+
+    const topicText = escapeHTML(item.topic || '');
+
+    let html = `
+      <div class="flex justify-between items-start">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl font-bold text-gray-700 font-mono">#${item.id}</span>
+          ${topicText ? `<span class="text-xs text-[#ff00ff] border border-[#ff00ff] px-2 rounded uppercase tracking-wider">${topicText}</span>` : ''}
+        </div>
+        ${(currentMode !== 'exam' && hasCalTech) ? caltechBadge : ''}
+      </div>
+      <div class="text-lg font-medium text-gray-200">${item.q}</div>
+    `;
+
+    if (isExam || isPractice) {
+      html += `<div class="opt-container">`;
+      ['a', 'b', 'c', 'd'].forEach(key => {
+        let btnClass = 'opt-btn';
+        let onclick = '';
+
+        if (isExam) {
+          onclick = `selectExamOption(${item.id}, '${key}')`;
+          const sel = userAnswers[item.id];
+          if (examSubmitted) {
+            if (key === item.key) btnClass += ' correct-ans';
+            else if (sel === key) btnClass += ' wrong-ans';
+            else btnClass += ' dimmed';
+          } else if (sel === key) {
+            btnClass += ' selected';
+          }
+        } else if (isPractice) {
+          onclick = `selectPracticeOption(${item.id}, '${key}')`;
+          const attempt = practiceAttempts[item.id];
+          if (attempt) {
+            if (key === item.key) btnClass += ' correct-ans';
+            else if (attempt.selected === key) btnClass += ' wrong-ans';
+            else btnClass += ' dimmed';
+          }
+        }
+
+        html += `
+          <div onclick="${onclick}" class="${btnClass}">
+            <div class="opt-letter">${key.toUpperCase()}</div>
+            <div class="flex-1">${item.options?.[key] || ('Option ' + key)}</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+
+      const showSoln = (isExam && examSubmitted) || (isPractice && practiceAttempts[item.id]);
+      if (showSoln) {
+        html += `
+          <div class="mt-4 pt-4 border-t border-gray-800 text-sm animate-fade-in">
+            <div class="text-gray-300 bg-gray-900/80 p-3 rounded border-l-2 border-[#00ff9d]">
+              <div class="text-[#00ff9d] text-xs font-bold mb-1">SOLUTION:</div>
+              ${item.soln || '<span class="text-gray-500">(no solution provided)</span>'}
+            </div>
+            ${item.caltech ? `<div class="mt-2 bg-[#1a1a24] p-2 rounded border border-gray-700 font-mono text-xs text-gray-400">⌨️ ${item.caltech}</div>` : ''}
+          </div>
+        `;
+      }
+    } else {
+      html += `
+        <div class="mt-2 p-3 bg-black/40 border-l-2 border-yellow-500 text-yellow-500 font-mono text-sm">
+          ANSWER: ${item.ans || ''} <span class="text-gray-500 text-xs ml-2">[Option ${(item.key || '').toUpperCase()}]</span>
+        </div>
+        <button onclick="document.getElementById('soln-${item.id}').classList.toggle('hidden')" 
+          class="mt-auto w-full py-2 bg-[#1f1f2e] hover:bg-[#2d2d3a] text-gray-300 text-sm font-bold uppercase tracking-widest transition-colors border-t border-gray-700 flex justify-center items-center gap-2">
+          <span>View Protocol</span>
+        </button>
+        <div id="soln-${item.id}" class="hidden pt-4 border-t border-gray-800 space-y-4">
+          <div class="text-gray-400 text-sm">
+            <strong class="text-[#00f3ff]">SOLUTION:</strong><br>
+            <div class="mt-2">${item.soln || '<span class="text-gray-500">(no solution provided)</span>'}</div>
+          </div>
+          ${item.caltech ? `<div class="bg-[#1a1a24] p-3 rounded border border-gray-700 font-mono text-sm text-gray-300 leading-8">${item.caltech}</div>` : ''}
+        </div>
+      `;
+    }
+
+    const el = document.createElement('div');
+    el.className = cardClass;
+    el.innerHTML = html;
+    container.appendChild(el);
+  });
+
+  if (window.MathJax) MathJax.typesetPromise();
+}
+
+// =========================
+// Admin Panel
+// =========================
+let adminTab = 'content';
+let adminCreateType = 'quiz'; // quiz|notes|folder
+let adminSelectedQuizSetId = '';
+
+function openAdminPanel() {
+  if (session.role !== 'admin') {
+    alert('Admin access only.');
+    return;
+  }
+
+  // Hide all menus and quiz app
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+
+  // Show admin
+  document.getElementById('admin-overlay')?.classList.remove('hidden');
+  setAdminTab('content');
+
+  try { liveSetActivity('Open Admin Panel', { view: 'ADMIN' }); } catch (_) {}
+  try { liveRequestAdminRefresh(); } catch (_) {}
+
+  updateAdminLibraryStatus();
+  showLibraryHintIfNeeded();
+  adminRefreshAll();
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+  document.getElementById('level-1-menu')?.classList.remove('hidden');
+
+  try { liveSetActivity('Close Admin Panel', { view: 'CATEGORIES' }); } catch (_) {}
+}
+
+function updateAdminLibraryStatus() {
+  const pill = document.getElementById('admin-library-status');
+  if (!pill) return;
+
+  if (libraryLoadState.ok) {
+    const src = libraryLoadState.source;
+    const srcLabel =
+      src === 'repo' ? LIBRARY_FILENAME :
+      src === 'bundle' ? LIBRARY_JS_FILENAME :
+      src === 'cache' ? 'OFFLINE CACHE' :
+      String(src || 'UNKNOWN');
+    pill.textContent = `LIBRARY: LOADED (${srcLabel})`;
+    pill.style.borderColor = 'rgba(0, 255, 157, 0.55)';
+  } else {
+    pill.textContent = 'LIBRARY: EMPTY (import in Backup)';
+    pill.style.borderColor = 'rgba(255, 0, 85, 0.55)';
+  }
+
+  showLibraryHintIfNeeded();
+}
+
+function showLibraryHintIfNeeded() {
+  const hint = document.getElementById('admin-library-hint');
+  if (!hint) return;
+
+  const isFile = window.location.protocol === 'file:';
+  const src = libraryLoadState.source;
+
+  if (!libraryLoadState.ok && isFile) {
+    hint.classList.remove('hidden');
+    hint.textContent = "You're opening via file://, so the browser blocks fetch() for library.json. Use a local server (VSCode Live Server / python -m http.server) OR use library.js (offline bundle).";
+    return;
+  }
+
+  if (!libraryLoadState.ok) {
+    hint.classList.remove('hidden');
+    hint.textContent = "library.json not found (or invalid). You can import one in Backup tab, then export a fresh library.json.";
+    return;
+  }
+
+  // If we loaded from offline bundle/cache, show a helpful note.
+  if (isFile && (src === 'bundle' || src === 'cache')) {
+    hint.classList.remove('hidden');
+    hint.textContent = "Offline mode: loaded library from " + (src === 'bundle' ? "library.js" : "offline cache") + ". To share on GitHub Pages: export library.json and commit it.";
+    return;
+  }
+
+  hint.classList.add('hidden');
+}
+
+function setAdminTab(tab) {
+  adminTab = tab;
+
+  // tabs
+  const tabs = {
+    content: 'admin-tab-content',
+    accounts: 'admin-tab-accounts',
+    logs: 'admin-tab-logs',
+    backup: 'admin-tab-backup',
+  };
+
+  Object.entries(tabs).forEach(([k, id]) => {
+    document.getElementById(id)?.classList.toggle('hidden', k !== tab);
+  });
+
+  // nav active
+  const navMap = {
+    content: 'admin-nav-content',
+    accounts: 'admin-nav-accounts',
+    logs: 'admin-nav-logs',
+    backup: 'admin-nav-backup',
+  };
+  Object.values(navMap).forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(navMap[tab])?.classList.add('active');
+
+  // ✅ Live backend tab refresh
+  try {
+    if (tab === 'logs') {
+      adminRefreshBackendUrlUI();
+      renderAdminOnlineUsers();
+      renderAdminLog();
+      liveRequestAdminRefresh();
+    }
+    if (tab === 'accounts') {
+      adminRefreshServerAccounts();
+    }
+  } catch (_) {
+    // ignore
+  }
+}
+
+// =========================
+// Admin: Server Accounts (Render backend)
+// =========================
+async function adminRefreshServerAccounts() {
+  const box = document.getElementById('admin-server-accounts-list');
+  const status = document.getElementById('admin-account-status');
+
+  if (!box) return;
+
+  if (session?.role !== 'admin') {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    if (status) status.textContent = 'Admin only.';
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    box.innerHTML = '<div class="admin-help">Backend URL not set.</div>';
+    if (status) status.textContent = 'Backend: URL not set.';
+    return;
+  }
+
+  if (!liveAuthToken) {
+    box.innerHTML = '<div class="admin-help">Login to backend required (no token).</div>';
+    if (status) status.textContent = 'Backend: not authenticated (login required).';
+    return;
+  }
+
+  box.innerHTML = '<div class="admin-help">Loading…</div>';
+  if (status) status.textContent = liveWsConnected ? 'Backend: connected.' : 'Backend: authenticated (loading accounts)…';
+
+  try {
+    const json = await liveApiFetch('/api/accounts', { method: 'GET' });
+    const accounts = Array.isArray(json?.accounts) ? json.accounts : (Array.isArray(json) ? json : []);
+
+    if (accounts.length === 0) {
+      box.innerHTML = '<div class="admin-help">No server accounts yet.</div>';
+      if (status) status.textContent = 'Server accounts: 0';
+      return;
+    }
+
+    box.innerHTML = accounts.map(a => {
+      const u = escapeHTML(a.username || 'user');
+      const r = escapeHTML(a.role || 'user');
+      const created = a.createdAt ? new Date(a.createdAt).toLocaleString() : '';
+      return `
+        <div class="admin-list-item">
+          <div class="admin-list-left">
+            <div class="admin-list-title">${u}</div>
+            <div class="admin-list-sub">Role: ${r}${created ? (' • Created: ' + escapeHTML(created)) : ''}</div>
+          </div>
+          <div class="admin-list-right"><span class="admin-pill">${r}</span></div>
+        </div>
+      `;
+    }).join('');
+
+    if (status) status.textContent = `Server accounts: ${accounts.length}`;
+  } catch (err) {
+    console.warn(err);
+    box.innerHTML = `<div class="admin-help">Failed to load accounts. ${escapeHTML(String(err?.message || err))}</div>`;
+    if (status) status.textContent = 'Failed to load server accounts.';
+  }
+}
+
+async function adminCreateAccountServer() {
+  const status = document.getElementById('admin-account-status');
+
+  if (session?.role !== 'admin') {
+    alert('Admin only.');
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    alert('Backend URL not set. Set it in Admin → Online & Logs (Backend URL), or set window.PADAYON_BACKEND_URL in index.html.');
+    return;
+  }
+
+  if (!liveAuthToken) {
+    alert('Backend login required (no token). Login again while backend is configured.');
+    return;
+  }
+
+  const u = String(document.getElementById('admin-create-username')?.value || '').trim();
+  const p = String(document.getElementById('admin-create-password')?.value || '');
+  const r = String(document.getElementById('admin-create-role')?.value || 'user');
+
+  if (!u || !p) {
+    alert('Enter username and password.');
+    return;
+  }
+
+  try {
+    if (status) status.textContent = 'Creating…';
+    await liveApiFetch('/api/accounts', {
+      method: 'POST',
+      body: { username: u, password: p, role: (r === 'admin' ? 'admin' : 'user') },
+    });
+
+    // Clear password
+    const pw = document.getElementById('admin-create-password');
+    if (pw) pw.value = '';
+
+    if (status) status.textContent = `Created account: ${u}`;
+    await adminRefreshServerAccounts();
+  } catch (err) {
+    console.warn(err);
+    if (status) status.textContent = 'Create failed: ' + String(err?.message || err);
+    alert('Create failed: ' + String(err?.message || err));
+  }
+}
+
+function setAdminCreateType(type) {
+  adminCreateType = type;
+
+  // highlight type cards
+  const cards = {
+    quiz: 'admin-type-quiz',
+    notes: 'admin-type-notes',
+    folder: 'admin-type-folder',
+  };
+
+  Object.entries(cards).forEach(([t, id]) => {
+    document.getElementById(id)?.classList.toggle('active', t === type);
+    // dot
+    const dot = document.querySelector(`#${id} .admin-type-dot`);
+    if (dot) dot.classList.toggle('on', t === type);
+  });
+
+  // show/hide panels
+  document.getElementById('admin-panel-quiz')?.classList.toggle('hidden', type !== 'quiz');
+  document.getElementById('admin-panel-notes')?.classList.toggle('hidden', type !== 'notes');
+  document.getElementById('admin-panel-folder')?.classList.toggle('hidden', type !== 'folder');
+
+  // refresh lists for the active panel
+  adminRefreshAll();
+}
+
+function getAdminTargetPath() {
+  return normalizePath(document.getElementById('admin-target-path')?.value || '');
+}
+
+function setAdminTargetPath(path) {
+  const el = document.getElementById('admin-target-path');
+  const p = normalizePath(path);
+  if (el) el.value = p;
+
+  // If an admin selects/types a nested path that doesn't exist yet,
+  // create the folder chain so it stays inside the correct category.
+  // (No-op if it already exists.)
+  if (p) {
+    const changed = ensureFolder(p);
+    if (changed) touchLibrary();
+  }
+}
+
+function adminComputePathVisibility(path) {
+  const p = normalizePath(path);
+  const pl = p.toLowerCase();
+  if (!p) return ['ROOT (not linked to a menu)'];
+  if (isGlobalFolder(p)) return ['GLOBAL (shows in all quiz browsers & notes roots)'];
+
+  const vis = [];
+  const add = (prefix, label) => {
+    if (pl.startsWith(prefix.toLowerCase())) vis.push(label);
+  };
+
+  add('UNDERGROUNDS/FORMULAS', 'UNDERGROUNDS → FORMULAS (Notes)');
+  add('UNDERGROUNDS/CALCULATOR TECHNIQUES', 'UNDERGROUNDS → CALCULATOR TECHNIQUES (Notes)');
+  add('UNDERGROUNDS/PROBLEM EXERCISES', 'UNDERGROUNDS → PROBLEM EXERCISES (Quiz Sets)');
+
+  // EXHALE FILE (separate roots)
+  add('EXHALE FILE/NOTES', 'EXHALE FILE → NOTES (PDF Notes)');
+  add('EXHALE FILE/PRACTICE QUIZ', 'EXHALE FILE → PRACTICE QUIZ (Quiz Sets)');
+  add('EXHALE FILE/EXAM', 'EXHALE FILE → EXAM (Quiz Sets)');
+
+  // PAWER-LAYN FILE (separate roots)
+  add('PAWER-LAYN FILE/NOTES', 'PAWER-LAYN FILE → NOTES (PDF Notes)');
+  add('PAWER-LAYN FILE/PRACTICE QUIZ', 'PAWER-LAYN FILE → PRACTICE QUIZ (Quiz Sets)');
+  add('PAWER-LAYN FILE/EXAM', 'PAWER-LAYN FILE → EXAM (Quiz Sets)');
+
+  // T-AY-PI custom quiz-set browser
+  add('T-AY-PI', 'T-AY-PI (Quiz Sets)');
+
+  if (vis.length === 0) {
+    vis.push('Custom path (not linked in UI yet)');
+  }
+  return vis;
+}
+
+// Admin "Quick Pick" should include categories + subcategories, and stay up-to-date
+// when new folders are created.
+const ADMIN_QUICK_PICK_PRESETS = [
+  'GLOBAL',
+
+  // Main menu categories
+  'UNDERGROUNDS',
+  'T-AY-PI',
+  'EXHALE FILE',
+  'PAWER-LAYN FILE',
+
+  // UnderGrounds (notes + quiz sets)
+  'UNDERGROUNDS/FORMULAS',
+  'UNDERGROUNDS/CALCULATOR TECHNIQUES',
+  'UNDERGROUNDS/PROBLEM EXERCISES',
+  'UNDERGROUNDS/TERMS & OBJECTIVES',
+
+  // T-AY-PI (notes + quiz sets)
+  'T-AY-PI/MATHEMATICS',
+  'T-AY-PI/ESAS',
+  'T-AY-PI/EE',
+  'T-AY-PI/OTHERS',
+
+  // EXHALE FILES (notes + quiz sets)
+  'EXHALE FILE/NOTES',
+  'EXHALE FILE/PRACTICE QUIZ',
+  'EXHALE FILE/EXAM',
+
+  // PAWER-LAYN FILES (notes + quiz sets)
+  'PAWER-LAYN FILE/NOTES',
+  'PAWER-LAYN FILE/PRACTICE QUIZ',
+  'PAWER-LAYN FILE/EXAM',
+];
+
+// Extract every built-in category/subcategory path already linked in the UI.
+// This keeps the Quick Pick complete without having to manually maintain a giant list.
+let _cachedUiFolderPaths = null;
+function adminCollectUiFolderPaths() {
+  if (_cachedUiFolderPaths) return _cachedUiFolderPaths.slice();
+
+  const out = new Set();
+  try {
+    const nodes = document.querySelectorAll('[onclick]');
+    const re = /(openCustomQuizBrowser|openNotesFolder)\s*\(\s*(['"`])([^'"`]+?)\2/g;
+
+    nodes.forEach(el => {
+      const code = String(el.getAttribute('onclick') || '');
+      let m;
+      while ((m = re.exec(code))) {
+        const p = normalizePath(m[3]);
+        if (p) out.add(p);
+      }
+    });
+  } catch (e) {
+    // ignore
+  }
+
+  _cachedUiFolderPaths = Array.from(out);
+  return _cachedUiFolderPaths.slice();
+}
+
+function expandWithAncestors(paths) {
+  const out = new Set();
+  for (const p of paths || []) {
+    const n = normalizePath(p);
+    if (!n) continue;
+    const parts = n.split('/').filter(Boolean);
+    for (let i = 1; i <= parts.length; i++) {
+      out.add(parts.slice(0, i).join('/'));
+    }
+  }
+  return Array.from(out);
+}
+
+function uniquePaths(paths) {
+  const out = [];
+  const seen = new Set();
+  for (const p of paths || []) {
+    const n = normalizePath(p);
+    if (!n) continue;
+    const k = n.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(n);
+  }
+  return out;
+}
+
+function adminGetQuickPickPaths() {
+  const presets = ADMIN_QUICK_PICK_PRESETS.map(normalizePath).filter(Boolean);
+  const fromUI = adminCollectUiFolderPaths().map(normalizePath).filter(Boolean);
+  const fromLibrary = getAllFolderPaths(library).map(normalizePath).filter(Boolean);
+
+  // Include category + subcategory levels automatically by adding all ancestor paths.
+  return uniquePaths(expandWithAncestors([...presets, ...fromUI, ...fromLibrary]));
+}
+
+function adminRefreshQuickPickOptions() {
+  const sel = document.getElementById('admin-quick-pick');
+  if (!sel) return;
+
+  const current = getAdminTargetPath() || '';
+  const all = adminGetQuickPickPaths();
+
+  // Prefer GLOBAL at the top; keep everything else alphabetically.
+  const sorted = all.slice().sort((a, b) => {
+    if (a === 'GLOBAL') return -1;
+    if (b === 'GLOBAL') return 1;
+    return a.localeCompare(b);
+  });
+
+  sel.innerHTML = '';
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Quick pick: choose a folder…';
+  sel.appendChild(placeholder);
+
+  for (const p of sorted) {
+    const opt = document.createElement('option');
+    opt.value = p;
+    const depth = p.split('/').filter(Boolean).length;
+    const indent = '\u00A0\u00A0'.repeat(Math.max(0, depth - 1));
+    opt.textContent = indent + p;
+    sel.appendChild(opt);
+  }
+
+  // Restore selection if possible.
+  if (current && Array.from(sel.options).some(o => samePath(o.value, current))) {
+    sel.value = current;
+  } else {
+    sel.value = '';
+  }
+}
+
+function adminUpdatePathHelpers() {
+  const p = getAdminTargetPath();
+
+  const normEl = document.getElementById('admin-path-normalized');
+  if (normEl) normEl.textContent = p || '(root)';
+
+  const visEl = document.getElementById('admin-path-visibility');
+  if (visEl) visEl.textContent = adminComputePathVisibility(p).join(' • ');
+}
+
+async function adminCopyTargetPath() {
+  const p = getAdminTargetPath();
+  if (!p) {
+    alert('Target path is empty.');
+    return;
+  }
+
+  // Clipboard API needs secure context; fall back to textarea copy.
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(p);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = p;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    alert('Copied target path.');
+  } catch (err) {
+    console.warn(err);
+    alert('Copy failed. You can manually select and copy the Target path input.');
+  }
+}
+
+function adminPreviewQuizSets() {
+  const p = getAdminTargetPath() || '';
+  openCustomQuizBrowser(p, 'admin-overlay', 'PREVIEW QUIZ SETS');
+}
+
+function adminPreviewPdfs() {
+  const p = getAdminTargetPath() || '';
+  openNotesFolder(p, 'PREVIEW PDFs', 'admin-overlay', 'all');
+}
+
+function adminRefreshAll() {
+  adminRefreshQuickPickOptions();
+  adminUpdatePathHelpers();
+  adminRefreshFolderList();
+  adminRefreshQuizSetSelect();
+  adminRefreshPdfList();
+  adminUpdateQuestionCount();
+}
+
+function adminRefreshFolderList() {
+  const box = document.getElementById('admin-folder-list');
+  if (!box) return;
+
+  const base = getAdminTargetPath();
+  const children = getImmediateChildFolders(base);
+
+  if (children.length === 0) {
+    box.innerHTML = '<div class="admin-list-item"><div class="admin-list-left"><div class="admin-list-title">No subfolders</div><div class="admin-list-sub">Create one above, or type a deeper Target path.</div></div></div>';
+    return;
+  }
+
+  box.innerHTML = children.map(f => {
+    const sets = (library.quizSets || []).filter(s => isUnderPath(s.folder, f.path) && !isGlobalFolder(s.folder)).length;
+    const pdfs = (library.pdfs || []).filter(p => isUnderPath(p.folder, f.path) && !isGlobalFolder(p.folder)).length;
+    const meta = `${sets} set${sets === 1 ? '' : 's'} • ${pdfs} pdf${pdfs === 1 ? '' : 's'}`;
+    return `
+      <div class="admin-list-item" onclick="setAdminTargetPath('${f.path.replace(/'/g, "\\'")}'); adminRefreshAll();">
+        <div class="admin-list-left">
+          <div class="admin-list-title">📁 ${escapeHTML(f.name)}</div>
+          <div class="admin-list-sub">${escapeHTML(f.path)} • ${escapeHTML(meta)}</div>
+        </div>
+        <div class="admin-list-right"><span class="admin-pill">OPEN</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function adminRefreshQuizSetSelect() {
+  const sel = document.getElementById('admin-quiz-select');
+  if (!sel) return;
+
+  const current = adminSelectedQuizSetId;
+
+  // rebuild options
+  sel.innerHTML = '<option value="">-- Select existing set --</option>';
+  library.quizSets
+    .slice()
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `${s.title}  [${s.folder}]`;
+      sel.appendChild(opt);
+    });
+
+  if (current) sel.value = current;
+}
+
+function adminGetSelectedSet() {
+  if (!adminSelectedQuizSetId) return null;
+  return library.quizSets.find(s => s.id === adminSelectedQuizSetId) || null;
+}
+
+function adminUpdateQuestionCount() {
+  const countEl = document.getElementById('admin-q-count');
+  if (!countEl) return;
+
+  const set = adminGetSelectedSet();
+  const n = set?.questions?.length || 0;
+  countEl.textContent = String(n);
+}
+
+function adminSelectQuizSet(setId) {
+  adminSelectedQuizSetId = setId || '';
+  const sel = document.getElementById('admin-quiz-select');
+  if (sel) sel.value = adminSelectedQuizSetId;
+  adminUpdateQuestionCount();
+}
+
+function adminCreateQuizSet() {
+  const titleEl = document.getElementById('admin-quiz-title');
+  const title = String(titleEl?.value || '').trim();
+  if (!title) {
+    alert('Enter a quiz set title.');
+    return;
+  }
+
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  const set = {
+    id: uid('qs'),
+    title,
+    folder,
+    createdAt: nowISO(),
+    updatedAt: nowISO(),
+    questions: [],
+  };
+
+  library.quizSets.push(set);
+  touchLibrary();
+
+  if (titleEl) titleEl.value = '';
+
+  adminRefreshQuizSetSelect();
+  adminSelectQuizSet(set.id);
+
+  alert(`Quiz set created: ${set.title}  [${set.folder}]`);
+}
+
+function adminMoveSelectedQuizSet() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const movePathEl = document.getElementById('admin-quiz-move-path');
+  const raw = String(movePathEl?.value || '').trim();
+  const target = raw ? normalizePath(raw) : getAdminTargetPath();
+
+  if (!target) {
+    alert('Enter a folder path (or set Target folder path).');
+    return;
+  }
+
+  ensureFolder(target);
+
+  set.folder = target;
+  set.updatedAt = nowISO();
+  touchLibrary();
+
+  if (movePathEl) movePathEl.value = '';
+  adminRefreshQuizSetSelect();
+  adminSelectQuizSet(set.id);
+
+  alert('Moved quiz set.');
+}
+
+function adminDeleteSelectedQuizSet() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const alsoQuestions = !!document.getElementById('admin-quiz-delete-questions')?.checked;
+
+  if (!confirm(`Delete selected quiz set: "${set.title}"?`)) return;
+
+  if (alsoQuestions) {
+    // remove entire set
+    library.quizSets = library.quizSets.filter(s => s.id !== set.id);
+  } else {
+    // keep set, clear questions
+    set.questions = [];
+    set.updatedAt = nowISO();
+  }
+
+  touchLibrary();
+
+  adminSelectedQuizSetId = '';
+  adminRefreshQuizSetSelect();
+  adminUpdateQuestionCount();
+
+  alert('Deleted.');
+}
+
+function adminExportSelectedQuizSet() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const payload = {
+    format: 'PADAYON_QUIZSET_V1',
+    title: set.title,
+    folder: set.folder,
+    exportedAt: nowISO(),
+    questions: Array.isArray(set.questions) ? set.questions : [],
+  };
+
+  const safe = set.title.replace(/[^a-z0-9\-\_]+/gi, '_');
+  downloadJSON(`${safe || 'quiz_set'}.json`, payload);
+}
+
+function sanitizeQuestion(q, nextId) {
+  const topic = String(q.topic || '').trim();
+  const text = String(q.q || q.question || '').trim();
+  const opts = q.options || q.choices || {};
+
+  const a = String(opts.a ?? opts.A ?? q.a ?? '').trim();
+  const b = String(opts.b ?? opts.B ?? q.b ?? '').trim();
+  const c = String(opts.c ?? opts.C ?? q.c ?? '').trim();
+  const d = String(opts.d ?? opts.D ?? q.d ?? '').trim();
+
+  const keyRaw = String(q.key || q.correct || '').trim().toLowerCase();
+  const key = ['a', 'b', 'c', 'd'].includes(keyRaw) ? keyRaw : 'a';
+
+  const options = { a, b, c, d };
+  const ans = String(q.ans || options[key] || '').trim();
+
+  return {
+    id: Number.isFinite(q.id) ? q.id : nextId,
+    topic: topic || 'Custom',
+    q: text,
+    options,
+    key,
+    ans,
+    soln: String(q.soln || q.solution || '').trim(),
+    caltech: q.caltech != null ? String(q.caltech) : null,
+  };
+}
+
+async function adminImportQuestionsJson() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const fileEl = document.getElementById('admin-import-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a JSON file first.');
+    return;
+  }
+
+  try {
+    const text = await readFileAsText(file);
+    const json = JSON.parse(text);
+
+    let questions = [];
+    if (Array.isArray(json)) questions = json;
+    else if (json && Array.isArray(json.questions)) questions = json.questions;
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      alert('No questions found in JSON.');
+      return;
+    }
+
+    const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
+    let nextId = maxExistingId + 1;
+
+    const sanitized = questions
+      .map(q => sanitizeQuestion(q, nextId++))
+      .filter(q => q.q);
+
+    if (sanitized.length === 0) {
+      alert('Questions imported, but all were empty after sanitizing.');
+      return;
+    }
+
+    set.questions = Array.isArray(set.questions) ? set.questions.concat(sanitized) : sanitized;
+    set.updatedAt = nowISO();
+    touchLibrary();
+
+    if (fileEl) fileEl.value = '';
+
+    adminUpdateQuestionCount();
+    alert(`Imported ${sanitized.length} question(s).`);
+  } catch (err) {
+    console.error(err);
+    alert('Invalid JSON file.');
+  }
+}
+
+function adminClearQuestionBuilder() {
+  const ids = ['admin-q-topic', 'admin-q-text', 'admin-q-a', 'admin-q-b', 'admin-q-c', 'admin-q-d', 'admin-q-soln', 'admin-q-caltech'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const correct = document.getElementById('admin-q-correct');
+  if (correct) correct.value = 'a';
+}
+
+function adminAddQuestion() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const topic = String(document.getElementById('admin-q-topic')?.value || '').trim();
+  const text = String(document.getElementById('admin-q-text')?.value || '').trim();
+  const a = String(document.getElementById('admin-q-a')?.value || '').trim();
+  const b = String(document.getElementById('admin-q-b')?.value || '').trim();
+  const c = String(document.getElementById('admin-q-c')?.value || '').trim();
+  const d = String(document.getElementById('admin-q-d')?.value || '').trim();
+  const soln = String(document.getElementById('admin-q-soln')?.value || '').trim();
+  const caltech = String(document.getElementById('admin-q-caltech')?.value || '').trim();
+  const key = String(document.getElementById('admin-q-correct')?.value || 'a').toLowerCase();
+
+  if (!text) {
+    alert('Question text is required.');
+    return;
+  }
+  if (!a || !b || !c || !d) {
+    alert('Please fill Options A, B, C, and D.');
+    return;
+  }
+
+  const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
+  const id = maxExistingId + 1;
+
+  const q = {
+    id,
+    topic: topic || 'Custom',
+    q: text,
+    options: { a, b, c, d },
+    key: ['a', 'b', 'c', 'd'].includes(key) ? key : 'a',
+    ans: { a, b, c, d }[key] || a,
+    soln,
+    caltech: caltech || null,
+  };
+
+  set.questions = Array.isArray(set.questions) ? set.questions.concat([q]) : [q];
+  set.updatedAt = nowISO();
+  touchLibrary();
+
+  adminUpdateQuestionCount();
+  adminClearQuestionBuilder();
+
+  alert('Question added.');
+}
+
+function adminGetPdfKind() {
+  const val = String(document.getElementById('admin-pdf-kind')?.value || 'notes').toLowerCase();
+  return val === 'archive' ? 'archive' : 'notes';
+}
+
+async function adminUploadPdf(kind = 'notes') {
+  const fileEl = document.getElementById('admin-pdf-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a PDF file first.');
+    return;
+  }
+
+  const titleEl = document.getElementById('admin-pdf-title');
+  const displayTitle = String(titleEl?.value || '').trim() || file.name;
+
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  try {
+    const dataUrl = await readFileAsDataURL(file);
+
+    library.pdfs.push({
+      id: uid('pdf'),
+      title: displayTitle,
+      folder,
+      kind,
+      src: dataUrl,
+      createdAt: nowISO(),
+    });
+
+    const saved = touchLibrary();
+
+    if (fileEl) fileEl.value = '';
+    if (titleEl) titleEl.value = '';
+    const urlEl = document.getElementById('admin-pdf-url');
+    if (urlEl) urlEl.value = '';
+
+    adminRefreshPdfList();
+
+    if (!saved) {
+      alert('PDF attached, but browser storage is full (PDF embed can be very large).\n\n✅ It will still work right now.\n👉 To share/persist: use Backup → Export library.json, or attach by URL (recommended for GitHub).');
+    } else {
+      alert('PDF attached. (Export library.json in Backup to share)');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to read PDF file.');
+  }
+}
+
+function adminAttachPdfUrl(kind = 'notes') {
+  const urlEl = document.getElementById('admin-pdf-url');
+  const rawUrl = String(urlEl?.value || '').trim();
+  if (!rawUrl) {
+    alert('Paste a PDF URL/path first.');
+    return;
+  }
+
+  const titleEl = document.getElementById('admin-pdf-title');
+  const displayTitle = String(titleEl?.value || '').trim() || baseName(rawUrl) || 'PDF';
+
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  const safeSrc = encodeURI(rawUrl);
+
+  library.pdfs.push({
+    id: uid('pdf'),
+    title: displayTitle,
+    folder,
+    kind,
+    src: safeSrc,
+    createdAt: nowISO(),
+  });
+
+  const saved = touchLibrary();
+
+  if (urlEl) urlEl.value = '';
+  if (titleEl) titleEl.value = '';
+
+  adminRefreshPdfList();
+
+  if (!saved) {
+    alert('PDF URL attached, but browser storage is blocked/full.\n\n👉 To persist/share: use Backup → Export library.json.');
+  } else {
+    alert('PDF URL attached. (Export library.json in Backup to share)');
+  }
+}
+
+function adminRefreshPdfList() {
+  const list = document.getElementById('admin-pdf-list');
+  if (!list) return;
+
+  const folder = getAdminTargetPath();
+
+  // In admin we show PDFs *under* the target path (recursive), so it's easy
+  // to confirm uploads even when you attach them in subfolders.
+  // If target path is empty (root), show GLOBAL PDFs.
+  const items = (library.pdfs || [])
+    .filter(p => {
+      const pf = normalizePath(p.folder || '');
+      if (!folder) return isGlobalFolder(pf) || !pf;
+      return isUnderPath(pf, folder);
+    })
+    .slice()
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="admin-help">No PDFs attached.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  items.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'admin-list-item';
+    row.innerHTML = `
+      <div>
+        <div class="admin-list-title">${escapeHTML(p.title)}</div>
+        <div class="admin-list-sub">${escapeHTML(p.kind)} • ${escapeHTML(p.folder)}</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="admin-mini-btn" type="button">VIEW</button>
+        <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);">DELETE</button>
+      </div>
+    `;
+
+    const [viewBtn, delBtn] = row.querySelectorAll('button');
+
+    viewBtn.addEventListener('click', () => {
+      // menu overlays are behind admin (z-index). Hide admin while previewing.
+      openPdfOverlay(p.id, 'admin-overlay');
+    });
+
+    delBtn.addEventListener('click', () => {
+      if (!confirm(`Delete PDF: "${p.title}"?`)) return;
+      library.pdfs = library.pdfs.filter(x => x.id !== p.id);
+      touchLibrary();
+      adminRefreshPdfList();
+    });
+
+    list.appendChild(row);
+  });
+}
+
+function adminCreateFolder() {
+  const name = String(document.getElementById('admin-folder-name')?.value || '').trim();
+  if (!name) {
+    alert('Enter folder name.');
+    return;
+  }
+
+  const parent = getAdminTargetPath();
+
+  // If the user pasted a full path starting with a known root category,
+  // treat it as an absolute path (avoid accidentally creating
+  // "GLOBAL/UNDERGROUNDS/..." etc).
+  const roots = ['GLOBAL', 'UNDERGROUNDS', 'T-AY-PI', 'EXHALE FILE', 'PAWER-LAYN FILE'];
+  const nameNorm = normalizePath(name);
+  const top = (nameNorm.split('/')[0] || '');
+  const isAbsolute = roots.some(r => samePath(top, r));
+
+  const full = normalizePath(isAbsolute ? nameNorm : (parent ? `${parent}/${name}` : name));
+
+  const changed = ensureFolder(full);
+  if (changed) touchLibrary();
+
+  document.getElementById('admin-folder-name').value = '';
+
+  adminRefreshAll();
+
+  alert(changed ? `Folder created: ${full}` : `Folder already exists: ${full}`);
+}
+
+function adminOpenTarget() {
+  const p = getAdminTargetPath();
+  alert(`Target folder path:\n${p || '(root)'}`);
+}
+
+function adminRenameFolder() {
+  const newName = String(document.getElementById('admin-folder-rename')?.value || '').trim();
+  if (!newName) {
+    alert('Enter new folder name.');
+    return;
+  }
+
+  const from = getAdminTargetPath();
+  if (!from) {
+    alert('Set Target folder path to the folder you want to rename.');
+    return;
+  }
+
+  const parent = parentPath(from);
+  const to = normalizePath(parent ? `${parent}/${newName}` : newName);
+
+  adminMoveFolderInternal(from, to);
+
+  document.getElementById('admin-folder-rename').value = '';
+  setAdminTargetPath(to);
+
+  adminRefreshAll();
+
+  alert('Folder renamed.');
+}
+
+function adminMoveFolder() {
+  const newParent = normalizePath(String(document.getElementById('admin-folder-move-parent')?.value || '').trim());
+  const from = getAdminTargetPath();
+
+  if (!from) {
+    alert('Set Target folder path to the folder you want to move.');
+    return;
+  }
+  if (!newParent) {
+    alert('Enter a new parent path.');
+    return;
+  }
+
+  const to = normalizePath(`${newParent}/${baseName(from)}`);
+  adminMoveFolderInternal(from, to);
+
+  document.getElementById('admin-folder-move-parent').value = '';
+  setAdminTargetPath(to);
+
+  adminRefreshAll();
+
+  alert('Folder moved.');
+}
+
+function adminMoveFolderInternal(from, to) {
+  const fromN = normalizePath(from);
+  const toN = normalizePath(to);
+
+  // ensure destination folder and parent
+  ensureFolder(parentPath(toN));
+  ensureFolder(toN);
+
+  // Update folders list (replace prefix)
+  library.folders = library.folders
+    .map(f => {
+      if (isUnderPath(f.path, fromN)) {
+        const suffix = normalizePath(f.path).slice(normalizePath(fromN).length);
+        const cleanSuffix = suffix.startsWith('/') ? suffix : (suffix ? '/' + suffix : '');
+        return { ...f, path: normalizePath(toN + cleanSuffix) };
+      }
+      return f;
+    })
+    .filter((f, idx, arr) => arr.findIndex(x => samePath(x.path, f.path)) === idx);
+
+  // Update quiz sets
+  library.quizSets.forEach(s => {
+    if (isUnderPath(s.folder, fromN)) {
+      const suffix = normalizePath(s.folder).slice(normalizePath(fromN).length);
+      const cleanSuffix = suffix.startsWith('/') ? suffix : (suffix ? '/' + suffix : '');
+      s.folder = normalizePath(toN + cleanSuffix);
+      s.updatedAt = nowISO();
+    }
+  });
+
+  // Update pdfs
+  library.pdfs.forEach(p => {
+    if (isUnderPath(p.folder, fromN)) {
+      const suffix = normalizePath(p.folder).slice(normalizePath(fromN).length);
+      const cleanSuffix = suffix.startsWith('/') ? suffix : (suffix ? '/' + suffix : '');
+      p.folder = normalizePath(toN + cleanSuffix);
+    }
+  });
+
+  touchLibrary();
+}
+
+function adminDeleteFolder() {
+  const target = getAdminTargetPath();
+  if (!target) {
+    alert('Set Target folder path to the folder you want to delete.');
+    return;
+  }
+
+  const alsoDelete = !!document.getElementById('admin-folder-delete-contents')?.checked;
+
+  if (!confirm(`Delete folder (recursive):\n${target}\n\nThis will affect subfolders and content inside.`)) return;
+
+  const parent = parentPath(target);
+
+  // Remove folder entries under target
+  library.folders = library.folders.filter(f => !isUnderPath(f.path, target));
+
+  if (alsoDelete) {
+    library.quizSets = library.quizSets.filter(s => !isUnderPath(s.folder, target));
+    library.pdfs = library.pdfs.filter(p => !isUnderPath(p.folder, target));
+  } else {
+    // move content to parent folder
+    library.quizSets.forEach(s => {
+      if (isUnderPath(s.folder, target)) s.folder = parent;
+    });
+    library.pdfs.forEach(p => {
+      if (isUnderPath(p.folder, target)) p.folder = parent;
+    });
+  }
+
+  touchLibrary();
+  adminRefreshAll();
+
+  alert('Folder deleted.');
+}
+
+function adminHowItWorks() {
+  alert(
+    'How folders work:\n\n' +
+    '• Target folder path = where quiz sets/PDFs are attached.\n' +
+    '• Archive Folder tool edits the folder in Target folder path.\n' +
+    '• Export library.json in Backup tab and COMMIT it to GitHub so everyone can see the updates.'
+  );
+}
+
+async function importLibraryFromFile(file, { statusEl = null } = {}) {
+  if (!file) return false;
+  const text = await readFileAsText(file);
+  const json = JSON.parse(text);
+
+  library = normalizeIncomingLibrary(json);
+  libraryLoadState = { ok: true, source: 'import', error: null };
+
+  // Persist to local cache so other tabs (user view) can see it instantly.
+  const persisted = touchLibrary();
+
+  updateAdminLibraryStatus();
+  showLibraryHintIfNeeded();
+  refreshUiAfterLibraryChange();
+
+  if (statusEl) {
+    statusEl.textContent = persisted
+      ? `Imported ${file.name} (saved to cache).`
+      : `Imported ${file.name} (in-memory only; cache/storage may be full).`;
+  }
+
+  return persisted;
+}
+
+async function adminQuickImportLibrary() {
+  if (session.role !== 'admin') {
+    alert('Admin only.');
+    return;
+  }
+
+  const fileEl = document.getElementById('admin-quick-import-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a library.json file first.');
+    return;
+  }
+
+  try {
+    const persisted = await importLibraryFromFile(file);
+    alert(persisted
+      ? 'Library imported and saved to cache.'
+      : 'Library imported, but could not save to cache (storage might be full).'
+    );
+  } catch (err) {
+    console.error(err);
+    alert('Invalid library.json');
+  } finally {
+    // allow importing the same file again
+    if (fileEl) fileEl.value = '';
+  }
+}
+
+// USER quick import (landing page button)
+// Allows non-admin users to load a library.json update/backup locally.
+function userQuickImportLibrary() {
+  const fileEl = document.getElementById('user-import-file');
+  if (!fileEl) {
+    alert('Import control not found.');
+    return;
+  }
+
+  // Reset so the same file can be selected again.
+  fileEl.value = '';
+
+  fileEl.onchange = async () => {
+    const file = fileEl.files?.[0];
+    if (!file) return;
+
+    const ok = confirm(
+      'Import library.json?\n\nThis will replace your current local quiz/notes library on this device.'
+    );
+    if (!ok) {
+      fileEl.value = '';
+      return;
+    }
+
+    try {
+      const persisted = await importLibraryFromFile(file);
+      alert(persisted
+        ? 'Update imported and saved locally.'
+        : 'Update imported, but could not save locally (storage may be full).'
+      );
+    } catch (err) {
+      console.error(err);
+      alert('Invalid library.json');
+    } finally {
+      fileEl.value = '';
+    }
+  };
+
+  fileEl.click();
+}
+
+async function adminImportLibrary() {
+  const fileEl = document.getElementById('admin-backup-import-file');
+  const status = document.getElementById('admin-backup-status');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a library.json file first.');
+    return;
+  }
+
+  try {
+    const persisted = await importLibraryFromFile(file, { statusEl: status });
+    alert(persisted
+      ? 'Imported library.json and saved to cache. Export + commit to GitHub to share with friends.'
+      : 'Imported library.json, but could not save to cache (storage might be full). You can still Export + commit to GitHub.'
+    );
+  } catch (err) {
+    console.error(err);
+    alert('Invalid library.json');
+  } finally {
+    if (fileEl) fileEl.value = '';
+  }
+}
+
+function adminExportLibrary() {
+  // Update timestamps
+  touchLibrary();
+  const payload = { ...library, updatedAt: library.updatedAt || nowISO() };
+  downloadJSON(LIBRARY_FILENAME, payload);
+}
+
+function adminExportLibraryJS() {
+  // Update timestamps
+  touchLibrary();
+  const payload = { ...library, updatedAt: library.updatedAt || nowISO() };
+  const js = `// Auto-generated by PADAYON Admin\n// Offline fallback for file:// mode (fetching library.json is blocked by the browser).\nwindow.${LIBRARY_GLOBAL_VAR} = ${JSON.stringify(payload, null, 2)};\n`;
+  downloadText(LIBRARY_JS_FILENAME, js, 'application/javascript');
+}
+
+function adminSearch(query) {
+  const q = String(query || '').trim().toLowerCase();
+  if (!q) return [];
+
+  const results = [];
+
+  // folders
+  library.folders.forEach(f => {
+    if (f.path.toLowerCase().includes(q)) {
+      results.push({ type: 'folder', label: f.path, value: f.path });
+    }
+  });
+
+  // sets
+  library.quizSets.forEach(s => {
+    const hay = `${s.title} ${s.folder}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({ type: 'quiz', label: s.title, sub: s.folder, value: s.id });
+    }
+  });
+
+  // pdfs
+  library.pdfs.forEach(p => {
+    const hay = `${p.title} ${p.folder}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({ type: 'pdf', label: p.title, sub: p.folder, value: p.id });
+    }
+  });
+
+  return results.slice(0, 25);
+}
+
+function adminRenderSearchResults(query) {
+  const box = document.getElementById('admin-search-results');
+  if (!box) return;
+
+  const q = String(query || '').trim();
+  if (!q) {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  const results = adminSearch(q);
+  if (results.length === 0) {
+    box.classList.remove('hidden');
+    box.innerHTML = '<div class="admin-help" style="padding:12px;">No results.</div>';
+    return;
+  }
+
+  box.classList.remove('hidden');
+  box.innerHTML = '';
+
+  results.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'admin-search-item';
+
+    row.innerHTML = `
+      <div>
+        <div class="admin-search-label">${escapeHTML(r.label)}</div>
+        ${r.sub ? `<div class="admin-search-type">${escapeHTML(r.sub)}</div>` : `<div class="admin-search-type">${escapeHTML(r.type.toUpperCase())}</div>`}
+      </div>
+      <div class="admin-search-type">${escapeHTML(r.type.toUpperCase())}</div>
+    `;
+
+    row.addEventListener('click', () => {
+      // act on click
+      if (r.type === 'folder') {
+        setAdminTargetPath(r.value);
+        setAdminCreateType('quiz');
+        adminRefreshAll();
+      } else if (r.type === 'quiz') {
+        // select set
+        const set = library.quizSets.find(s => s.id === r.value);
+        if (set) {
+          setAdminTargetPath(set.folder);
+          setAdminCreateType('quiz');
+          adminRefreshAll();
+          adminSelectQuizSet(set.id);
+        }
+      } else if (r.type === 'pdf') {
+        const pdf = getPdfById(r.value);
+        if (pdf) {
+          setAdminTargetPath(pdf.folder);
+          setAdminCreateType('notes');
+          adminRefreshAll();
+        }
+      }
+
+      box.classList.add('hidden');
+      box.innerHTML = '';
+
+      const inp = document.getElementById('admin-search-input');
+      if (inp) inp.value = '';
+    });
+
+    box.appendChild(row);
+  });
+}
+
+function initAdminUI() {
+  // Sidebar
+  document.getElementById('admin-nav-content')?.addEventListener('click', () => setAdminTab('content'));
+  document.getElementById('admin-nav-accounts')?.addEventListener('click', () => setAdminTab('accounts'));
+  document.getElementById('admin-nav-logs')?.addEventListener('click', () => setAdminTab('logs'));
+  document.getElementById('admin-nav-backup')?.addEventListener('click', () => setAdminTab('backup'));
+
+  document.getElementById('admin-close')?.addEventListener('click', () => {
+    closeAdminPanel();
+  });
+
+  document.getElementById('admin-save')?.addEventListener('click', () => {
+    adminSaveLibrary();
+  });
+
+  // Create type
+  document.getElementById('admin-type-quiz')?.addEventListener('click', () => setAdminCreateType('quiz'));
+  document.getElementById('admin-type-notes')?.addEventListener('click', () => setAdminCreateType('notes'));
+  document.getElementById('admin-type-folder')?.addEventListener('click', () => setAdminCreateType('folder'));
+
+  // Quick pick
+  document.getElementById('admin-quick-pick')?.addEventListener('change', (e) => {
+    const val = normalizePath(e.target.value || '');
+    if (val) setAdminTargetPath(val);
+    adminRefreshAll();
+  });
+
+  // Target path updates should refresh pdf list
+  document.getElementById('admin-target-path')?.addEventListener('input', () => {
+    adminUpdatePathHelpers();
+    adminRefreshFolderList();
+    // only refresh if notes tab visible
+    if (adminCreateType === 'notes') adminRefreshPdfList();
+  });
+
+  // Copy path
+  document.getElementById('admin-copy-path')?.addEventListener('click', adminCopyTargetPath);
+  document.getElementById('admin-preview-quiz')?.addEventListener('click', adminPreviewQuizSets);
+  document.getElementById('admin-preview-pdfs')?.addEventListener('click', adminPreviewPdfs);
+
+  // Quiz set create/select
+  document.getElementById('admin-quiz-create-btn')?.addEventListener('click', adminCreateQuizSet);
+  document.getElementById('admin-quiz-select')?.addEventListener('change', (e) => {
+    adminSelectQuizSet(e.target.value);
+  });
+
+  // Move tools
+  document.getElementById('admin-quiz-use-target-btn')?.addEventListener('click', () => {
+    const move = document.getElementById('admin-quiz-move-path');
+    if (move) move.value = getAdminTargetPath();
+  });
+  document.getElementById('admin-quiz-move-btn')?.addEventListener('click', adminMoveSelectedQuizSet);
+  document.getElementById('admin-quiz-delete-btn')?.addEventListener('click', adminDeleteSelectedQuizSet);
+
+  // Import/export
+  document.getElementById('admin-import-btn')?.addEventListener('click', adminImportQuestionsJson);
+  document.getElementById('admin-export-btn')?.addEventListener('click', adminExportSelectedQuizSet);
+
+  // Question builder
+  document.getElementById('admin-q-add-btn')?.addEventListener('click', adminAddQuestion);
+  document.getElementById('admin-q-clear-btn')?.addEventListener('click', adminClearQuestionBuilder);
+
+  // Notes
+  document.getElementById('admin-pdf-upload-btn')?.addEventListener('click', () => adminUploadPdf(adminGetPdfKind()));
+  document.getElementById('admin-pdf-attach-url-btn')?.addEventListener('click', () => adminAttachPdfUrl(adminGetPdfKind()));
+
+  // Folder tools
+  document.getElementById('admin-folder-create-btn')?.addEventListener('click', adminCreateFolder);
+  document.getElementById('admin-folder-open-btn')?.addEventListener('click', adminOpenTarget);
+  document.getElementById('admin-folder-rename-btn')?.addEventListener('click', adminRenameFolder);
+  document.getElementById('admin-folder-move-btn')?.addEventListener('click', adminMoveFolder);
+  document.getElementById('admin-folder-delete-btn')?.addEventListener('click', adminDeleteFolder);
+  document.getElementById('admin-folder-how-btn')?.addEventListener('click', adminHowItWorks);
+  document.getElementById('admin-folder-root-btn')?.addEventListener('click', () => setAdminTargetPath(''));
+
+  // Search
+  document.getElementById('admin-search-input')?.addEventListener('input', (e) => {
+    adminRenderSearchResults(e.target.value);
+  });
+  document.getElementById('admin-search-clear')?.addEventListener('click', () => {
+    const inp = document.getElementById('admin-search-input');
+    if (inp) inp.value = '';
+    adminRenderSearchResults('');
+  });
+
+  // Backup
+  document.getElementById('admin-backup-export')?.addEventListener('click', adminExportLibrary);
+  document.getElementById('admin-backup-export-js')?.addEventListener('click', adminExportLibraryJS);
+  document.getElementById('admin-backup-import-btn')?.addEventListener('click', adminImportLibrary);
+
+  // ✅ Live backend (accounts + online/logs)
+  document.getElementById('admin-create-account-btn')?.addEventListener('click', adminCreateAccountServer);
+  document.getElementById('admin-refresh-accounts-btn')?.addEventListener('click', adminRefreshServerAccounts);
+  document.getElementById('admin-refresh-online-btn')?.addEventListener('click', () => {
+    renderAdminOnlineUsers();
+    renderAdminLog();
+    liveRequestAdminRefresh();
+  });
+  document.getElementById('admin-clear-log-btn')?.addEventListener('click', () => {
+    liveAdminLog = [];
+    renderAdminLog();
+  });
+
+  // ✅ Backend URL setting (no need to edit index.html)
+  document.getElementById('admin-backend-url-save-btn')?.addEventListener('click', adminSaveBackendUrlFromUI);
+  document.getElementById('admin-backend-url-clear-btn')?.addEventListener('click', adminClearBackendUrlFromUI);
+  document.getElementById('admin-backend-url-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      adminSaveBackendUrlFromUI();
+    }
+  });
+
+  // Initial
+  setAdminCreateType('quiz');
+}
+
+// Init admin UI once DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  initAdminUI();
+  try { adminRefreshBackendUrlUI(); } catch (_) {}
+});
+
+// =========================
+// Small helpers
+// =========================
+function showLibraryHint(err) {
+  // left for future
+}
+
+
+// =========================
+// Debug aliases (optional)
+// =========================
+// Some users look for connectToBackend()/initLive() in the console.
+// These are safe aliases to the live backend connector.
+try {
+  window.connectToBackend = function connectToBackend() {
+    try { liveBackendUrl = getConfiguredBackendUrl(); } catch (_) {}
+    try { liveAuthToken = getLiveToken(); } catch (_) {}
+    try { liveConnect(); } catch (_) {}
+  };
+  window.initLive = window.connectToBackend;
+} catch (_) {}
+// =========================
+// Phase 3 Enhancements
+// - Random exams
+// - Progress tracking
+// - Version history
+// - Editor role
+// - Backend PDF uploads
+// =========================
+const LIVE_MANAGED_UPLOAD_PREFIX = '/uploads/pdfs/';
+const ONLINE_USERS_COLLAPSED_KEY = 'padayon_online_users_collapsed_v1';
+const SCORE_HISTORY_COLLAPSED_KEY = 'padayon_score_history_collapsed_v1';
+const PROGRESS_COLLAPSED_KEY = 'padayon_progress_collapsed_v1';
+
+let onlineUsersCollapsed = true;
+let scoreHistoryCollapsed = true;
+let progressCollapsed = true;
+let liveMyScoreHistory = [];
+let liveMyProgress = [];
+let currentQuizMeta = { id: null, title: '', folder: '', source: 'built_in', randomized: false };
+let currentQuestionBank = [];
+let adminEditingQuestionIndex = -1;
+
+function sessionIsAdmin() {
+  return String(session?.role || '') === 'admin';
+}
+
+function sessionCanManageContent() {
+  return ['admin', 'editor'].includes(String(session?.role || ''));
+}
+
+function readCollapsedPref(key, fallback = true) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return raw === '1';
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function saveCollapsedPref(key, value) {
+  try {
+    localStorage.setItem(key, value ? '1' : '0');
+  } catch (_) {}
+}
+
+function setSectionVisible(id, visible) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('hidden', !visible);
+  el.style.display = visible ? '' : 'none';
+}
+
+function renderLandingCardToggles() {
+  const onlineBtn = document.getElementById('online-users-toggle');
+  const scoreBtn = document.getElementById('score-history-toggle');
+  const progressBtn = document.getElementById('progress-toggle');
+
+  setSectionVisible('online-users-body', !onlineUsersCollapsed);
+  setSectionVisible('score-history-body', !scoreHistoryCollapsed);
+  setSectionVisible('progress-body', !progressCollapsed);
+
+  if (onlineBtn) onlineBtn.textContent = onlineUsersCollapsed ? 'SHOW' : 'HIDE';
+  if (scoreBtn) scoreBtn.textContent = scoreHistoryCollapsed ? 'SHOW' : 'HIDE';
+  if (progressBtn) progressBtn.textContent = progressCollapsed ? 'SHOW' : 'HIDE';
+}
+
+function toggleOnlineUsersCard() {
+  onlineUsersCollapsed = !onlineUsersCollapsed;
+  saveCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, onlineUsersCollapsed);
+  renderLandingCardToggles();
+}
+
+function toggleScoreHistoryCard() {
+  scoreHistoryCollapsed = !scoreHistoryCollapsed;
+  saveCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, scoreHistoryCollapsed);
+  renderLandingCardToggles();
+}
+
+function toggleProgressCard() {
+  progressCollapsed = !progressCollapsed;
+  saveCollapsedPref(PROGRESS_COLLAPSED_KEY, progressCollapsed);
+  renderLandingCardToggles();
+}
+
+function initLandingCardToggles() {
+  onlineUsersCollapsed = readCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, true);
+  scoreHistoryCollapsed = readCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, true);
+  progressCollapsed = readCollapsedPref(PROGRESS_COLLAPSED_KEY, true);
+  renderLandingCardToggles();
+}
+
+function normalizeScoreHistoryItem(item) {
+  const score = Number(item?.score || 0);
+  const total = Number(item?.total || 0);
+  const percent = Number.isFinite(Number(item?.percent))
+    ? Number(item.percent)
+    : (total > 0 ? Math.round((score / total) * 1000) / 10 : 0);
+
+  return {
+    id: String(item?.id || ''),
+    ts: Number(item?.ts || Date.now()),
+    recordedAt: String(item?.recordedAt || ''),
+    setId: String(item?.setId || ''),
+    setTitle: String(item?.setTitle || 'Untitled Quiz'),
+    folder: String(item?.folder || ''),
+    source: String(item?.source || 'custom'),
+    mode: String(item?.mode || 'exam'),
+    score,
+    total,
+    percent,
+  };
+}
+
+function normalizeProgressItem(item) {
+  const practiceAttempts = Number(item?.practiceAttempts || 0);
+  const practiceCorrect = Number(item?.practiceCorrect || 0);
+  const examAttempts = Number(item?.examAttempts || 0);
+  const completedExams = Number(item?.completedExams || 0);
+  const bestPercent = Number(item?.bestPercent || 0);
+  const lastPercent = Number(item?.lastPercent || 0);
+
+  return {
+    key: String(item?.key || ''),
+    setId: String(item?.setId || ''),
+    setTitle: String(item?.setTitle || 'Untitled Quiz'),
+    folder: String(item?.folder || ''),
+    source: String(item?.source || 'custom'),
+    practiceAttempts,
+    practiceCorrect,
+    examAttempts,
+    completedExams,
+    bestScore: Number(item?.bestScore || 0),
+    bestPercent,
+    lastScore: Number(item?.lastScore || 0),
+    lastPercent,
+    lastMode: String(item?.lastMode || 'study'),
+    lastAction: String(item?.lastAction || 'view'),
+    lastEventAt: String(item?.lastEventAt || item?.recordedAt || ''),
+    practiceAccuracy: practiceAttempts > 0 ? Math.round((practiceCorrect / practiceAttempts) * 1000) / 10 : 0,
+  };
+}
+
+async function liveApiFetchForm(path, { method = 'POST', body, headers = {} } = {}) {
+  if (!liveIsEnabled()) throw new Error('Backend URL not configured.');
+  const url = trimSlash(liveBackendUrl) + String(path || '');
+  const h = { ...headers };
+  if (liveAuthToken) h['Authorization'] = 'Bearer ' + liveAuthToken;
+
+  const res = await fetch(url, {
+    method,
+    headers: h,
+    body,
+  });
+
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = null; }
+  if (!res.ok) {
+    const msg = (json && (json.error || json.message)) ? (json.error || json.message) : (text || `HTTP ${res.status}`);
+    throw new Error(msg);
+  }
+  return json;
+}
+
+function getManagedUploadRelativePath(src) {
+  const value = String(src || '').trim();
+  if (!value) return '';
+  if (value.startsWith(LIVE_MANAGED_UPLOAD_PREFIX)) return value;
+
+  try {
+    if (liveBackendUrl && /^https?:\/\//i.test(value)) {
+      const base = new URL(trimSlash(liveBackendUrl));
+      const u = new URL(value, base.origin);
+      if (u.pathname.startsWith(LIVE_MANAGED_UPLOAD_PREFIX)) return u.pathname;
+    }
+  } catch (_) {}
+
+  return '';
+}
+
+async function liveUploadPdfFile(file) {
+  if (!liveIsEnabled() || !liveAuthToken) throw new Error('Backend login required for PDF upload.');
+  const fd = new FormData();
+  fd.append('file', file);
+  const json = await liveApiFetchForm('/api/uploads/pdf', { method: 'POST', body: fd });
+  return json?.file || null;
+}
+
+async function liveDeleteManagedPdf(src) {
+  const rel = getManagedUploadRelativePath(src);
+  if (!rel || !liveIsEnabled() || !liveAuthToken) return false;
+  try {
+    await liveApiFetch('/api/uploads/pdf', { method: 'DELETE', body: { path: rel } });
+    return true;
+  } catch (err) {
+    console.warn('Managed PDF delete failed:', err);
+    return false;
+  }
+}
+
+async function liveFetchMyScoreHistory() {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
+    liveMyScoreHistory = [];
+    renderMyScoreHistory();
+    return false;
+  }
+
+  try {
+    const json = await liveApiFetch('/api/scores', { method: 'GET' });
+    liveMyScoreHistory = Array.isArray(json?.items) ? json.items.map(normalizeScoreHistoryItem) : [];
+    renderMyScoreHistory();
+    return true;
+  } catch (err) {
+    console.warn('Score history fetch failed:', err);
+    renderMyScoreHistory();
+    return false;
+  }
+}
+
+async function liveSaveScoreHistory(entry) {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) return false;
+  try {
+    await liveApiFetch('/api/scores', { method: 'POST', body: entry });
+    await liveFetchMyScoreHistory();
+    return true;
+  } catch (err) {
+    console.warn('Score history save failed:', err);
+    return false;
+  }
+}
+
+async function liveFetchMyProgress() {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
+    liveMyProgress = [];
+    renderMyProgress();
+    return false;
+  }
+  try {
+    const json = await liveApiFetch('/api/progress', { method: 'GET' });
+    liveMyProgress = Array.isArray(json?.items) ? json.items.map(normalizeProgressItem) : [];
+    renderMyProgress();
+    return true;
+  } catch (err) {
+    console.warn('Progress fetch failed:', err);
+    renderMyProgress();
+    return false;
+  }
+}
+
+async function liveSaveProgress(entry) {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) return false;
+  try {
+    await liveApiFetch('/api/progress', { method: 'POST', body: entry });
+    await liveFetchMyProgress();
+    return true;
+  } catch (err) {
+    console.warn('Progress save failed:', err);
+    return false;
+  }
+}
+
+function renderMyScoreHistory() {
+  const sub = document.getElementById('score-history-sub');
+  const countEl = document.getElementById('score-history-count');
+  const listEl = document.getElementById('score-history-list');
+  if (!sub || !countEl || !listEl) return;
+
+  const items = Array.isArray(liveMyScoreHistory) ? liveMyScoreHistory : [];
+  countEl.textContent = String(items.length);
+
+  if (!session?.username) {
+    sub.textContent = 'Login to view your recent exam scores.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
+    return;
+  }
+  if (!liveIsEnabled()) {
+    sub.textContent = 'Backend URL not set.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(backend not configured)</div>';
+    return;
+  }
+  if (!liveAuthToken) {
+    sub.textContent = 'Login required.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(not authenticated)</div>';
+    return;
+  }
+  if (items.length === 0) {
+    sub.textContent = 'Your exam submissions will appear here.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">No saved exam history yet.</div>';
+    return;
+  }
+
+  sub.textContent = 'Stored on backend per account.';
+  listEl.innerHTML = items.slice(0, 6).map(item => {
+    const when = item.ts ? new Date(item.ts).toLocaleString() : '';
+    const title = escapeHTML(item.setTitle || 'Untitled Quiz');
+    const meta = escapeHTML((item.mode || 'exam').toUpperCase());
+    const scoreText = escapeHTML(String(item.score) + '/' + String(item.total));
+    const percentText = escapeHTML((Number(item.percent || 0)).toFixed(1) + '%');
+    const whenText = escapeHTML(when);
+    return `
+      <div class="border border-gray-800 rounded-lg px-3 py-2 bg-black/20">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-1">
+          <div class="text-sm text-white font-semibold">${title}</div>
+          <div class="text-xs font-mono text-[#00f3ff]">${scoreText} • ${percentText}</div>
+        </div>
+        <div class="text-[11px] font-mono text-gray-500 mt-1">${meta}${whenText ? ' • ' + whenText : ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderMyProgress() {
+  const sub = document.getElementById('progress-sub');
+  const countEl = document.getElementById('progress-count');
+  const listEl = document.getElementById('progress-list');
+  if (!sub || !countEl || !listEl) return;
+
+  const items = Array.isArray(liveMyProgress) ? liveMyProgress : [];
+  countEl.textContent = String(items.length);
+
+  if (!session?.username) {
+    sub.textContent = 'Login to sync your study progress.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
+    return;
+  }
+  if (!liveIsEnabled()) {
+    sub.textContent = 'Backend URL not set.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(backend not configured)</div>';
+    return;
+  }
+  if (!liveAuthToken) {
+    sub.textContent = 'Login required.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(not authenticated)</div>';
+    return;
+  }
+  if (items.length === 0) {
+    sub.textContent = 'Practice and exam activity will build your progress.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">No progress tracked yet.</div>';
+    return;
+  }
+
+  sub.textContent = 'Practice accuracy and exam best scores per quiz.';
+  listEl.innerHTML = items.slice(0, 6).map(item => {
+    const title = escapeHTML(item.setTitle || 'Untitled Quiz');
+    const practiceText = `${item.practiceCorrect}/${item.practiceAttempts}`;
+    const examText = item.completedExams > 0 ? `${item.bestScore} (${item.bestPercent.toFixed(1)}%)` : '--';
+    const when = item.lastEventAt ? escapeHTML(new Date(item.lastEventAt).toLocaleString()) : '';
+    return `
+      <div class="border border-gray-800 rounded-lg px-3 py-2 bg-black/20">
+        <div class="flex flex-col gap-1">
+          <div class="text-sm text-white font-semibold">${title}</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px] font-mono text-gray-400">
+            <div>Practice: <span class="text-[#00f3ff]">${escapeHTML(practiceText)}</span></div>
+            <div>Accuracy: <span class="text-[#00f3ff]">${escapeHTML(item.practiceAccuracy.toFixed(1) + '%')}</span></div>
+            <div>Best Exam: <span class="text-[#00f3ff]">${escapeHTML(String(examText))}</span></div>
+          </div>
+          <div class="text-[11px] font-mono text-gray-500">${when ? 'Updated • ' + when : 'Waiting for new activity'}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function cloneQuestion(q) {
+  return {
+    id: q.id,
+    key: q.key,
+    topic: q.topic || 'Custom',
+    q: q.q,
+    options: q.options ? { ...q.options } : { a: '', b: '', c: '', d: '' },
+    ans: q.ans || ((q.options && q.key) ? q.options[q.key] : ''),
+    soln: q.soln || '',
+    caltech: q.caltech || null,
+  };
+}
+
+function cloneQuestions(items) {
+  return Array.isArray(items) ? items.map(cloneQuestion) : [];
+}
+
+function updateRoleBasedUi() {
+  const adminCard = document.getElementById('admin-card');
+  const adminQuickImport = document.getElementById('admin-quick-import');
+  const navAccounts = document.getElementById('admin-nav-accounts');
+  const navLogs = document.getElementById('admin-nav-logs');
+
+  const canManage = sessionCanManageContent();
+  const isAdmin = sessionIsAdmin();
+
+  if (adminCard) adminCard.classList.toggle('hidden', !canManage);
+  if (adminQuickImport) adminQuickImport.classList.toggle('hidden', !canManage);
+  if (navAccounts) navAccounts.classList.toggle('hidden', !isAdmin);
+  if (navLogs) navLogs.classList.toggle('hidden', !isAdmin);
+}
+
+function updateQuizMetaBanner() {
+  const el = document.getElementById('quiz-meta-banner');
+  if (!el) return;
+  const title = currentQuizMeta?.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Quiz';
+  const folder = currentQuizMeta?.folder ? ` • ${currentQuizMeta.folder}` : '';
+  const source = currentQuizMeta?.source ? ` • ${String(currentQuizMeta.source).toUpperCase()}` : '';
+  const random = currentQuizMeta?.randomized ? ' • RANDOM EXAM' : '';
+  const count = Array.isArray(currentQuestions) ? currentQuestions.length : 0;
+  el.textContent = `${title}${folder}${source}${random} • ${count} QUESTION${count === 1 ? '' : 'S'}`;
+}
+
+function renumberQuestions(questions) {
+  if (!Array.isArray(questions)) return;
+  questions.forEach((q, i) => { q.id = i + 1; });
+}
+
+function adminSetQuestionBuilderMode(isEditing) {
+  const btn = document.getElementById('admin-q-add-btn');
+  const status = document.getElementById('admin-q-builder-status');
+  const set = adminGetSelectedSet();
+  if (btn) btn.textContent = isEditing ? 'UPDATE QUESTION' : 'SAVE QUESTION';
+  if (status) {
+    if (!set) status.textContent = 'Select a quiz set first.';
+    else if (isEditing && set.questions?.[adminEditingQuestionIndex]) status.textContent = `Editing question #${adminEditingQuestionIndex + 1}`;
+    else status.textContent = 'Create a new question.';
+  }
+}
+
+function adminLoadQuestionIntoBuilder(index) {
+  const set = adminGetSelectedSet();
+  const q = set?.questions?.[index];
+  if (!q) return;
+  adminEditingQuestionIndex = Number(index);
+  document.getElementById('admin-q-topic').value = q.topic || '';
+  document.getElementById('admin-q-correct').value = q.key || 'a';
+  document.getElementById('admin-q-text').value = q.q || '';
+  document.getElementById('admin-q-a').value = q.options?.a || '';
+  document.getElementById('admin-q-b').value = q.options?.b || '';
+  document.getElementById('admin-q-c').value = q.options?.c || '';
+  document.getElementById('admin-q-d').value = q.options?.d || '';
+  document.getElementById('admin-q-soln').value = q.soln || '';
+  document.getElementById('admin-q-caltech').value = q.caltech || '';
+  adminSetQuestionBuilderMode(true);
+  document.getElementById('admin-q-text')?.focus();
+}
+
+function adminRenderQuestionList() {
+  const box = document.getElementById('admin-question-list');
+  if (!box) return;
+  const set = adminGetSelectedSet();
+  if (!set) {
+    box.innerHTML = '<div class="admin-help">Select a quiz set to manage questions.</div>';
+    adminSetQuestionBuilderMode(false);
+    return;
+  }
+  const items = Array.isArray(set.questions) ? set.questions : [];
+  if (items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No questions yet.</div>';
+    adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
+    return;
+  }
+
+  box.innerHTML = items.map((q, index) => {
+    const title = escapeHTML(String(q.q || 'Untitled question').slice(0, 120));
+    const topic = escapeHTML(q.topic || 'Custom');
+    const correct = escapeHTML(String(q.key || 'a').toUpperCase());
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">#${index + 1} • ${title}</div>
+          <div class="admin-list-sub">${topic} • Correct: ${correct}</div>
+        </div>
+        <div class="admin-list-right" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="admin-mini-btn" type="button" onclick="adminLoadQuestionIntoBuilder(${index})">EDIT</button>
+          <button class="admin-mini-btn" type="button" onclick="adminDuplicateQuestion(${index})">DUPLICATE</button>
+          <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);" onclick="adminDeleteQuestion(${index})">DELETE</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
+}
+
+function adminDuplicateQuestion(index) {
+  const set = adminGetSelectedSet();
+  const q = set?.questions?.[index];
+  if (!q) return;
+  const copy = cloneQuestion(q);
+  copy.q = String(copy.q || '') + ' (Copy)';
+  set.questions.splice(index + 1, 0, copy);
+  renumberQuestions(set.questions);
+  set.updatedAt = nowISO();
+  touchLibrary();
+  adminUpdateQuestionCount();
+}
+
+function adminDeleteQuestion(index) {
+  const set = adminGetSelectedSet();
+  const q = set?.questions?.[index];
+  if (!q) return;
+  if (!confirm(`Delete question #${index + 1}?`)) return;
+  set.questions.splice(index, 1);
+  renumberQuestions(set.questions);
+  set.updatedAt = nowISO();
+  touchLibrary();
+  if (adminEditingQuestionIndex === index) {
+    adminClearQuestionBuilder();
+  } else if (adminEditingQuestionIndex > index) {
+    adminEditingQuestionIndex -= 1;
+  }
+  adminUpdateQuestionCount();
+}
+
+async function liveFetchLibraryVersions() {
+  if (!liveIsEnabled() || !liveAuthToken || !sessionCanManageContent()) {
+    renderAdminVersionHistory([]);
+    return [];
+  }
+  try {
+    const json = await liveApiFetch('/api/library/versions', { method: 'GET' });
+    const items = Array.isArray(json?.items) ? json.items : [];
+    renderAdminVersionHistory(items);
+    return items;
+  } catch (err) {
+    console.warn('Version history fetch failed:', err);
+    renderAdminVersionHistory([], String(err?.message || err));
+    return [];
+  }
+}
+
+function renderAdminVersionHistory(items, error = '') {
+  const box = document.getElementById('admin-version-history-list');
+  if (!box) return;
+  if (!sessionCanManageContent()) {
+    box.innerHTML = '<div class="admin-help">Admin or editor only.</div>';
+    return;
+  }
+  if (error) {
+    box.innerHTML = `<div class="admin-help">Failed to load version history. ${escapeHTML(error)}</div>`;
+    return;
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No backend versions yet.</div>';
+    return;
+  }
+  box.innerHTML = items.map(item => {
+    const when = item?.ts ? new Date(item.ts).toLocaleString() : '';
+    const by = escapeHTML(item?.updatedBy || 'system');
+    const summary = item?.summary || {};
+    const meta = `${Number(summary.quizSets || 0)} sets • ${Number(summary.pdfs || 0)} pdfs • ${Number(summary.folders || 0)} folders`;
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">${escapeHTML(when || 'Unknown time')}</div>
+          <div class="admin-list-sub">By ${by} • ${escapeHTML(meta)}</div>
+        </div>
+        <div class="admin-list-right" style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${sessionIsAdmin() ? `<button class="admin-mini-btn" type="button" onclick="adminRestoreLibraryVersion('${String(item.id || '').replace(/'/g, "\\'")}')">RESTORE</button>` : '<span class="admin-pill">VIEW ONLY</span>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function adminRestoreLibraryVersion(id) {
+  if (!sessionIsAdmin()) {
+    alert('Admin only.');
+    return;
+  }
+  if (!id) return;
+  if (!confirm('Restore this library version? This will replace the current library and notify connected users.')) return;
+  try {
+    await liveApiFetch('/api/library/restore/' + encodeURIComponent(id), { method: 'POST' });
+    await loadLibraryFromBackend();
+    await liveFetchLibraryVersions();
+    alert('Library version restored.');
+  } catch (err) {
+    console.warn(err);
+    alert('Restore failed: ' + String(err?.message || err));
+  }
+}
+
+function randomSample(items, count) {
+  const arr = cloneQuestions(items);
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, count).map((q, index) => ({ ...q, id: index + 1 }));
+}
+
+function startRandomExam() {
+  const bank = Array.isArray(currentQuestionBank) ? currentQuestionBank : [];
+  if (!bank.length) {
+    alert('Open a quiz set first.');
+    return;
+  }
+  const suggested = Math.min(bank.length, 20);
+  const raw = window.prompt(`How many questions for the random exam? (1-${bank.length})`, String(suggested));
+  if (raw === null) return;
+  const count = Math.max(1, Math.min(bank.length, Number(raw) || suggested));
+  currentQuestions = randomSample(bank, count);
+  currentQuizMeta = { ...currentQuizMeta, randomized: true };
+  currentMode = 'exam';
+  resetExam();
+  setMode('exam');
+  updateQuizMetaBanner();
+  try {
+    liveSetActivity('Start Random Exam', {
+      view: 'QUIZ_ENGINE',
+      details: `${currentQuizMeta.title || 'QUIZ'} • ${count} Q`,
+      path: currentQuizMeta.folder || '',
+    });
+  } catch (_) {}
+}
+
+function adminRefreshAll() {
+  adminRefreshQuickPickOptions();
+  adminUpdatePathHelpers();
+  adminRefreshFolderList();
+  adminRefreshQuizSetSelect();
+  adminRefreshPdfList();
+  adminUpdateQuestionCount();
+  if (adminTab === 'backup') {
+    liveFetchLibraryVersions();
+  }
+}
+
+function adminUpdateQuestionCount() {
+  const countEl = document.getElementById('admin-q-count');
+  if (countEl) {
+    const set = adminGetSelectedSet();
+    countEl.textContent = String(set?.questions?.length || 0);
+  }
+  adminRenderQuestionList();
+}
+
+function adminSelectQuizSet(setId) {
+  adminSelectedQuizSetId = setId || '';
+  const sel = document.getElementById('admin-quiz-select');
+  if (sel) sel.value = adminSelectedQuizSetId;
+  adminEditingQuestionIndex = -1;
+  adminUpdateQuestionCount();
+  adminSetQuestionBuilderMode(false);
+}
+
+function adminClearQuestionBuilder() {
+  const ids = ['admin-q-topic', 'admin-q-text', 'admin-q-a', 'admin-q-b', 'admin-q-c', 'admin-q-d', 'admin-q-soln', 'admin-q-caltech'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const correct = document.getElementById('admin-q-correct');
+  if (correct) correct.value = 'a';
+  adminEditingQuestionIndex = -1;
+  adminSetQuestionBuilderMode(false);
+}
+
+function adminAddQuestion() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const topic = String(document.getElementById('admin-q-topic')?.value || '').trim();
+  const text = String(document.getElementById('admin-q-text')?.value || '').trim();
+  const a = String(document.getElementById('admin-q-a')?.value || '').trim();
+  const b = String(document.getElementById('admin-q-b')?.value || '').trim();
+  const c = String(document.getElementById('admin-q-c')?.value || '').trim();
+  const d = String(document.getElementById('admin-q-d')?.value || '').trim();
+  const soln = String(document.getElementById('admin-q-soln')?.value || '').trim();
+  const caltech = String(document.getElementById('admin-q-caltech')?.value || '').trim();
+  const key = String(document.getElementById('admin-q-correct')?.value || 'a').toLowerCase();
+
+  if (!text) {
+    alert('Question text is required.');
+    return;
+  }
+  if (!a || !b || !c || !d) {
+    alert('Please fill Options A, B, C, and D.');
+    return;
+  }
+
+  const q = {
+    id: adminEditingQuestionIndex >= 0 ? adminEditingQuestionIndex + 1 : ((set.questions || []).length + 1),
+    topic: topic || 'Custom',
+    q: text,
+    options: { a, b, c, d },
+    key: ['a', 'b', 'c', 'd'].includes(key) ? key : 'a',
+    ans: { a, b, c, d }[key] || a,
+    soln,
+    caltech: caltech || null,
+  };
+
+  const wasEditing = adminEditingQuestionIndex >= 0 && !!set.questions?.[adminEditingQuestionIndex];
+  if (!Array.isArray(set.questions)) set.questions = [];
+  if (wasEditing) {
+    set.questions[adminEditingQuestionIndex] = q;
+  } else {
+    set.questions.push(q);
+  }
+
+  renumberQuestions(set.questions);
+  set.updatedAt = nowISO();
+  touchLibrary();
+  adminUpdateQuestionCount();
+  adminClearQuestionBuilder();
+  alert(wasEditing ? 'Question updated.' : 'Question added.');
+}
+
+async function adminUploadPdf(kind = 'notes') {
+  const fileEl = document.getElementById('admin-pdf-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a PDF file first.');
+    return;
+  }
+
+  const titleEl = document.getElementById('admin-pdf-title');
+  const displayTitle = String(titleEl?.value || '').trim() || file.name;
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  try {
+    let src = '';
+
+    if (liveIsEnabled() && liveAuthToken && sessionCanManageContent()) {
+      const uploaded = await liveUploadPdfFile(file);
+      src = String(uploaded?.url || uploaded?.path || '').trim();
+      if (!src) throw new Error('Backend upload did not return a file URL.');
+    } else {
+      const dataUrl = await readFileAsDataURL(file);
+      src = dataUrl;
+    }
+
+    library.pdfs.push({
+      id: uid('pdf'),
+      title: displayTitle,
+      folder,
+      kind,
+      src,
+      createdAt: nowISO(),
+    });
+
+    const saved = touchLibrary();
+    if (fileEl) fileEl.value = '';
+    if (titleEl) titleEl.value = '';
+    const urlEl = document.getElementById('admin-pdf-url');
+    if (urlEl) urlEl.value = '';
+    adminRefreshPdfList();
+
+    if (src.startsWith('data:')) {
+      alert(saved
+        ? 'PDF attached locally. For large files, backend upload is recommended.'
+        : 'PDF attached, but browser storage is full. Use backend upload or attach by URL.');
+    } else {
+      alert('PDF uploaded to backend and linked to the library.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to upload PDF. ' + String(err?.message || err));
+  }
+}
+
+function adminRefreshPdfList() {
+  const list = document.getElementById('admin-pdf-list');
+  if (!list) return;
+
+  const folder = getAdminTargetPath();
+  const items = (library.pdfs || [])
+    .filter(p => {
+      const pf = normalizePath(p.folder || '');
+      if (!folder) return isGlobalFolder(pf) || !pf;
+      return isUnderPath(pf, folder);
+    })
+    .slice()
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="admin-help">No PDFs attached.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  items.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'admin-list-item';
+    const managed = !!getManagedUploadRelativePath(p.src);
+    row.innerHTML = `
+      <div>
+        <div class="admin-list-title">${escapeHTML(p.title)}</div>
+        <div class="admin-list-sub">${escapeHTML(p.kind)} • ${escapeHTML(p.folder)}${managed ? ' • managed upload' : ''}</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="admin-mini-btn" type="button">VIEW</button>
+        <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);">DELETE</button>
+      </div>
+    `;
+
+    const [viewBtn, delBtn] = row.querySelectorAll('button');
+    viewBtn.addEventListener('click', () => openPdfOverlay(p.id, 'admin-overlay'));
+    delBtn.addEventListener('click', async () => {
+      if (!confirm(`Delete PDF: "${p.title}"?`)) return;
+      await liveDeleteManagedPdf(p.src);
+      library.pdfs = library.pdfs.filter(x => x.id !== p.id);
+      touchLibrary();
+      adminRefreshPdfList();
+    });
+    list.appendChild(row);
+  });
+}
+
+function handleLiveMessage(msg) {
+  const t = String(msg.type || '');
+
+  if (t === 'force_logout') {
+    alert(msg.reason || 'This account was logged in on another device.');
+    logoutToLogin();
+    return;
+  }
+
+  if (t === 'presence:public') {
+    liveOnlinePublic = Array.isArray(msg.users) ? msg.users : [];
+    renderOnlineUsersWidget();
+    return;
+  }
+
+  if (t === 'presence:admin') {
+    liveOnlineAdmin = Array.isArray(msg.users) ? msg.users : [];
+    liveOnlinePublic = liveOnlineAdmin.map(u => ({ username: u.username, role: u.role }));
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    return;
+  }
+
+  if (t === 'library:changed') {
+    const ms = Number(msg.ms || 0);
+    if (ms && ms > getLibraryUpdatedAtMs(library)) {
+      loadLibraryFromBackend();
+      if (sessionCanManageContent()) liveFetchLibraryVersions();
+    }
+    return;
+  }
+
+  if (t === 'log:batch') {
+    if (Array.isArray(msg.items)) {
+      liveAdminLog = msg.items.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'log:append') {
+    const item = msg.item;
+    if (item && typeof item === 'object') {
+      liveAdminLog.push(item);
+      if (liveAdminLog.length > 200) liveAdminLog = liveAdminLog.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'hello:ack') {
+    updateLiveStatusUI(msg);
+    liveFetchMyScoreHistory();
+    liveFetchMyProgress();
+    if (sessionCanManageContent() && adminTab === 'backup') liveFetchLibraryVersions();
+    if (sessionIsAdmin()) {
+      safeLiveSend({ type: 'presence:request' });
+      safeLiveSend({ type: 'log:request' });
+    }
+  }
+}
+
+function updateLiveStatusUI(serverHello = null) {
+  const sub = document.getElementById('online-users-sub');
+  if (sub) {
+    if (!session?.username) sub.textContent = 'Login to see online users.';
+    else if (!liveIsEnabled()) sub.textContent = 'Backend URL not set.';
+    else if (liveWsConnected) sub.textContent = 'Live connected.';
+    else sub.textContent = 'Connecting…';
+  }
+
+  const adminStatus = document.getElementById('admin-live-status');
+  if (adminStatus) {
+    if (!liveIsEnabled()) adminStatus.textContent = 'Backend: URL not set.';
+    else if (liveWsConnected) adminStatus.textContent = 'Backend: connected (live).';
+    else adminStatus.textContent = 'Backend: connecting…';
+  }
+
+  const acctStatus = document.getElementById('admin-account-status');
+  if (acctStatus) {
+    if (!liveIsEnabled()) acctStatus.textContent = 'Backend: URL not set.';
+    else if (!liveAuthToken) acctStatus.textContent = 'Backend: not authenticated (login required).';
+    else acctStatus.textContent = liveWsConnected ? 'Backend: authenticated + live connected.' : 'Backend: authenticated (connecting live)…';
+  }
+
+  renderMyScoreHistory();
+  renderMyProgress();
+}
+
+function logoutToLogin() {
+  try { liveSetActivity('Logout', { view: 'LOGIN' }); } catch (_) {}
+  try { liveDisconnect(); } catch (_) {}
+  try { setLiveToken(''); } catch (_) {}
+
+  session = { username: null, role: null };
+  liveMyScoreHistory = [];
+  liveMyProgress = [];
+  currentQuizMeta = { id: null, title: '', folder: '', source: 'built_in', randomized: false };
+  currentQuestionBank = [];
+
+  try {
+    liveOnlinePublic = [];
+    liveOnlineAdmin = [];
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    renderMyScoreHistory();
+    renderMyProgress();
+    updateLiveStatusUI();
+  } catch (_) {}
+
+  updateRoleBasedUi();
+
+  document.getElementById('landing-page')?.classList.add('hidden');
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+
+  const loginPage = document.getElementById('login-page');
+  if (loginPage) {
+    loginPage.style.display = 'block';
+    loginPage.style.opacity = '1';
+  }
+}
+
+async function verifyLogin() {
+  const userIn = String(document.getElementById('username')?.value || '').trim();
+  const passIn = String(document.getElementById('password')?.value || '');
+  const loginPage = document.getElementById('login-page');
+  const landingPage = document.getElementById('landing-page');
+  const msg = document.getElementById('login-msg');
+
+  setLiveToken('');
+
+  if (!userIn || !passIn) {
+    if (msg) {
+      msg.textContent = 'PLEASE ENTER USERNAME AND PASSWORD';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const captchaToken = (window.grecaptcha && typeof grecaptcha.getResponse === 'function') ? grecaptcha.getResponse() : '';
+  if (!captchaToken) {
+    if (msg) {
+      msg.textContent = 'PLEASE CONFIRM YOU ARE NOT A ROBOT';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  let acct = null;
+  if (liveIsEnabled()) {
+    const res = await liveTryBackendLogin(userIn, passIn, captchaToken);
+    if (res?.ok) {
+      acct = {
+        username: res.user?.username || userIn,
+        role: res.user?.role || 'user',
+      };
+    } else {
+      if (msg) {
+        msg.textContent = (res?.error?.message || 'INVALID CREDENTIALS OR CAPTCHA FAILED').toUpperCase();
+        msg.classList.remove('hidden');
+      }
+      const pw = document.getElementById('password');
+      if (pw) pw.value = '';
+      if (window.grecaptcha && typeof grecaptcha.reset === 'function') grecaptcha.reset();
+      updateLiveStatusUI();
+      return;
+    }
+  } else {
+    if (msg) {
+      msg.textContent = 'BACKEND NOT AVAILABLE';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  if (msg) msg.classList.add('hidden');
+  hideLoginError();
+  session = { username: acct.username, role: acct.role };
+  setRememberMe(userIn, passIn);
+  updateRoleBasedUi();
+
+  try {
+    liveBackendUrl = getConfiguredBackendUrl();
+    liveAuthToken = getLiveToken();
+    updateLiveStatusUI();
+    liveConnect();
+  } catch (_) {}
+
+  if (loginPage) {
+    loginPage.style.opacity = '0';
+    loginPage.style.transition = 'opacity 0.5s';
+  }
+
+  setTimeout(() => {
+    if (loginPage) loginPage.style.display = 'none';
+    if (landingPage) landingPage.classList.remove('hidden');
+    try { liveSetActivity('Landing', { view: 'LANDING' }); } catch (_) {}
+    renderLandingCardToggles();
+    renderMyScoreHistory();
+    renderMyProgress();
+  }, 500);
+}
+
+function loadQuiz(type) {
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+  let liveTitle = '';
+
+  if (type === 'math') {
+    currentQuestionBank = typeof mathData !== 'undefined' ? cloneQuestions(mathData) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'MATHEMATICS';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'MATHEMATICS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'esas') {
+    currentQuestionBank = typeof esasData !== 'undefined' ? cloneQuestions(esasData) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'ESAS';
+      title.className = 'text-[#ff00ff]';
+    }
+    liveTitle = 'ESAS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'ug1') {
+    currentQuestionBank = typeof esasUG1Data !== 'undefined' ? cloneQuestions(esasUG1Data) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'PAST BOARD 1';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 1';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug2') {
+    currentQuestionBank = typeof esasUG2Data !== 'undefined' ? cloneQuestions(esasUG2Data) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'PAST BOARD 2';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 2';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug3') {
+    currentQuestionBank = typeof esasUG3Data !== 'undefined' ? cloneQuestions(esasUG3Data) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'PAST BOARD 3';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 3';
+    activeMenu = 'submenu-past-board-list';
+  } else {
+    alert('Module Under Construction');
+    return;
+  }
+
+  currentQuizMeta = {
+    id: String(type || ''),
+    title: liveTitle || String(type || '').toUpperCase(),
+    folder: (type === 'math' || type === 'esas') ? 'T-AY-PI' : 'UNDERGROUNDS/TERMS & OBJECTIVES/ESAS PAST BOARD',
+    source: 'built_in',
+    randomized: false,
+  };
+
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+  updateQuizMetaBanner();
+
+  try {
+    liveSetActivity('Start Built-in Quiz', { view: 'QUIZ_ENGINE', details: liveTitle || String(type || '').toUpperCase() });
+    liveSaveProgress({
+      setId: currentQuizMeta.id,
+      setTitle: currentQuizMeta.title,
+      folder: currentQuizMeta.folder,
+      source: currentQuizMeta.source,
+      mode: 'review',
+      action: 'view',
+    });
+  } catch (_) {}
+
+  setTimeout(() => { if (app) app.style.opacity = '1'; }, 100);
+}
+
+function loadQuizCustom(setId, backMenuId) {
+  const set = library.quizSets.find(s => s.id === setId);
+  if (!set) {
+    alert('Quiz set not found in library.');
+    return;
+  }
+
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+  currentQuestionBank = cloneQuestions(set.questions);
+  currentQuestions = cloneQuestions(set.questions);
+
+  if (title) {
+    title.innerHTML = escapeHTML(set.title || 'CUSTOM SET');
+    title.className = 'text-[#00f3ff]';
+  }
+
+  activeMenu = backMenuId || quizBrowserBackMenuId || 'level-1-menu';
+  currentQuizMeta = {
+    id: set.id,
+    title: set.title || 'CUSTOM SET',
+    folder: set.folder || '',
+    source: 'custom',
+    randomized: false,
+  };
+
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+  updateQuizMetaBanner();
+
+  try {
+    liveSetActivity('Start Custom Quiz', { view: 'QUIZ_ENGINE', path: set.folder || '', details: set.title || 'CUSTOM SET' });
+    liveSaveProgress({
+      setId: currentQuizMeta.id,
+      setTitle: currentQuizMeta.title,
+      folder: currentQuizMeta.folder,
+      source: currentQuizMeta.source,
+      mode: 'review',
+      action: 'view',
+    });
+  } catch (_) {}
+
+  setTimeout(() => { if (app) app.style.opacity = '1'; }, 100);
+}
+
+function selectPracticeOption(qId, option) {
+  if (practiceAttempts[qId]) return;
+  const q = currentQuestions.find(item => item.id === qId);
+  if (!q) return;
+  practiceAttempts[qId] = { selected: option, isCorrect: option === q.key };
+  renderQuestions();
+
+  try {
+    liveSaveProgress({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode: 'practice',
+      action: 'practice_answer',
+      correct: option === q.key,
+    });
+  } catch (_) {}
+}
+
+function submitExam() {
+  if (examSubmitted) return;
+  examSubmitted = true;
+
+  let score = 0;
+  currentQuestions.forEach(q => {
+    if (userAnswers[q.id] === q.key) score++;
+  });
+
+  if (scoreDisplay) scoreDisplay.innerText = String(score);
+  const totalDisplay = document.getElementById('total-score');
+  if (totalDisplay) totalDisplay.innerText = '/ ' + currentQuestions.length;
+
+  try {
+    liveSetActivity('Submit Exam', {
+      view: 'QUIZ_ENGINE',
+      details: `Score: ${score}/${currentQuestions.length}`,
+    });
+  } catch (_) {}
+
+  if (examStatus) {
+    examStatus.innerText = 'COMPLETED';
+    examStatus.classList.remove('text-yellow-500');
+    examStatus.classList.add('text-[#00ff9d]');
+  }
+
+  if (submitBtn) {
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    submitBtn.disabled = true;
+  }
+
+  try {
+    const mode = currentQuizMeta.randomized ? 'random_exam' : 'exam';
+    liveSaveScoreHistory({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode,
+      score,
+      total: currentQuestions.length,
+    });
+    liveSaveProgress({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode,
+      action: currentQuizMeta.randomized ? 'random_exam_submit' : 'exam_submit',
+      score,
+      total: currentQuestions.length,
+    });
+  } catch (_) {}
+
+  renderQuestions();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function adminSaveLibrary() {
+  if (!sessionCanManageContent()) {
+    alert('Admin or editor only.');
+    return;
+  }
+  touchLibrary();
+  try { scheduleLiveLibraryPush(true); } catch (_) {}
+  if (liveIsEnabled() && liveAuthToken) {
+    liveFetchLibraryVersions();
+  }
+  adminExportLibrary();
+}
+
+async function adminQuickImportLibrary() {
+  if (!sessionCanManageContent()) {
+    alert('Admin or editor only.');
+    return;
+  }
+  const fileEl = document.getElementById('admin-quick-import-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a library.json file first.');
+    return;
+  }
+  try {
+    const persisted = await importLibraryFromFile(file);
+    alert(persisted ? 'Library imported and saved to cache.' : 'Library imported, but could not save to cache (storage might be full).');
+  } catch (err) {
+    console.error(err);
+    alert('Invalid library.json');
+  } finally {
+    if (fileEl) fileEl.value = '';
+  }
+}
+
+function openAdminPanel() {
+  if (!sessionCanManageContent()) {
+    alert('Admin or editor access only.');
+    return;
+  }
+
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+
+  document.getElementById('admin-overlay')?.classList.remove('hidden');
+  setAdminTab('content');
+  updateRoleBasedUi();
+
+  try { liveSetActivity('Open Admin Panel', { view: 'ADMIN' }); } catch (_) {}
+  try { if (sessionIsAdmin()) liveRequestAdminRefresh(); } catch (_) {}
+
+  updateAdminLibraryStatus();
+  showLibraryHintIfNeeded();
+  adminRefreshAll();
+}
+
+function setAdminTab(tab) {
+  if (!sessionCanManageContent()) return;
+  if (!sessionIsAdmin() && (tab === 'accounts' || tab === 'logs')) {
+    tab = 'content';
+  }
+
+  adminTab = tab;
+  const tabs = {
+    content: 'admin-tab-content',
+    accounts: 'admin-tab-accounts',
+    logs: 'admin-tab-logs',
+    backup: 'admin-tab-backup',
+  };
+
+  Object.entries(tabs).forEach(([k, id]) => {
+    document.getElementById(id)?.classList.toggle('hidden', k !== tab);
+  });
+
+  const navMap = {
+    content: 'admin-nav-content',
+    accounts: 'admin-nav-accounts',
+    logs: 'admin-nav-logs',
+    backup: 'admin-nav-backup',
+  };
+  Object.values(navMap).forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(navMap[tab])?.classList.add('active');
+
+  updateRoleBasedUi();
+
+  try {
+    if (tab === 'logs' && sessionIsAdmin()) {
+      adminRefreshBackendUrlUI();
+      renderAdminOnlineUsers();
+      renderAdminLog();
+      liveRequestAdminRefresh();
+    }
+    if (tab === 'accounts' && sessionIsAdmin()) {
+      adminRefreshServerAccounts();
+    }
+    if (tab === 'backup') {
+      liveFetchLibraryVersions();
+    }
+  } catch (_) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initLandingCardToggles();
+  renderMyScoreHistory();
+  renderMyProgress();
+  updateRoleBasedUi();
+  document.getElementById('admin-version-refresh-btn')?.addEventListener('click', liveFetchLibraryVersions);
+});
