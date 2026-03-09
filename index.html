@@ -127,29 +127,55 @@
 
         <!-- ✅ Online users (shows under Categories only) -->
         <div id="online-users-card" class="w-full max-w-5xl px-4 mt-4">
-          <div class="cyber-card p-4 rounded-xl">
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  <div>
-                      <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
-                      <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
-                  </div>
-                  <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
-              </div>
-              <div id="online-users-list" class="mt-3 flex flex-wrap gap-2"></div>
-          </div>
+        <div class="cyber-card p-4 rounded-xl">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
+                    <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
+                    <button
+                        id="online-users-toggle"
+                        type="button"
+                        onclick="toggleOnlineUsersCard()"
+                        class="admin-mini-btn">
+                        SHOW
+                    </button>
+                </div>
+            </div>
+
+            <div id="online-users-body" class="hidden mt-3">
+                <div id="online-users-list" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
         </div>
 
         <div id="score-history-card" class="w-full max-w-5xl px-4 mt-4">
-          <div class="cyber-card p-4 rounded-xl">
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  <div>
-                      <div class="text-sm font-mono tracking-widest text-gray-300">RECENT SCORES</div>
-                      <div id="score-history-sub" class="text-xs font-mono text-gray-500">Login to view your recent exam scores.</div>
-                  </div>
-                  <div id="score-history-count" class="text-xs font-mono text-gray-400">0</div>
-              </div>
-              <div id="score-history-list" class="mt-3 flex flex-col gap-2"></div>
-          </div>
+        <div class="cyber-card p-4 rounded-xl">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <div class="text-sm font-mono tracking-widest text-gray-300">RECENT SCORES</div>
+                    <div id="score-history-sub" class="text-xs font-mono text-gray-500">Login to view your recent exam scores.</div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div id="score-history-count" class="text-xs font-mono text-gray-400">0</div>
+                    <button
+                        id="score-history-toggle"
+                        type="button"
+                        onclick="toggleScoreHistoryCard()"
+                        class="admin-mini-btn">
+                        SHOW
+                    </button>
+                </div>
+            </div>
+
+            <div id="score-history-body" class="hidden mt-3">
+                <div id="score-history-list" class="flex flex-col gap-2"></div>
+            </div>
+        </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl px-4 pb-20">
@@ -765,8 +791,8 @@
                     <div id="admin-panel-notes" class="admin-stack hidden">
                         <div class="admin-card">
                             <div class="admin-card-accent"></div>
-                            <div class="admin-card-title">Attach PDF Notes by URL</div>
-                            <div class="admin-help">Phase 1 stores only PDF URLs/paths in the library. No more embedded PDFs inside library.json.</div>
+                            <div class="admin-card-title">Attach PDF Notes</div>
+                            <div class="admin-help">Phase 2 can upload PDF files to the backend, or you can still save an external URL/path.</div>
 
                             <div class="admin-row2">
                                 <select id="admin-pdf-kind" class="admin-select">
@@ -779,7 +805,7 @@
                             <div class="admin-row3">
                                 <input id="admin-pdf-file" class="admin-file" type="file" accept="application/pdf">
                                 <input id="admin-pdf-title" class="admin-input" type="text" placeholder="Display title (optional)">
-                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">SAVE URL ENTRY</button>
+                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">UPLOAD FILE / SAVE URL</button>
                             </div>
 
                             <div class="admin-row-url">
@@ -789,7 +815,7 @@
 
                             <div class="admin-hint">
                                 <strong>Tip:</strong> Upload the real PDF file into your repo or hosting, then store only its URL/path here (for example <span class="font-mono">assets/pdfs/file.pdf</span>).
-                                Choosing a file above can auto-create a suggested path, but the file itself still needs to exist on your hosting.
+                                If backend upload is configured, choosing a file uploads it automatically. Otherwise you can still save a URL/path manually.
                             </div>
                         </div>
 
