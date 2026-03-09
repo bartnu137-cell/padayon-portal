@@ -1085,31 +1085,40 @@ body{
   filter: drop-shadow(0 0 10px rgba(0,243,255,0.35));
 }
 
-/* Categories page should start from top, not vertical-center */
-.categories-overlay {
-  justify-content: flex-start !important;
-  align-items: center;
-  overflow-y: auto;
-  padding-top: 24px;
-  padding-bottom: 120px;
-}
 
-/* Better spacing for the top cards section */
-.categories-top-section {
-  width: 100%;
-  max-width: 80rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
+/* =========================
+   Phase 5 dashboard polish
+   ========================= */
+.dashboard-shell { position: relative; z-index: 2; }
+.dashboard-mini-card{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:12px;
+  background:rgba(0,0,0,.18);
 }
-
-/* Keep category cards separated nicely */
-.categories-grid {
-  width: 100%;
-  max-width: 80rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-bottom: 5rem;
-  margin-top: 1rem;
+.dashboard-mini-title{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:11px;
+  letter-spacing:.16em;
+  color:rgba(233,238,242,.62);
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.dashboard-mini-value{ color:#fff; font-weight:700; }
+.dashboard-chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.dashboard-chip{ padding:4px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); font-size:11px; font-family:'JetBrains Mono',ui-monospace,monospace; color:rgba(233,238,242,.85); }
+.notice-item{ border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 12px; background:rgba(0,0,0,.18); }
+.notice-item .notice-title{ color:#fff; font-weight:700; }
+.notice-item .notice-meta{ font-size:11px; color:rgba(233,238,242,.55); font-family:'JetBrains Mono',ui-monospace,monospace; margin-top:4px; }
+.notice-item.notice-announcement{ border-color:rgba(255,0,255,.24); }
+.notice-item.notice-quiz{ border-color:rgba(0,243,255,.24); }
+.notice-item.notice-score{ border-color:rgba(0,255,157,.24); }
+.event-card{ border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px; background:rgba(0,0,0,.18); min-height:110px; }
+.event-card .event-label{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:rgba(233,238,242,.58); font-family:'JetBrains Mono',ui-monospace,monospace; }
+.event-card .event-title{ margin-top:6px; color:#fff; font-weight:800; }
+.event-card .event-sub{ margin-top:6px; color:rgba(233,238,242,.65); font-size:12px; }
+.audit-pill-admin{ border-color:rgba(255,0,255,.35); color:#fff; }
+.audit-pill-system{ border-color:rgba(0,243,255,.35); color:#fff; }
+@media (max-width: 768px){
+  .dashboard-shell{ margin-top:72px; }
 }
