@@ -83,7 +83,6 @@
                             data-theme="dark">
                         </div>
                     </div>
-                    <br>
                     <button type="submit" class="modern-login-btn">LOGIN</button>
                     <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
                 </form>
@@ -116,97 +115,56 @@
         <button class="start-btn" onclick="goToLevel1()">INITIALIZE SYSTEM</button>
     </div>
 
+
     <!-- ========================= LEVEL 1 (CATEGORIES) ========================= -->
-    <div id="level-1-menu" class="menu-overlay hidden categories-overlay">
-        <div class="categories-top-section space-y-4">
-            <div id="online-users-card" class="w-full">
-                <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                        <div>
-                            <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
-                            <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
-                        </div>
-                        <div class="flex items-center gap-3 self-start md:self-auto">
-                            <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
-                            <button id="online-users-toggle" onclick="toggleOnlineUsersCard()" class="admin-mini-btn" type="button">SHOW</button>
-                        </div>
-                    </div>
-                    <div id="online-users-body" class="mt-3 hidden">
-                        <div id="online-users-list" class="flex flex-wrap gap-2"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                <div id="score-history-card" class="w-full">
-                    <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <div>
-                                <div class="text-sm font-mono tracking-widest text-gray-300">RECENT SCORES</div>
-                                <div id="score-history-sub" class="text-xs font-mono text-gray-500">Login to view your recent exam scores.</div>
-                            </div>
-                            <div class="flex items-center gap-3 self-start md:self-auto">
-                                <div id="score-history-count" class="text-xs font-mono text-gray-400">0</div>
-                                <button id="score-history-toggle" onclick="toggleScoreHistoryCard()" class="admin-mini-btn" type="button">SHOW</button>
-                            </div>
-                        </div>
-                        <div id="score-history-body" class="mt-3 hidden">
-                            <div id="score-history-list" class="space-y-2"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="progress-card" class="w-full">
-                    <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <div>
-                                <div class="text-sm font-mono tracking-widest text-gray-300">YOUR PROGRESS</div>
-                                <div id="progress-sub" class="text-xs font-mono text-gray-500">Login to sync your study progress.</div>
-                            </div>
-                            <div class="flex items-center gap-3 self-start md:self-auto">
-                                <div id="progress-count" class="text-xs font-mono text-gray-400">0</div>
-                                <button id="progress-toggle" onclick="toggleProgressCard()" class="admin-mini-btn" type="button">SHOW</button>
-                            </div>
-                        </div>
-                        <div id="progress-body" class="mt-3 hidden">
-                            <div id="progress-list" class="space-y-2"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div id="level-1-menu" class="menu-overlay hidden">
         <!-- Landing page actions (category level only) -->
         <button onclick="userQuickImportLibrary()" class="import-btn" title="Import a library.json backup/update">⬆ IMPORT</button>
         <input id="user-import-file" type="file" accept="application/json" style="display:none" />
         <button onclick="logoutToLogin()" class="logout-btn">⏻ LOGOUT</button>
-        <h1 class="menu-header">SELECT CATEGORY</h1>
+        <h2 class="menu-header">SELECT CATEGORY</h2>
 
-        <div class="categories-grid grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div onclick="goToLevel2('undergrounds')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
+
+        <!-- ✅ Online users (shows under Categories only) -->
+        <div id="online-users-card" class="w-full max-w-5xl px-4 mt-4">
+          <div class="cyber-card p-4 rounded-xl">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                      <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
+                      <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
+                  </div>
+                  <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
+              </div>
+              <div id="online-users-list" class="mt-3 flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl px-4 pb-20">
+            <div onclick="goToLevel2('undergrounds')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop">
                 <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🚇</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">UNDERGROUNDS</h3>
                 <p class="text-gray-500 text-xs font-mono mt-2">Fundamental Concepts</p>
             </div>
 
-            <div onclick="goToLevel2('taypi')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-100 transition-all duration-300 hover:-translate-y-1 hover:border-[#ff00ff]">
+            <div onclick="goToLevel2('taypi')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-100">
                 <div class="text-4xl mb-4 group-hover:text-[#ff00ff] transition-colors">🏛️</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">T-AY-PI</h3>
                 <p class="text-gray-500 text-xs font-mono mt-2">Board Exam Simulation</p>
             </div>
 
-            <div onclick="goToLevel2('exhale')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-200 transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
+            <div onclick="goToLevel2('exhale')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-200">
                 <div class="text-4xl mb-4 group-hover:text-[#00ff9d] transition-colors">😤</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">EXHALE FILE</h3>
                 <p class="text-gray-500 text-xs font-mono mt-2">Deep Dive Analysis</p>
             </div>
 
-            <div onclick="goToLevel2('pawer')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-300 transition-all duration-300 hover:-translate-y-1 hover:border-[#ff00ff]">
+            <div onclick="goToLevel2('pawer')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop delay-300">
                 <div class="text-4xl mb-4 group-hover:text-[#ff0055] transition-colors">⚡</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">PAWER-LAYN FILE</h3>
                 <p class="text-gray-500 text-xs font-mono mt-2">Power Systems & Grid</p>
             </div>
 
+            <!-- Admin card (shown only if logged in as admin) -->
             <div id="admin-card" onclick="openAdminPanel()" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop hidden">
                 <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🛠️</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">ADMIN PANEL</h3>
@@ -472,20 +430,17 @@
                 </div>
 
                 <div class="w-full md:w-auto overflow-x-auto">
-                    <div class="flex items-center gap-2 mx-auto md:mx-0 min-w-max">
-                        <div class="mode-switch min-w-max">
-                            <div id="btn-review" class="mode-btn active" onclick="setMode('review')">STUDY MODE</div>
-                            <div id="btn-practice" class="mode-btn inactive" onclick="setMode('practice')">PRACTICE MODE</div>
-                            <div id="btn-exam" class="mode-btn inactive" onclick="setMode('exam')">EXAM MODE</div>
-                        </div>
-                        <button id="btn-random-exam" onclick="startRandomExam()" class="px-3 py-2 rounded border border-[#00f3ff]/40 text-[#00f3ff] text-xs font-bold tracking-widest bg-black/30 hover:bg-[#00f3ff]/10 transition-all duration-300 hover:-translate-y-0.5">RANDOM EXAM</button>
+                    <div class="mode-switch mx-auto md:mx-0 min-w-max">
+                        <div id="btn-review" class="mode-btn active" onclick="setMode('review')">STUDY MODE</div>
+                        <div id="btn-practice" class="mode-btn inactive" onclick="setMode('practice')">PRACTICE MODE</div>
+                        <div id="btn-exam" class="mode-btn inactive" onclick="setMode('exam')">EXAM MODE</div>
+                        <div id="btn-random-exam" class="mode-btn inactive" onclick="startRandomExam()">RANDOM EXAM</div>
                     </div>
                 </div>
             </div>
         </header>
 
         <div class="max-w-7xl mx-auto px-4 py-6 pb-24">
-            <div id="quiz-meta-banner" class="mb-4 text-[11px] font-mono tracking-wide text-gray-500"></div>
             <div id="practice-dashboard" class="hidden mb-6 p-4 rounded bg-gray-900/50 border-l-4 border-purple-500 flex justify-between items-center">
                 <div>
                     <h2 class="text-purple-400 font-bold uppercase text-xs md:text-sm mb-1">PRACTICE MODE ACTIVE</h2>
@@ -512,6 +467,16 @@
                         <span id="score-display" class="text-[#00f3ff]">--</span>
                         <span id="total-score" class="text-gray-500 text-lg mb-1">/ --</span>
                     </div>
+                </div>
+
+                <div id="random-exam-panel" class="hidden cyber-card p-4 rounded bg-gray-900/50 border border-[#00f3ff]/30 flex flex-col justify-center gap-3">
+                    <div>
+                        <div class="text-gray-400 text-xs uppercase">Random Exam</div>
+                        <div id="random-exam-progress" class="text-lg font-bold text-[#00f3ff] font-mono mt-1">QUESTION -- / --</div>
+                        <div id="random-exam-indicator" class="text-[11px] font-mono text-gray-500 mt-1">ANSWERED 0 / 0</div>
+                    </div>
+                    <div id="random-exam-timer" class="text-sm font-mono text-yellow-400">TIME LEFT • --:--</div>
+                    <button onclick="nextRandomExamQuestion()" id="random-next-btn" class="px-4 py-2 bg-[#1f1f2e] hover:bg-[#2d2d3a] text-white font-bold rounded transition-all text-sm uppercase opacity-50 cursor-not-allowed" disabled>NEXT QUESTION</button>
                 </div>
             </div>
 
@@ -747,10 +712,7 @@
                         <div class="admin-card">
                             <div class="admin-card-accent"></div>
                             <div class="admin-card-title-row">
-                                <div>
-                                    <div class="admin-card-title">Question Builder</div>
-                                    <div id="admin-q-builder-status" class="admin-help">Create a new question.</div>
-                                </div>
+                                <div class="admin-card-title">Question Builder</div>
                                 <div class="admin-help">Questions in set: <span id="admin-q-count" class="admin-count">0</span></div>
                             </div>
 
@@ -779,15 +741,9 @@
                             <textarea id="admin-q-caltech" class="admin-textarea" rows="3" placeholder="Calculator Technique (optional)"></textarea>
 
                             <div class="admin-row2">
-                                <button id="admin-q-add-btn" class="admin-btn cyan" type="button">SAVE QUESTION</button>
+                                <button id="admin-q-add-btn" class="admin-btn cyan" type="button">ADD QUESTION</button>
                                 <button id="admin-q-clear-btn" class="admin-btn" type="button">CLEAR</button>
                             </div>
-
-                            <div class="admin-card-title-row" style="margin-top:16px;">
-                                <div class="admin-card-title">Question List</div>
-                                <div class="admin-help">Edit, duplicate, delete, and reorder your questions here.</div>
-                            </div>
-                            <div id="admin-question-list" class="admin-list"></div>
                         </div>
                     </div>
 
@@ -810,11 +766,11 @@
                             <div class="admin-row3">
                                 <input id="admin-pdf-file" class="admin-file" type="file" accept="application/pdf">
                                 <input id="admin-pdf-title" class="admin-input" type="text" placeholder="Display title (optional)">
-                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">UPLOAD PDF TO BACKEND</button>
+                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">UPLOAD &amp; ATTACH (EMBED)</button>
                             </div>
 
                             <div class="admin-row-url">
-                                <input id="admin-pdf-url" class="admin-input" type="text" placeholder="Or paste PDF URL/path (recommended for external or GitHub-hosted PDFs) e.g. assets/notes/myfile.pdf">
+                                <input id="admin-pdf-url" class="admin-input" type="text" placeholder="Or paste PDF URL/path (recommended for GitHub) e.g. assets/notes/myfile.pdf">
                                 <button id="admin-pdf-attach-url-btn" class="admin-btn cyan" type="button">ATTACH URL</button>
                             </div>
 
@@ -885,7 +841,7 @@
                     <div class="admin-header">
                         <div>
                             <div class="admin-header-title">ACCOUNTS</div>
-                            <div class="admin-header-sub">Create backend accounts here. Roles: admin, editor, user.</div>
+                            <div class="admin-header-sub">Admin is hard-coded in script.js (admin/admin). User login remains (EE/C-1).</div>
                         </div>
                     </div>
 
@@ -922,7 +878,6 @@
                             <input id="admin-create-password" class="admin-input" type="password" placeholder="Password">
                             <select id="admin-create-role" class="admin-select">
                                 <option value="user">user</option>
-                                <option value="editor">editor</option>
                                 <option value="admin">admin</option>
                             </select>
                         </div>
@@ -1024,18 +979,6 @@
                         <div class="admin-hint">
                             <strong>Local testing tip:</strong> If you open <span class="font-mono">index.html</span> directly (file://), the browser blocks fetch() for <span class="font-mono">library.json</span>. Use VSCode Live Server or run <span class="font-mono">python -m http.server</span> so the site loads via http:// and the library can be fetched.
                         </div>
-                    </div>
-
-                    <div class="admin-card">
-                        <div class="admin-card-accent"></div>
-                        <div class="admin-card-title-row">
-                            <div>
-                                <div class="admin-card-title">Version History</div>
-                                <div class="admin-help">Automatic library snapshots are stored on the backend whenever content changes.</div>
-                            </div>
-                            <button id="admin-version-refresh-btn" class="admin-btn" type="button">REFRESH HISTORY</button>
-                        </div>
-                        <div id="admin-version-history-list" class="admin-list"></div>
                     </div>
                 </section>
             </main>
