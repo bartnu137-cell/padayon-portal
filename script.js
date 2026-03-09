@@ -5146,3 +5146,781 @@ document.addEventListener('DOMContentLoaded', () => {
   updateRoleBasedUi();
   document.getElementById('admin-version-refresh-btn')?.addEventListener('click', liveFetchLibraryVersions);
 });
+
+
+// =========================
+// Phase 5 Add-on
+// - dashboard homepage
+// - notifications / announcements
+// - seasonal events
+// - import/export upgrades
+// - content quality scan
+// - audit log viewer
+// =========================
+const PHASE5_LAST_STUDY_KEY = 'padayon_last_study_v1';
+let liveNotifications = [];
+let liveAuditLog = [];
+
+function phase5SafeJson(raw, fallback = null) {
+  try { return JSON.parse(String(raw || '')); } catch (_) { return fallback; }
+}
+
+function phase5PersistLastStudy(entry) {
+  try {
+    localStorage.setItem(PHASE5_LAST_STUDY_KEY, JSON.stringify({ ...entry, ts: Date.now() }));
+  } catch (_) {}
+  renderDashboardHome();
+}
+
+function phase5ReadLastStudy() {
+  try {
+    return phase5SafeJson(localStorage.getItem(PHASE5_LAST_STUDY_KEY), null);
+  } catch (_) {
+    return null;
+  }
+}
+
+function phase5ClearLastStudy() {
+  try { localStorage.removeItem(PHASE5_LAST_STUDY_KEY); } catch (_) {}
+  renderDashboardHome();
+}
+
+async function liveFetchNotifications() {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
+    liveNotifications = [];
+    renderNotificationsPanel();
+    return [];
+  }
+  try {
+    const json = await liveApiFetch('/api/notifications', { method: 'GET' });
+    liveNotifications = Array.isArray(json?.items) ? json.items : [];
+    renderNotificationsPanel();
+    return liveNotifications;
+  } catch (err) {
+    console.warn('Notifications fetch failed:', err);
+    renderNotificationsPanel();
+    return [];
+  }
+}
+
+async function liveCreateAnnouncement(title, body) {
+  if (!liveIsEnabled() || !liveAuthToken || !sessionIsAdmin()) throw new Error('Admin backend login required.');
+  const json = await liveApiFetch('/api/announcements', { method: 'POST', body: { title, body } });
+  await liveFetchNotifications();
+  return json?.item || null;
+}
+
+async function liveFetchAuditLog() {
+  if (!liveIsEnabled() || !liveAuthToken || !sessionIsAdmin()) {
+    liveAuditLog = [];
+    renderAuditLogPanel();
+    return [];
+  }
+  try {
+    const json = await liveApiFetch('/api/audit-log', { method: 'GET' });
+    liveAuditLog = Array.isArray(json?.items) ? json.items : [];
+    renderAuditLogPanel();
+    return liveAuditLog;
+  } catch (err) {
+    console.warn('Audit log fetch failed:', err);
+    renderAuditLogPanel(String(err?.message || err));
+    return [];
+  }
+}
+
+function renderNotificationsPanel() {
+  const listEl = document.getElementById('notifications-list');
+  const countEl = document.getElementById('notifications-count');
+  const subEl = document.getElementById('notifications-sub');
+  if (!listEl || !countEl || !subEl) return;
+
+  const items = Array.isArray(liveNotifications) ? liveNotifications.slice(0, 6) : [];
+  countEl.textContent = String(items.length);
+
+  if (!session?.username) {
+    subEl.textContent = 'Login to see your latest notices.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
+    return;
+  }
+  if (items.length === 0) {
+    subEl.textContent = 'No new alerts right now.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">You are all caught up.</div>';
+    return;
+  }
+
+  subEl.textContent = 'Synced from the live backend.';
+  listEl.innerHTML = items.map(item => {
+    const when = item?.ts ? new Date(item.ts).toLocaleString() : '';
+    const kind = String(item?.type || 'notice');
+    return `
+      <div class="notice-item notice-${escapeHTML(kind)}">
+        <div class="notice-title">${escapeHTML(item?.title || 'Notification')}</div>
+        <div class="text-sm text-gray-300 mt-1">${escapeHTML(item?.body || '')}</div>
+        <div class="notice-meta">${escapeHTML(kind.toUpperCase())}${when ? ' • ' + escapeHTML(when) : ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function phase5FormatPercent(value) {
+  const n = Number(value || 0);
+  return Number.isFinite(n) ? n.toFixed(1) + '%' : '0.0%';
+}
+
+function phase5RecentNotes(limit = 4) {
+  return (Array.isArray(library?.pdfs) ? library.pdfs : [])
+    .slice()
+    .sort((a, b) => Date.parse(String(b?.createdAt || '')) - Date.parse(String(a?.createdAt || '')))
+    .slice(0, limit);
+}
+
+function phase5WeakAreas(limit = 3) {
+  const items = Array.isArray(liveMyProgress) ? liveMyProgress.slice() : [];
+  return items
+    .filter(item => Number(item.examAttempts || 0) > 0 || Number(item.practiceAttempts || 0) > 0)
+    .sort((a, b) => {
+      const aScore = Math.min(Number(a.bestPercent || 0) || 0, Number(a.practiceAccuracy || 0) || 0 || 100);
+      const bScore = Math.min(Number(b.bestPercent || 0) || 0, Number(b.practiceAccuracy || 0) || 0 || 100);
+      return aScore - bScore;
+    })
+    .slice(0, limit);
+}
+
+function phase5RecommendQuiz() {
+  const weak = phase5WeakAreas(1)[0];
+  if (weak?.setId) {
+    const set = (library.quizSets || []).find(s => String(s.id) === String(weak.setId));
+    if (set) {
+      return { label: set.title || 'Recommended Set', action: `loadQuizCustom('${String(set.id).replace(/'/g, "\\'")}', 'level-1-menu')` };
+    }
+  }
+  const builtIns = [
+    { label: 'MATHEMATICS', action: "loadQuiz('math')" },
+    { label: 'ESAS', action: "loadQuiz('esas')" },
+    { label: 'PAST BOARD 1', action: "loadQuiz('ug1')" },
+  ];
+  const scores = Array.isArray(liveMyScoreHistory) ? liveMyScoreHistory : [];
+  const taken = new Set(scores.map(x => String(x.setTitle || '').toUpperCase()));
+  return builtIns.find(item => !taken.has(item.label)) || builtIns[0];
+}
+
+function phase5ResumeAction(last) {
+  if (!last) return '';
+  if (last.kind === 'custom_quiz' && last.id) {
+    return `loadQuizCustom('${String(last.id).replace(/'/g, "\\'")}', 'level-1-menu')`;
+  }
+  if (last.kind === 'built_in_quiz' && last.id) {
+    return `loadQuiz('${String(last.id).replace(/'/g, "\\'")}')`;
+  }
+  return '';
+}
+
+function renderDashboardHome() {
+  const body = document.getElementById('dashboard-home-body');
+  const badge = document.getElementById('dashboard-home-badge');
+  const sub = document.getElementById('dashboard-home-sub');
+  if (!body || !badge || !sub) return;
+
+  const last = phase5ReadLastStudy();
+  const weak = phase5WeakAreas(3);
+  const notes = phase5RecentNotes(4);
+  const rec = phase5RecommendQuiz();
+  const resumeAction = phase5ResumeAction(last);
+  const lastText = last?.title ? escapeHTML(last.title) : 'Nothing to resume yet';
+  const weakHtml = weak.length
+    ? weak.map(item => `<span class="dashboard-chip">${escapeHTML(item.setTitle || 'Untitled')} • ${escapeHTML(phase5FormatPercent(item.bestPercent || item.practiceAccuracy || 0))}</span>`).join('')
+    : '<span class="text-gray-500 text-xs font-mono">Take a practice or exam first to reveal weak areas.</span>';
+  const notesHtml = notes.length
+    ? notes.map(pdf => `<button class="dashboard-chip" type="button" onclick="openPdfOverlay('${String(pdf.id || '').replace(/'/g, "\\'")}')">${escapeHTML(pdf.title || 'PDF')}</button>`).join('')
+    : '<span class="text-gray-500 text-xs font-mono">No recent notes yet.</span>';
+
+  badge.textContent = session?.username ? 'SYNCED' : 'GUEST';
+  sub.textContent = session?.username ? 'Continue where you stopped, review weak areas, and jump into recommended content.' : 'Login to unlock resume, recommendations, and synced notifications.';
+
+  body.innerHTML = `
+    <div class="dashboard-mini-card">
+      <div class="dashboard-mini-title">Continue Where You Stopped</div>
+      <div class="dashboard-mini-value">${lastText}</div>
+      <div class="text-xs text-gray-500 font-mono mt-2">${last?.folder ? escapeHTML(last.folder) : 'No saved study context yet.'}</div>
+      <div class="dashboard-chip-row mt-3">
+        ${resumeAction ? `<button class="admin-mini-btn" type="button" onclick="${resumeAction}">RESUME</button>` : `<button class="admin-mini-btn" type="button" onclick="goToLevel2('taypi')">START STUDYING</button>`}
+        ${last ? `<button class="admin-mini-btn" type="button" onclick="phase5ClearLastStudy()">CLEAR</button>` : ''}
+      </div>
+    </div>
+
+    <div class="dashboard-mini-card">
+      <div class="dashboard-mini-title">Recommended Quiz</div>
+      <div class="dashboard-mini-value">${escapeHTML(rec.label || 'Suggested Quiz')}</div>
+      <div class="text-xs text-gray-500 font-mono mt-2">Based on your recent activity and weak areas.</div>
+      <div class="dashboard-chip-row mt-3">
+        <button class="admin-mini-btn" type="button" onclick="${rec.action || "goToLevel2('taypi')"}">OPEN</button>
+      </div>
+    </div>
+
+    <div class="dashboard-mini-card">
+      <div class="dashboard-mini-title">Top Weak Areas</div>
+      <div class="dashboard-chip-row">${weakHtml}</div>
+    </div>
+
+    <div class="dashboard-mini-card">
+      <div class="dashboard-mini-title">Recent Notes</div>
+      <div class="dashboard-chip-row">${notesHtml}</div>
+    </div>
+  `;
+}
+
+function renderSeasonalEvents() {
+  const list = document.getElementById('seasonal-events-list');
+  const sub = document.getElementById('seasonal-events-sub');
+  if (!list || !sub) return;
+
+  const now = new Date();
+  const boardDateRaw = window.PADAYON_BOARD_EXAM_DATE || '';
+  const boardDate = boardDateRaw ? new Date(boardDateRaw) : null;
+  const countdownDays = boardDate && Number.isFinite(boardDate.getTime())
+    ? Math.max(0, Math.ceil((boardDate.getTime() - now.getTime()) / 86400000))
+    : null;
+  const challenge = phase5RecommendQuiz();
+  const monthly = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const monthlyLabel = monthly.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+  const themes = ['Focus Reset', 'Power Grind', 'Concept Lock-In', 'Mock Battle', 'Final Stretch'];
+  const theme = themes[now.getMonth() % themes.length];
+
+  sub.textContent = boardDate ? 'Dynamic events based on today and your study data.' : 'Set window.PADAYON_BOARD_EXAM_DATE in index.html to enable a live board exam countdown.';
+  list.innerHTML = `
+    <div class="event-card">
+      <div class="event-label">Weekly Challenge</div>
+      <div class="event-title">${escapeHTML(challenge.label || 'Suggested Quiz')}</div>
+      <div class="event-sub">Complete this recommended set in exam mode this week.</div>
+    </div>
+    <div class="event-card">
+      <div class="event-label">Monthly Mock Exam</div>
+      <div class="event-title">${escapeHTML(monthlyLabel)}</div>
+      <div class="event-sub">Schedule a full mock exam before the next month begins.</div>
+    </div>
+    <div class="event-card">
+      <div class="event-label">Board Exam Countdown</div>
+      <div class="event-title">${countdownDays == null ? 'Set exam date' : String(countdownDays) + ' day' + (countdownDays === 1 ? '' : 's')}</div>
+      <div class="event-sub">${boardDate ? escapeHTML(boardDate.toLocaleString()) : 'Add PADAYON_BOARD_EXAM_DATE to index.html.'}</div>
+    </div>
+    <div class="event-card">
+      <div class="event-label">Theme Event</div>
+      <div class="event-title">${escapeHTML(theme)}</div>
+      <div class="event-sub">Use this theme for weekly announcements, banners, or mini goals.</div>
+    </div>
+  `;
+}
+
+function renderAuditLogPanel(error = '') {
+  const box = document.getElementById('admin-audit-log-list');
+  if (!box) return;
+  if (!sessionIsAdmin()) {
+    box.innerHTML = '<div class="admin-help">Admin only.</div>';
+    return;
+  }
+  if (error) {
+    box.innerHTML = `<div class="admin-help">Failed to load audit log. ${escapeHTML(error)}</div>`;
+    return;
+  }
+  if (!liveAuditLog.length) {
+    box.innerHTML = '<div class="admin-help">No audit records yet.</div>';
+    return;
+  }
+  box.innerHTML = liveAuditLog.slice(0, 120).map(item => {
+    const when = item?.ts ? new Date(item.ts).toLocaleString() : '';
+    const actor = escapeHTML(item?.actor || item?.username || 'system');
+    const action = escapeHTML(item?.action || item?.message || 'event');
+    const details = escapeHTML(item?.details || '');
+    const pillClass = actor === 'system' ? 'audit-pill-system' : 'audit-pill-admin';
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">${actor} • ${escapeHTML(when)}</div>
+          <div class="admin-list-sub">${action}${details ? ' • ' + details : ''}</div>
+        </div>
+        <div class="admin-list-right"><span class="admin-pill ${pillClass}">${actor === 'system' ? 'SYSTEM' : 'AUDIT'}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function phase5CsvLines(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let inQuotes = false;
+  const src = String(text || '');
+  for (let i = 0; i < src.length; i += 1) {
+    const ch = src[i];
+    const next = src[i + 1];
+    if (ch === '"') {
+      if (inQuotes && next === '"') {
+        cell += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      row.push(cell);
+      cell = '';
+    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+      if (ch === '\r' && next === '\n') i += 1;
+      row.push(cell);
+      if (row.some(value => String(value).trim() !== '')) rows.push(row);
+      row = [];
+      cell = '';
+    } else {
+      cell += ch;
+    }
+  }
+  row.push(cell);
+  if (row.some(value => String(value).trim() !== '')) rows.push(row);
+  return rows;
+}
+
+function phase5CsvToQuestions(text) {
+  const rows = phase5CsvLines(text);
+  if (!rows.length) return [];
+  const header = rows[0].map(v => String(v || '').trim().toLowerCase());
+  const idx = name => header.indexOf(name);
+  const map = {
+    topic: idx('topic'),
+    q: header.findIndex(x => ['question', 'q', 'text'].includes(x)),
+    a: idx('a'),
+    b: idx('b'),
+    c: idx('c'),
+    d: idx('d'),
+    correct: header.findIndex(x => ['correct', 'answer', 'key'].includes(x)),
+    soln: header.findIndex(x => ['solution', 'soln', 'explanation'].includes(x)),
+    caltech: header.findIndex(x => ['caltech', 'calculator', 'calculator_technique'].includes(x)),
+  };
+  return rows.slice(1).map((row, i) => sanitizeQuestion({
+    topic: map.topic >= 0 ? row[map.topic] : '',
+    q: map.q >= 0 ? row[map.q] : '',
+    options: {
+      a: map.a >= 0 ? row[map.a] : '',
+      b: map.b >= 0 ? row[map.b] : '',
+      c: map.c >= 0 ? row[map.c] : '',
+      d: map.d >= 0 ? row[map.d] : '',
+    },
+    key: map.correct >= 0 ? String(row[map.correct] || '').trim().toLowerCase().replace(/[^a-d]/g, '').slice(0,1) : 'a',
+    soln: map.soln >= 0 ? row[map.soln] : '',
+    caltech: map.caltech >= 0 ? row[map.caltech] : '',
+  }, i + 1)).filter(q => String(q?.q || '').trim());
+}
+
+async function adminImportQuestionsCsv() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+  const fileEl = document.getElementById('admin-import-csv-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a CSV file first.');
+    return;
+  }
+  try {
+    const text = await readFileAsText(file);
+    const questions = phase5CsvToQuestions(text);
+    if (!questions.length) {
+      alert('No valid questions found in CSV.');
+      return;
+    }
+    const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
+    questions.forEach((q, index) => { q.id = maxExistingId + index + 1; });
+    if (!Array.isArray(set.questions)) set.questions = [];
+    set.questions = set.questions.concat(questions);
+    renumberQuestions(set.questions);
+    set.updatedAt = nowISO();
+    touchLibrary();
+    adminUpdateQuestionCount();
+    const status = document.getElementById('admin-import-upgrade-status');
+    if (status) status.textContent = `Imported ${questions.length} question(s) from CSV.`;
+    if (fileEl) fileEl.value = '';
+  } catch (err) {
+    console.error(err);
+    alert('CSV import failed: ' + String(err?.message || err));
+  }
+}
+
+function phase5EnsureQuizSet(title, folder) {
+  let set = (library.quizSets || []).find(item => String(item.title || '').toLowerCase() === String(title || '').toLowerCase() && samePath(item.folder || '', folder || ''));
+  if (!set) {
+    set = {
+      id: uid('qs'),
+      title: title || 'Imported Set',
+      folder: folder || getAdminTargetPath() || 'GLOBAL',
+      createdAt: nowISO(),
+      updatedAt: nowISO(),
+      questions: [],
+    };
+    library.quizSets.push(set);
+  }
+  return set;
+}
+
+async function adminImportZipBundle() {
+  const fileEl = document.getElementById('admin-import-zip-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a ZIP file first.');
+    return;
+  }
+  if (!window.JSZip) {
+    alert('JSZip failed to load. Refresh and try again.');
+    return;
+  }
+  const status = document.getElementById('admin-import-upgrade-status');
+  try {
+    if (status) status.textContent = 'Reading ZIP bundle...';
+    const zip = await JSZip.loadAsync(file);
+    let importedSets = 0;
+    let importedQuestions = 0;
+    let importedPdfs = 0;
+
+    const entries = Object.values(zip.files).filter(entry => !entry.dir);
+    for (const entry of entries) {
+      const name = String(entry.name || '');
+      const lower = name.toLowerCase();
+      if (lower.endsWith('library.json')) {
+        const text = await entry.async('string');
+        library = normalizeIncomingLibrary(JSON.parse(text));
+        libraryLoadState = { ok: true, source: 'zip-import', error: null };
+        importedSets = (library.quizSets || []).length;
+        importedPdfs = (library.pdfs || []).length;
+        continue;
+      }
+      if (lower.endsWith('.json')) {
+        const text = await entry.async('string');
+        const json = JSON.parse(text);
+        const list = Array.isArray(json?.questions) ? json.questions : (Array.isArray(json) ? json : null);
+        if (list) {
+          const folder = getAdminTargetPath() || 'GLOBAL';
+          const title = String(json?.title || name.replace(/\.json$/i, '').split('/').pop() || 'Imported Set');
+          const set = phase5EnsureQuizSet(title, folder);
+          const start = (set.questions || []).length;
+          const sanitized = list.map((q, i) => sanitizeQuestion(q, start + i + 1)).filter(q => q.q);
+          set.questions = (set.questions || []).concat(sanitized);
+          renumberQuestions(set.questions);
+          set.updatedAt = nowISO();
+          importedSets += 1;
+          importedQuestions += sanitized.length;
+        }
+        continue;
+      }
+      if (lower.endsWith('.csv')) {
+        const text = await entry.async('string');
+        const questions = phase5CsvToQuestions(text);
+        if (questions.length) {
+          const folder = getAdminTargetPath() || 'GLOBAL';
+          const title = name.replace(/\.csv$/i, '').split('/').pop() || 'Imported CSV Set';
+          const set = phase5EnsureQuizSet(title, folder);
+          const start = (set.questions || []).length;
+          questions.forEach((q, i) => { q.id = start + i + 1; });
+          set.questions = (set.questions || []).concat(questions);
+          renumberQuestions(set.questions);
+          set.updatedAt = nowISO();
+          importedSets += 1;
+          importedQuestions += questions.length;
+        }
+        continue;
+      }
+      if (lower.endsWith('.pdf')) {
+        const folder = getAdminTargetPath() || 'GLOBAL';
+        const title = name.split('/').pop();
+        let src = '';
+        if (liveIsEnabled() && liveAuthToken && sessionCanManageContent()) {
+          const blob = await entry.async('blob');
+          const pdfFile = new File([blob], title, { type: 'application/pdf' });
+          const uploaded = await liveUploadPdfFile(pdfFile);
+          src = String(uploaded?.url || uploaded?.path || '').trim();
+        } else {
+          const base64 = await entry.async('base64');
+          src = 'data:application/pdf;base64,' + base64;
+        }
+        library.pdfs.push({ id: uid('pdf'), title, folder, kind: 'notes', src, createdAt: nowISO() });
+        importedPdfs += 1;
+      }
+    }
+
+    touchLibrary();
+    adminRefreshAll();
+    if (status) status.textContent = `ZIP imported: ${importedSets} set(s), ${importedQuestions} question(s), ${importedPdfs} PDF(s).`;
+    if (fileEl) fileEl.value = '';
+  } catch (err) {
+    console.error(err);
+    if (status) status.textContent = 'ZIP import failed.';
+    alert('ZIP import failed: ' + String(err?.message || err));
+  }
+}
+
+function phase5FilterLibraryByFolder(target) {
+  const folder = normalizePath(target || '');
+  const filtered = emptyLibrary();
+  filtered.updatedAt = nowISO();
+  if (!folder) return normalizeIncomingLibrary(library);
+  filtered.folders = (library.folders || []).filter(f => samePath(f.path, folder) || isUnderPath(f.path, folder));
+  filtered.quizSets = (library.quizSets || []).filter(s => samePath(s.folder, folder) || isUnderPath(s.folder, folder));
+  filtered.pdfs = (library.pdfs || []).filter(p => samePath(p.folder, folder) || isUnderPath(p.folder, folder));
+  return normalizeIncomingLibrary(filtered);
+}
+
+function adminExportTargetFolder() {
+  const target = getAdminTargetPath();
+  if (!target) {
+    alert('Set a Target folder path first.');
+    return;
+  }
+  const payload = {
+    format: 'PADAYON_FOLDER_EXPORT_V1',
+    exportedAt: nowISO(),
+    targetFolder: target,
+    counts: {
+      folders: (library.folders || []).filter(f => samePath(f.path, target) || isUnderPath(f.path, target)).length,
+      quizSets: (library.quizSets || []).filter(s => samePath(s.folder, target) || isUnderPath(s.folder, target)).length,
+      pdfs: (library.pdfs || []).filter(p => samePath(p.folder, target) || isUnderPath(p.folder, target)).length,
+    },
+    library: phase5FilterLibraryByFolder(target),
+  };
+  downloadJSON((target.replace(/[^a-z0-9_-]+/gi, '_') || 'folder') + '_export.json', payload);
+}
+
+function adminExportContentBackup() {
+  const payload = {
+    format: 'PADAYON_CONTENT_BACKUP_V2',
+    exportedAt: nowISO(),
+    appVersion: 'Phase 5',
+    backendUrl: trimSlash(liveBackendUrl || window.PADAYON_BACKEND_URL || ''),
+    counts: {
+      folders: (library.folders || []).length,
+      quizSets: (library.quizSets || []).length,
+      pdfs: (library.pdfs || []).length,
+    },
+    library: normalizeIncomingLibrary(library),
+  };
+  downloadJSON('padayon_content_backup.json', payload);
+}
+
+async function adminExportUserDataBackup() {
+  const payload = {
+    format: 'PADAYON_USER_BACKUP_V1',
+    exportedAt: nowISO(),
+    username: session?.username || null,
+    lastStudy: phase5ReadLastStudy(),
+    recentScores: Array.isArray(liveMyScoreHistory) ? liveMyScoreHistory : [],
+    progress: Array.isArray(liveMyProgress) ? liveMyProgress : [],
+    notifications: Array.isArray(liveNotifications) ? liveNotifications : [],
+  };
+  downloadJSON('padayon_user_backup.json', payload);
+}
+
+async function adminRunContentQualityScan() {
+  const box = document.getElementById('admin-quality-scan-results');
+  if (!box) return;
+  box.innerHTML = '<div class="admin-help">Scanning content quality...</div>';
+
+  const duplicateMap = new Map();
+  const duplicateHits = [];
+  const missingSolutions = [];
+  const topicIssues = [];
+  const brokenLinks = [];
+
+  (library.quizSets || []).forEach(set => {
+    const styleMap = new Map();
+    (set.questions || []).forEach((q, index) => {
+      const qText = String(q?.q || '').trim();
+      const norm = qText.toLowerCase().replace(/\s+/g, ' ').trim();
+      if (norm) {
+        const arr = duplicateMap.get(norm) || [];
+        arr.push({ setTitle: set.title || 'Untitled', index: index + 1, text: qText });
+        duplicateMap.set(norm, arr);
+      }
+      if (!String(q?.soln || '').trim()) {
+        missingSolutions.push(`${set.title || 'Untitled'} • #${index + 1}`);
+      }
+      const topic = String(q?.topic || '').trim();
+      if (!topic) {
+        topicIssues.push(`${set.title || 'Untitled'} • #${index + 1} has blank topic`);
+      } else {
+        const key = topic.toLowerCase();
+        const arr = styleMap.get(key) || new Set();
+        arr.add(topic);
+        styleMap.set(key, arr);
+      }
+    });
+    styleMap.forEach((variants, key) => {
+      if (variants.size > 1) {
+        topicIssues.push(`${set.title || 'Untitled'} has inconsistent topic casing: ${Array.from(variants).join(', ')}`);
+      }
+    });
+  });
+
+  duplicateMap.forEach((items, norm) => {
+    if (items.length > 1) {
+      duplicateHits.push(items.map(item => `${item.setTitle} #${item.index}`).join(' • '));
+    }
+  });
+
+  for (const pdf of (library.pdfs || []).slice(0, 25)) {
+    const src = String(pdf?.src || '').trim();
+    if (!src) {
+      brokenLinks.push(`${pdf.title || 'PDF'} has empty source`);
+      continue;
+    }
+    if (src.startsWith('data:')) continue;
+    try {
+      const res = await fetch(src, { method: 'HEAD' });
+      if (!res.ok) brokenLinks.push(`${pdf.title || 'PDF'} returned ${res.status}`);
+    } catch (_) {
+      brokenLinks.push(`${pdf.title || 'PDF'} could not be verified`);
+    }
+  }
+
+  const sections = [
+    ['Duplicate Questions', duplicateHits],
+    ['Missing Solutions', missingSolutions],
+    ['Topic Consistency', topicIssues],
+    ['Broken / Unverified PDF Links', brokenLinks],
+  ];
+
+  box.innerHTML = sections.map(([title, items]) => `
+    <div class="admin-list-item">
+      <div class="admin-list-left">
+        <div class="admin-list-title">${escapeHTML(title)}</div>
+        <div class="admin-list-sub">${items.length ? escapeHTML(String(items.length)) + ' issue(s)' : 'No issues found.'}</div>
+        ${items.length ? `<div class="admin-help" style="margin-top:8px; white-space:pre-wrap;">${items.slice(0, 12).map(x => '• ' + x).join('<br>')}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function phase5BindButtons() {
+  document.getElementById('admin-import-csv-btn')?.addEventListener('click', adminImportQuestionsCsv);
+  document.getElementById('admin-import-zip-btn')?.addEventListener('click', adminImportZipBundle);
+  document.getElementById('admin-export-folder-btn')?.addEventListener('click', adminExportTargetFolder);
+  document.getElementById('admin-export-content-backup-btn')?.addEventListener('click', adminExportContentBackup);
+  document.getElementById('admin-export-user-backup-btn')?.addEventListener('click', adminExportUserDataBackup);
+  document.getElementById('admin-quality-scan-btn')?.addEventListener('click', adminRunContentQualityScan);
+  document.getElementById('admin-send-announcement-btn')?.addEventListener('click', async () => {
+    const title = String(document.getElementById('admin-announcement-title')?.value || '').trim();
+    const body = String(document.getElementById('admin-announcement-body')?.value || '').trim();
+    const status = document.getElementById('admin-announcement-status');
+    if (!title || !body) {
+      if (status) status.textContent = 'Enter announcement title and message.';
+      return;
+    }
+    try {
+      if (status) status.textContent = 'Sending announcement...';
+      await liveCreateAnnouncement(title, body);
+      if (status) status.textContent = 'Announcement sent.';
+      const t = document.getElementById('admin-announcement-title');
+      const b = document.getElementById('admin-announcement-body');
+      if (t) t.value = '';
+      if (b) b.value = '';
+    } catch (err) {
+      if (status) status.textContent = 'Failed: ' + String(err?.message || err);
+    }
+  });
+  document.getElementById('admin-refresh-audit-btn')?.addEventListener('click', liveFetchAuditLog);
+}
+
+function phase5AfterSyncRefresh() {
+  renderDashboardHome();
+  renderSeasonalEvents();
+  renderNotificationsPanel();
+}
+
+// Wrap key flows without rewriting the original Phase 3 logic.
+const __phase5_verifyLogin = verifyLogin;
+verifyLogin = async function () {
+  const result = await __phase5_verifyLogin.apply(this, arguments);
+  setTimeout(async () => {
+    try {
+      await Promise.allSettled([liveFetchMyScoreHistory(), liveFetchMyProgress(), liveFetchNotifications(), liveFetchAuditLog()]);
+      phase5AfterSyncRefresh();
+    } catch (_) {}
+  }, 900);
+  return result;
+};
+
+const __phase5_logoutToLogin = logoutToLogin;
+logoutToLogin = function () {
+  liveNotifications = [];
+  liveAuditLog = [];
+  phase5AfterSyncRefresh();
+  return __phase5_logoutToLogin.apply(this, arguments);
+};
+
+const __phase5_loadQuiz = loadQuiz;
+loadQuiz = function (type) {
+  const r = __phase5_loadQuiz.apply(this, arguments);
+  try {
+    phase5PersistLastStudy({ kind: 'built_in_quiz', id: type, title: currentQuizMeta.title || String(type || '').toUpperCase(), folder: currentQuizMeta.folder || '' });
+  } catch (_) {}
+  return r;
+};
+
+const __phase5_loadQuizCustom = loadQuizCustom;
+loadQuizCustom = function (setId, backMenuId) {
+  const r = __phase5_loadQuizCustom.apply(this, arguments);
+  try {
+    phase5PersistLastStudy({ kind: 'custom_quiz', id: currentQuizMeta.id || setId, title: currentQuizMeta.title || 'Custom Quiz', folder: currentQuizMeta.folder || '' });
+  } catch (_) {}
+  return r;
+};
+
+const __phase5_openNotesFolder = openNotesFolder;
+openNotesFolder = function (folderPath, title, backMenuId, kind) {
+  const r = __phase5_openNotesFolder.apply(this, arguments);
+  try { phase5PersistLastStudy({ kind: 'notes', id: folderPath, title: title || 'Notes', folder: folderPath || '' }); } catch (_) {}
+  return r;
+};
+
+const __phase5_openPdfOverlay = openPdfOverlay;
+openPdfOverlay = function (pdfId, backOverlayId) {
+  const r = __phase5_openPdfOverlay.apply(this, arguments);
+  try {
+    const pdf = getPdfById(pdfId);
+    if (pdf) phase5PersistLastStudy({ kind: 'pdf', id: pdf.id, title: pdf.title || 'PDF', folder: pdf.folder || '' });
+  } catch (_) {}
+  return r;
+};
+
+const __phase5_liveFetchMyScoreHistory = liveFetchMyScoreHistory;
+liveFetchMyScoreHistory = async function () {
+  const r = await __phase5_liveFetchMyScoreHistory.apply(this, arguments);
+  renderDashboardHome();
+  return r;
+};
+
+const __phase5_liveFetchMyProgress = liveFetchMyProgress;
+liveFetchMyProgress = async function () {
+  const r = await __phase5_liveFetchMyProgress.apply(this, arguments);
+  renderDashboardHome();
+  return r;
+};
+
+const __phase5_loadLibraryFromBackend = loadLibraryFromBackend;
+loadLibraryFromBackend = async function () {
+  const r = await __phase5_loadLibraryFromBackend.apply(this, arguments);
+  renderDashboardHome();
+  renderSeasonalEvents();
+  return r;
+};
+
+const __phase5_adminRefreshAll = adminRefreshAll;
+adminRefreshAll = function () {
+  const r = __phase5_adminRefreshAll.apply(this, arguments);
+  renderDashboardHome();
+  return r;
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  phase5BindButtons();
+  renderNotificationsPanel();
+  renderDashboardHome();
+  renderSeasonalEvents();
+  renderAuditLogPanel();
+});
