@@ -21,9 +21,10 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <!-- Tailwind CDN (kept for existing layouts) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Rajdhani:wght@500;700;900&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_phase5.css">
 </head>
 
 <body class="min-h-screen">
@@ -83,7 +84,6 @@
                             data-theme="dark">
                         </div>
                     </div>
-                    <br>
                     <button type="submit" class="modern-login-btn">LOGIN</button>
                     <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
                 </form>
@@ -116,29 +116,37 @@
         <button class="start-btn" onclick="goToLevel1()">INITIALIZE SYSTEM</button>
     </div>
 
+
     <!-- ========================= LEVEL 1 (CATEGORIES) ========================= -->
-    <div id="level-1-menu" class="menu-overlay hidden categories-overlay">
-        <div class="categories-top-section space-y-4">
-            <div id="online-users-card" class="w-full">
-                <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                        <div>
-                            <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
-                            <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
+    <div id="level-1-menu" class="menu-overlay hidden">
+        <!-- Landing page actions (category level only) -->
+        <button onclick="userQuickImportLibrary()" class="import-btn" title="Import a library.json backup/update">⬆ IMPORT</button>
+        <input id="user-import-file" type="file" accept="application/json" style="display:none" />
+        <button onclick="logoutToLogin()" class="logout-btn">⏻ LOGOUT</button>
+        <h2 class="menu-header">SELECT CATEGORY</h2>
+
+
+        <div class="dashboard-shell w-full max-w-5xl px-4 mt-4 space-y-4">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <div id="online-users-card" class="w-full xl:col-span-1">
+                    <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div>
+                                <div class="text-sm font-mono tracking-widest text-gray-300">ONLINE NOW</div>
+                                <div id="online-users-sub" class="text-xs font-mono text-gray-500">Connecting…</div>
+                            </div>
+                            <div class="flex items-center gap-3 self-start md:self-auto">
+                                <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
+                                <button id="online-users-toggle" onclick="toggleOnlineUsersCard()" class="admin-mini-btn" type="button">SHOW</button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3 self-start md:self-auto">
-                            <div id="online-users-count" class="text-xs font-mono text-gray-400">0</div>
-                            <button id="online-users-toggle" onclick="toggleOnlineUsersCard()" class="admin-mini-btn" type="button">SHOW</button>
+                        <div id="online-users-body" class="mt-3 hidden">
+                            <div id="online-users-list" class="flex flex-wrap gap-2"></div>
                         </div>
-                    </div>
-                    <div id="online-users-body" class="mt-3 hidden">
-                        <div id="online-users-list" class="flex flex-wrap gap-2"></div>
                     </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                <div id="score-history-card" class="w-full">
+                <div id="score-history-card" class="w-full xl:col-span-1">
                     <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div>
@@ -156,7 +164,7 @@
                     </div>
                 </div>
 
-                <div id="progress-card" class="w-full">
+                <div id="progress-card" class="w-full xl:col-span-1">
                     <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div>
@@ -174,15 +182,50 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Landing page actions (category level only) -->
-        <button onclick="userQuickImportLibrary()" class="import-btn" title="Import a library.json backup/update">⬆ IMPORT</button>
-        <input id="user-import-file" type="file" accept="application/json" style="display:none" />
-        <button onclick="logoutToLogin()" class="logout-btn">⏻ LOGOUT</button>
-        <h2 class="menu-header">SELECT CATEGORY</h2>
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <div id="dashboard-home-card" class="xl:col-span-2">
+                    <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div>
+                                <div class="text-sm font-mono tracking-widest text-gray-300">STUDY DASHBOARD</div>
+                                <div id="dashboard-home-sub" class="text-xs font-mono text-gray-500">Your quick study command center.</div>
+                            </div>
+                            <div id="dashboard-home-badge" class="admin-pill">READY</div>
+                        </div>
+                        <div id="dashboard-home-body" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                    </div>
+                </div>
 
-        <div class="categories-grid grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div id="notifications-card" class="xl:col-span-1">
+                    <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div>
+                                <div class="text-sm font-mono tracking-widest text-gray-300">NOTIFICATIONS</div>
+                                <div id="notifications-sub" class="text-xs font-mono text-gray-500">Announcements, uploads, and milestones.</div>
+                            </div>
+                            <div id="notifications-count" class="text-xs font-mono text-gray-400">0</div>
+                        </div>
+                        <div id="notifications-list" class="mt-3 space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <div id="seasonal-events-card" class="w-full">
+                    <div class="cyber-card p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div>
+                                <div class="text-sm font-mono tracking-widest text-gray-300">SEASONAL EVENTS</div>
+                                <div id="seasonal-events-sub" class="text-xs font-mono text-gray-500">Weekly challenge, monthly mock exam, countdown, and theme.</div>
+                            </div>
+                            <div class="admin-pill">LIVE</div>
+                        </div>
+                        <div id="seasonal-events-list" class="mt-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-5xl px-4 pb-20 mt-4">
             <div onclick="goToLevel2('undergrounds')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop transition-all duration-300 hover:-translate-y-1 hover:border-[#00f3ff]">
                 <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🚇</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">UNDERGROUNDS</h3>
@@ -207,6 +250,7 @@
                 <p class="text-gray-500 text-xs font-mono mt-2">Power Systems & Grid</p>
             </div>
 
+            <!-- Admin card (shown only if logged in as admin) -->
             <div id="admin-card" onclick="openAdminPanel()" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop hidden">
                 <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🛠️</div>
                 <h3 class="text-xl font-bold text-white tracking-widest">ADMIN PANEL</h3>
@@ -987,7 +1031,19 @@
                         <div class="admin-help">Shows latest actions (navigation, opened notes/PDF, started quiz/exam, etc.).</div>
                         <div id="admin-activity-log" class="admin-list"></div>
                     </div>
-                </section>
+                                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div>
+                                <div class="admin-card-title">Audit Log & Security</div>
+                                <div class="admin-help">Persistent backend audit trail plus current protection rules.</div>
+                            </div>
+                            <button id="admin-refresh-audit-btn" class="admin-mini-btn" type="button">REFRESH</button>
+                        </div>
+                        <div class="admin-help">Current policy: stronger passwords, login lockout after repeated failures, and configurable session expiry.</div>
+                        <div id="admin-audit-log-list" class="admin-list"></div>
+                    </div>
+</section>
 
 
                 <!-- BACKUP TAB -->
@@ -1030,6 +1086,63 @@
                         <div class="admin-card-accent"></div>
                         <div class="admin-card-title-row">
                             <div>
+                                <div class="admin-card-title">Import Upgrades</div>
+                                <div class="admin-help">CSV import, ZIP bundle import, and faster content migration.</div>
+                            </div>
+                        </div>
+                        <div class="admin-row3">
+                            <input id="admin-import-csv-file" class="admin-file" type="file" accept=".csv,text/csv">
+                            <button id="admin-import-csv-btn" class="admin-btn green" type="button">IMPORT CSV TO SELECTED SET</button>
+                            <div class="admin-help">Quiz CSV should contain question, a, b, c, d, correct, topic, solution, caltech.</div>
+                        </div>
+                        <div class="admin-row3">
+                            <input id="admin-import-zip-file" class="admin-file" type="file" accept=".zip,application/zip">
+                            <button id="admin-import-zip-btn" class="admin-btn cyan" type="button">IMPORT ZIP BUNDLE</button>
+                            <div class="admin-help">ZIP can contain library.json, quiz JSON exports, CSV files, and PDFs.</div>
+                        </div>
+                        <div id="admin-import-upgrade-status" class="admin-help">No advanced import yet.</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div>
+                                <div class="admin-card-title">Export Upgrades</div>
+                                <div class="admin-help">Export with metadata, by folder, or per-user study data.</div>
+                            </div>
+                        </div>
+                        <div class="admin-row2">
+                            <button id="admin-export-folder-btn" class="admin-btn cyan" type="button">EXPORT TARGET FOLDER</button>
+                            <button id="admin-export-content-backup-btn" class="admin-btn" type="button">EXPORT CONTENT + METADATA</button>
+                        </div>
+                        <div class="admin-row2">
+                            <button id="admin-export-user-backup-btn" class="admin-btn green" type="button">EXPORT USER DATA BACKUP</button>
+                            <button id="admin-quality-scan-btn" class="admin-btn" type="button">RUN CONTENT QUALITY SCAN</button>
+                        </div>
+                        <div id="admin-quality-scan-results" class="admin-list"></div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div>
+                                <div class="admin-card-title">Announcements & Notifications</div>
+                                <div class="admin-help">Push in-app notices for users from the admin panel.</div>
+                            </div>
+                        </div>
+                        <div class="admin-row2">
+                            <input id="admin-announcement-title" class="admin-input" type="text" placeholder="Announcement title">
+                            <input id="admin-announcement-body" class="admin-input" type="text" placeholder="Short announcement message">
+                        </div>
+                        <div class="admin-row2">
+                            <button id="admin-send-announcement-btn" class="admin-btn magenta" type="button">SEND ANNOUNCEMENT</button>
+                            <div id="admin-announcement-status" class="admin-help">No announcement sent yet.</div>
+                        </div>
+                    </div>
+                    <div class="admin-card">
+                        <div class="admin-card-accent"></div>
+                        <div class="admin-card-title-row">
+                            <div>
                                 <div class="admin-card-title">Version History</div>
                                 <div class="admin-help">Automatic library snapshots are stored on the backend whenever content changes.</div>
                             </div>
@@ -1048,10 +1161,11 @@
 
     <!-- ✅ OPTIONAL: set your Render backend URL here (no trailing slash).
          Example: https://your-backend-name.onrender.com -->
-    <script>
+        <script>
         window.PADAYON_BACKEND_URL = "https://padayon-backendv2.onrender.com";
+        window.PADAYON_BOARD_EXAM_DATE = "2026-09-06T08:00:00+08:00";
     </script>
 
-    <script src="script.js"></script>
+    <script src="script_phase5.js"></script>
 </body>
 </html>
