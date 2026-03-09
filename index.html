@@ -139,6 +139,19 @@
           </div>
         </div>
 
+        <div id="score-history-card" class="w-full max-w-5xl px-4 mt-4">
+          <div class="cyber-card p-4 rounded-xl">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                      <div class="text-sm font-mono tracking-widest text-gray-300">RECENT SCORES</div>
+                      <div id="score-history-sub" class="text-xs font-mono text-gray-500">Login to view your recent exam scores.</div>
+                  </div>
+                  <div id="score-history-count" class="text-xs font-mono text-gray-400">0</div>
+              </div>
+              <div id="score-history-list" class="mt-3 flex flex-col gap-2"></div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl px-4 pb-20">
             <div onclick="goToLevel2('undergrounds')" class="cyber-card group cursor-pointer p-6 rounded-xl text-center animate-pop">
                 <div class="text-4xl mb-4 group-hover:text-[#00f3ff] transition-colors">🚇</div>
@@ -729,10 +742,21 @@
                             <textarea id="admin-q-soln" class="admin-textarea" rows="4" placeholder="Solution / Explanation (optional, supports HTML + MathJax)"></textarea>
                             <textarea id="admin-q-caltech" class="admin-textarea" rows="3" placeholder="Calculator Technique (optional)"></textarea>
 
+                            <div id="admin-q-edit-status" class="admin-help">Select a quiz set first.</div>
+
                             <div class="admin-row2">
                                 <button id="admin-q-add-btn" class="admin-btn cyan" type="button">ADD QUESTION</button>
                                 <button id="admin-q-clear-btn" class="admin-btn" type="button">CLEAR</button>
                             </div>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-accent"></div>
+                            <div class="admin-card-title-row">
+                                <div class="admin-card-title">Question List</div>
+                                <div class="admin-help">Edit, duplicate, or delete questions in the selected set.</div>
+                            </div>
+                            <div id="admin-question-list" class="admin-list"></div>
                         </div>
                     </div>
 
@@ -741,8 +765,8 @@
                     <div id="admin-panel-notes" class="admin-stack hidden">
                         <div class="admin-card">
                             <div class="admin-card-accent"></div>
-                            <div class="admin-card-title">Upload PDF Notes</div>
-                            <div class="admin-help">Upload works in EXHALE FILE / PAWER-LAYN FILE / UNDERGROUNDS FORMULAS / CALCULATOR TECHNIQUES / T-AY-PI (and any folder you type).</div>
+                            <div class="admin-card-title">Attach PDF Notes by URL</div>
+                            <div class="admin-help">Phase 1 stores only PDF URLs/paths in the library. No more embedded PDFs inside library.json.</div>
 
                             <div class="admin-row2">
                                 <select id="admin-pdf-kind" class="admin-select">
@@ -755,7 +779,7 @@
                             <div class="admin-row3">
                                 <input id="admin-pdf-file" class="admin-file" type="file" accept="application/pdf">
                                 <input id="admin-pdf-title" class="admin-input" type="text" placeholder="Display title (optional)">
-                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">UPLOAD &amp; ATTACH (EMBED)</button>
+                                <button id="admin-pdf-upload-btn" class="admin-btn green" type="button">SAVE URL ENTRY</button>
                             </div>
 
                             <div class="admin-row-url">
@@ -764,8 +788,8 @@
                             </div>
 
                             <div class="admin-hint">
-                                <strong>Tip:</strong> GitHub Pages is static. For sharing, upload the PDF file into your repo, then paste its relative path above and export <span class="font-mono">library.json</span>.
-                                Embedding (UPLOAD) stores the PDF inside <span class="font-mono">library.json</span> as base64 (can get huge).
+                                <strong>Tip:</strong> Upload the real PDF file into your repo or hosting, then store only its URL/path here (for example <span class="font-mono">assets/pdfs/file.pdf</span>).
+                                Choosing a file above can auto-create a suggested path, but the file itself still needs to exist on your hosting.
                             </div>
                         </div>
 
