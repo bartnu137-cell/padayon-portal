@@ -84,7 +84,22 @@
                         </div>
                     </div>
                     <br>
-                    <button type="submit" class="modern-login-btn">LOGIN</button>
+                    <button type="submit" class="modern-login-btn" id="loginBtn">
+                      <span class="btn-text">LOGIN</span>
+                      <span class="btn-loading" style="display: none;">Loading...</span>
+                    </button>
+                    
+                    <script>
+                      const loginBtn = document.getElementById("loginBtn");
+                    
+                      loginBtn.closest("form")?.addEventListener("submit", function () {
+                        loginBtn.disabled = true;
+                        loginBtn.classList.add("loading");
+                    
+                        loginBtn.querySelector(".btn-text").style.display = "none";
+                        loginBtn.querySelector(".btn-loading").style.display = "inline";
+                      });
+                    </script>
                     <p id="login-msg" class="text-red-500 text-xs mt-4 text-center hidden font-bold">INVALID CREDENTIALS</p>
                 </form>
             </div>
