@@ -144,23 +144,33 @@ function saveCollapsedPref(key, value) {
   } catch (_) {}
 }
 
-function renderLandingCardToggles() {
-  const onlineBody = document.getElementById('online-users-body');
-  const onlineBtn = document.getElementById('online-users-toggle');
+function setSectionVisible(id, visible) {
+  const el = document.getElementById(id);
+  if (!el) return;
 
-  if (onlineBody) onlineBody.classList.toggle('hidden', onlineUsersCollapsed);
-  if (onlineBtn) {
-    onlineBtn.textContent = onlineUsersCollapsed ? 'SHOW' : 'HIDE';
-    onlineBtn.setAttribute('aria-expanded', onlineUsersCollapsed ? 'false' : 'true');
+  if (visible) {
+    el.classList.remove('hidden');
+    el.style.display = '';
+  } else {
+    el.classList.add('hidden');
+    el.style.display = 'none';
   }
+}
 
-  const scoreBody = document.getElementById('score-history-body');
+
+function renderLandingCardToggles() {
+  const onlineBtn = document.getElementById('online-users-toggle');
   const scoreBtn = document.getElementById('score-history-toggle');
 
-  if (scoreBody) scoreBody.classList.toggle('hidden', scoreHistoryCollapsed);
+  setSectionVisible('online-users-body', !onlineUsersCollapsed);
+  setSectionVisible('score-history-body', !scoreHistoryCollapsed);
+
+  if (onlineBtn) {
+    onlineBtn.textContent = onlineUsersCollapsed ? 'SHOW' : 'HIDE';
+  }
+
   if (scoreBtn) {
     scoreBtn.textContent = scoreHistoryCollapsed ? 'SHOW' : 'HIDE';
-    scoreBtn.setAttribute('aria-expanded', scoreHistoryCollapsed ? 'false' : 'true');
   }
 }
 
