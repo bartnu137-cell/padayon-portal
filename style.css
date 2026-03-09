@@ -1122,17 +1122,6 @@ body{
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 14px 30px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
 }
 
 .modern-login-btn::before {
@@ -1165,6 +1154,10 @@ body{
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-top: 2px solid #fff;
   border-radius: 50%;
+  display: none;
+}
+
+.modern-login-btn.loading .btn-text {
   display: none;
 }
 
