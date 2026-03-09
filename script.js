@@ -54,7 +54,6 @@ let lastAppliedLibraryUpdatedAtMs = 0;
 // =========================
 const LIVE_BACKEND_URL_KEY = 'padayon_backend_url';
 const LIVE_TOKEN_KEY = 'padayon_auth_token_v1';
-const LIVE_MANAGED_UPLOAD_PREFIX = '/uploads/pdfs/';
 
 let liveBackendUrl = '';
 let liveAuthToken = '';
@@ -70,9 +69,6 @@ let liveAdminLog = [];     // [{ ts, username, message }]
 let liveLastPresenceHash = '';
 let liveLibraryPushTimer = null;
 let liveLastLibraryPushedAtMs = 0;
-let liveMyScoreHistory = [];
-let currentQuizMeta = { id: null, title: '', folder: '', source: 'built_in' };
-let adminEditingQuestionIndex = -1;
 
 function trimSlash(url) {
   return String(url || '').trim().replace(/\/+$/, '');
@@ -120,76 +116,6 @@ function setConfiguredBackendUrl(url) {
 
   liveBackendUrl = clean;
   updateLiveStatusUI();
-}
-
-const ONLINE_USERS_COLLAPSED_KEY = 'padayon_online_users_collapsed_v1';
-const SCORE_HISTORY_COLLAPSED_KEY = 'padayon_score_history_collapsed_v1';
-
-let onlineUsersCollapsed = true;
-let scoreHistoryCollapsed = true;
-
-function readCollapsedPref(key, fallback = true) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw === null) return fallback;
-    return raw === '1';
-  } catch (_) {
-    return fallback;
-  }
-}
-
-function saveCollapsedPref(key, value) {
-  try {
-    localStorage.setItem(key, value ? '1' : '0');
-  } catch (_) {}
-}
-
-function setSectionVisible(id, visible) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  if (visible) {
-    el.classList.remove('hidden');
-    el.style.display = '';
-  } else {
-    el.classList.add('hidden');
-    el.style.display = 'none';
-  }
-}
-
-
-function renderLandingCardToggles() {
-  const onlineBtn = document.getElementById('online-users-toggle');
-  const scoreBtn = document.getElementById('score-history-toggle');
-
-  setSectionVisible('online-users-body', !onlineUsersCollapsed);
-  setSectionVisible('score-history-body', !scoreHistoryCollapsed);
-
-  if (onlineBtn) {
-    onlineBtn.textContent = onlineUsersCollapsed ? 'SHOW' : 'HIDE';
-  }
-
-  if (scoreBtn) {
-    scoreBtn.textContent = scoreHistoryCollapsed ? 'SHOW' : 'HIDE';
-  }
-}
-
-function toggleOnlineUsersCard() {
-  onlineUsersCollapsed = !onlineUsersCollapsed;
-  saveCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, onlineUsersCollapsed);
-  renderLandingCardToggles();
-}
-
-function toggleScoreHistoryCard() {
-  scoreHistoryCollapsed = !scoreHistoryCollapsed;
-  saveCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, scoreHistoryCollapsed);
-  renderLandingCardToggles();
-}
-
-function initLandingCardToggles() {
-  onlineUsersCollapsed = readCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, true);
-  scoreHistoryCollapsed = readCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, true);
-  renderLandingCardToggles();
 }
 
 // --- Admin UI: Backend URL (stored in localStorage) ---
@@ -331,117 +257,6 @@ async function liveApiFetch(path, { method = 'GET', body = null, headers = {} } 
   }
 
   return json;
-}
-
-function normalizeScoreHistoryItem(item) {
-  const score = Number(item?.score || 0);
-  const total = Number(item?.total || 0);
-  const percent = total > 0 ? Math.round((score / total) * 1000) / 10 : 0;
-
-  return {
-    id: String(item?.id || ''),
-    ts: Number(item?.ts || Date.now()),
-    recordedAt: String(item?.recordedAt || ''),
-    setId: String(item?.setId || ''),
-    setTitle: String(item?.setTitle || 'Untitled Quiz'),
-    folder: String(item?.folder || ''),
-    source: String(item?.source || 'custom'),
-    mode: String(item?.mode || 'exam'),
-    score,
-    total,
-    percent,
-  };
-}
-
-async function liveFetchMyScoreHistory() {
-  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
-    liveMyScoreHistory = [];
-    renderMyScoreHistory();
-    return false;
-  }
-
-  try {
-    const json = await liveApiFetch('/api/scores', { method: 'GET' });
-    liveMyScoreHistory = Array.isArray(json?.items)
-      ? json.items.map(normalizeScoreHistoryItem)
-      : [];
-    renderMyScoreHistory();
-    return true;
-  } catch (err) {
-    console.warn('Score history fetch failed:', err);
-    renderMyScoreHistory();
-    return false;
-  }
-}
-
-async function liveSaveScoreHistory(entry) {
-  if (!liveIsEnabled() || !liveAuthToken || !session?.username) return false;
-
-  try {
-    await liveApiFetch('/api/scores', {
-      method: 'POST',
-      body: entry,
-    });
-    await liveFetchMyScoreHistory();
-    return true;
-  } catch (err) {
-    console.warn('Score history save failed:', err);
-    return false;
-  }
-}
-
-function renderMyScoreHistory() {
-  const sub = document.getElementById('score-history-sub');
-  const countEl = document.getElementById('score-history-count');
-  const listEl = document.getElementById('score-history-list');
-  if (!sub || !countEl || !listEl) return;
-
-  const items = Array.isArray(liveMyScoreHistory) ? liveMyScoreHistory : [];
-  countEl.textContent = String(items.length);
-
-  if (!session?.username) {
-    sub.textContent = 'Login to view your recent exam scores.';
-    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
-    return;
-  }
-
-  if (!liveIsEnabled()) {
-    sub.textContent = 'Backend URL not set.';
-    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(backend not configured)</div>';
-    return;
-  }
-
-  if (!liveAuthToken) {
-    sub.textContent = 'Login required.';
-    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(not authenticated)</div>';
-    return;
-  }
-
-  if (items.length === 0) {
-    sub.textContent = 'Your exam submissions will appear here.';
-    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">No saved exam history yet.</div>';
-    return;
-  }
-
-  sub.textContent = 'Stored on backend per account.';
-  listEl.innerHTML = items.slice(0, 6).map(item => {
-    const when = item.ts ? new Date(item.ts).toLocaleString() : '';
-    const title = escapeHTML(item.setTitle || 'Untitled Quiz');
-    const meta = escapeHTML((item.mode || 'exam').toUpperCase());
-    const scoreText = escapeHTML(String(item.score) + '/' + String(item.total));
-    const percentText = Number.isFinite(item.percent) ? escapeHTML(item.percent.toFixed(1) + '%') : '0.0%';
-    const whenText = escapeHTML(when);
-
-    return `
-      <div class="border border-gray-800 rounded-lg px-3 py-2 bg-black/20">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-1">
-          <div class="text-sm text-white font-semibold">${title}</div>
-          <div class="text-xs font-mono text-[#00f3ff]">${scoreText} • ${percentText}</div>
-        </div>
-        <div class="text-[11px] font-mono text-gray-500 mt-1">${meta}${whenText ? ' • ' + whenText : ''}</div>
-      </div>
-    `;
-  }).join('');
 }
 
 async function liveTryBackendLogin(username, password, captchaToken) {
@@ -677,7 +492,6 @@ function handleLiveMessage(msg) {
   if (t === 'hello:ack') {
     // Server acknowledged connection.
     updateLiveStatusUI(msg);
-    liveFetchMyScoreHistory();
     // Ask for snapshots when admin.
     if (session?.role === 'admin') {
       safeLiveSend({ type: 'presence:request' });
@@ -711,8 +525,6 @@ function updateLiveStatusUI(serverHello = null) {
     else if (!liveAuthToken) acctStatus.textContent = 'Backend: not authenticated (login required).';
     else acctStatus.textContent = liveWsConnected ? 'Backend: authenticated + live connected.' : 'Backend: authenticated (connecting live)…';
   }
-
-  renderMyScoreHistory();
 }
 
 function renderOnlineUsersWidget() {
@@ -1516,8 +1328,6 @@ const captchaToken =
 
   hideLoginError();
   session = { username: acct.username, role: acct.role };
-  liveMyScoreHistory = [];
-  renderMyScoreHistory();
   setRememberMe(userIn, passIn);
 
   try {
@@ -1557,8 +1367,6 @@ function logoutToLogin() {
   try { setLiveToken(''); } catch (_) {}
 
   session = { username: null, role: null };
-  liveMyScoreHistory = [];
-  renderMyScoreHistory();
 
   // Reset online UI
   try {
@@ -1594,7 +1402,6 @@ function logoutToLogin() {
 // Enter key triggers login
 document.addEventListener('DOMContentLoaded', () => {
   initRememberMe();
-  initLandingCardToggles();
 
   const pw = document.getElementById('password');
   if (pw) {
@@ -1631,7 +1438,6 @@ document.addEventListener('DOMContentLoaded', () => {
   liveBackendUrl = getConfiguredBackendUrl();
   liveAuthToken = getLiveToken();
   updateLiveStatusUI();
-  renderMyScoreHistory();
 
   // If backend is configured, try loading library from there too.
   // (This enables true live updates without importing/exporting.)
@@ -2176,13 +1982,6 @@ function loadQuiz(type) {
     return;
   }
 
-  currentQuizMeta = {
-    id: String(type || ''),
-    title: liveTitle || String(type || '').toUpperCase(),
-    folder: (type === 'math' || type === 'esas') ? 'T-AY-PI' : 'UNDERGROUNDS/TERMS & OBJECTIVES/ESAS PAST BOARD',
-    source: 'built_in',
-  };
-
   // Hide all overlays (including notes/quiz browser)
   document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
 
@@ -2234,12 +2033,6 @@ function loadQuizCustom(setId, backMenuId) {
 
   // Set active menu back location
   activeMenu = backMenuId || quizBrowserBackMenuId || 'level-1-menu';
-  currentQuizMeta = {
-    id: String(set.id || ''),
-    title: String(set.title || 'CUSTOM SET'),
-    folder: String(set.folder || ''),
-    source: 'custom',
-  };
 
   // Hide all overlays
   document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
@@ -2369,18 +2162,6 @@ function submitExam() {
     submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
     submitBtn.disabled = true;
   }
-
-  try {
-    liveSaveScoreHistory({
-      setId: currentQuizMeta.id || null,
-      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
-      folder: currentQuizMeta.folder || '',
-      source: currentQuizMeta.source || 'custom',
-      mode: 'exam',
-      score,
-      total: currentQuestions.length,
-    });
-  } catch (_) {}
 
   renderQuestions();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3007,7 +2788,6 @@ function adminRefreshAll() {
   adminRefreshQuizSetSelect();
   adminRefreshPdfList();
   adminUpdateQuestionCount();
-  adminRefreshQuestionList();
 }
 
 function adminRefreshFolderList() {
@@ -3077,157 +2857,7 @@ function adminSelectQuizSet(setId) {
   adminSelectedQuizSetId = setId || '';
   const sel = document.getElementById('admin-quiz-select');
   if (sel) sel.value = adminSelectedQuizSetId;
-  adminClearQuestionBuilder();
   adminUpdateQuestionCount();
-  adminRefreshQuestionList();
-}
-
-function adminSetQuestionBuilderMode(isEditing) {
-  const addBtn = document.getElementById('admin-q-add-btn');
-  const clearBtn = document.getElementById('admin-q-clear-btn');
-  const status = document.getElementById('admin-q-edit-status');
-  const set = adminGetSelectedSet();
-
-  if (addBtn) addBtn.textContent = isEditing ? 'SAVE QUESTION' : 'ADD QUESTION';
-  if (clearBtn) clearBtn.textContent = isEditing ? 'CANCEL EDIT' : 'CLEAR';
-
-  if (status) {
-    if (!set) status.textContent = 'Select a quiz set first.';
-    else if (isEditing && set.questions?.[adminEditingQuestionIndex]) status.textContent = `Editing question #${adminEditingQuestionIndex + 1}`;
-    else status.textContent = 'Add a new question to the selected set.';
-  }
-}
-
-function adminNormalizeQuestionIds(set) {
-  if (!set || !Array.isArray(set.questions)) return;
-  set.questions = set.questions.map((q, index) => ({
-    ...q,
-    id: index + 1,
-    ans: String(q?.options?.[q?.key] || q?.ans || ''),
-  }));
-}
-
-function adminQuestionSummary(q) {
-  const text = String(q?.q || '').replace(/\s+/g, ' ').trim();
-  if (!text) return '(empty question)';
-  return text.length > 120 ? text.slice(0, 117) + '...' : text;
-}
-
-function adminFillQuestionBuilder(question, index) {
-  const q = question || {};
-  const opts = q.options || {};
-
-  const setValue = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.value = value == null ? '' : String(value);
-  };
-
-  setValue('admin-q-topic', q.topic || '');
-  setValue('admin-q-text', q.q || '');
-  setValue('admin-q-a', opts.a || '');
-  setValue('admin-q-b', opts.b || '');
-  setValue('admin-q-c', opts.c || '');
-  setValue('admin-q-d', opts.d || '');
-  setValue('admin-q-soln', q.soln || '');
-  setValue('admin-q-caltech', q.caltech || '');
-  setValue('admin-q-correct', q.key || 'a');
-
-  adminEditingQuestionIndex = Number(index);
-  adminSetQuestionBuilderMode(true);
-}
-
-function adminRefreshQuestionList() {
-  const box = document.getElementById('admin-question-list');
-  if (!box) return;
-
-  const set = adminGetSelectedSet();
-  if (!set) {
-    box.innerHTML = '<div class="admin-help">Select a quiz set to manage questions.</div>';
-    adminSetQuestionBuilderMode(false);
-    return;
-  }
-
-  const items = Array.isArray(set.questions) ? set.questions : [];
-  if (items.length === 0) {
-    box.innerHTML = '<div class="admin-help">No questions in this set yet.</div>';
-    adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
-    return;
-  }
-
-  box.innerHTML = items.map((q, index) => {
-    const topic = q?.topic ? `<span class="admin-pill">${escapeHTML(q.topic)}</span>` : '';
-    const correct = escapeHTML(String(q?.key || '').toUpperCase());
-    const summary = escapeHTML(adminQuestionSummary(q));
-
-    return `
-      <div class="admin-list-item">
-        <div class="admin-list-left">
-          <div class="admin-list-title">#${index + 1} ${summary}</div>
-          <div class="admin-list-sub flex flex-wrap gap-2 items-center">
-            ${topic}
-            <span class="admin-mono">Correct: ${correct || '-'}</span>
-          </div>
-        </div>
-        <div class="admin-list-right" style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="admin-mini-btn" type="button" onclick="adminEditQuestion(${index})">EDIT</button>
-          <button class="admin-mini-btn" type="button" onclick="adminDuplicateQuestion(${index})">DUPLICATE</button>
-          <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);" onclick="adminDeleteQuestion(${index})">DELETE</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
-}
-
-function adminEditQuestion(index) {
-  const set = adminGetSelectedSet();
-  const question = set?.questions?.[index];
-  if (!question) return;
-  adminFillQuestionBuilder(question, index);
-}
-
-function adminDuplicateQuestion(index) {
-  const set = adminGetSelectedSet();
-  const question = set?.questions?.[index];
-  if (!question) return;
-
-  const copy = {
-    ...question,
-    options: { ...(question.options || {}) },
-  };
-
-  const items = Array.isArray(set.questions) ? set.questions.slice() : [];
-  items.splice(index + 1, 0, copy);
-  set.questions = items;
-  adminNormalizeQuestionIds(set);
-  set.updatedAt = nowISO();
-  touchLibrary();
-
-  adminUpdateQuestionCount();
-  adminRefreshQuestionList();
-}
-
-function adminDeleteQuestion(index) {
-  const set = adminGetSelectedSet();
-  const question = set?.questions?.[index];
-  if (!question) return;
-
-  if (!confirm(`Delete question #${index + 1}?`)) return;
-
-  set.questions = (set.questions || []).filter((_, i) => i !== index);
-  adminNormalizeQuestionIds(set);
-  set.updatedAt = nowISO();
-  touchLibrary();
-
-  if (adminEditingQuestionIndex === index) {
-    adminClearQuestionBuilder();
-  } else if (adminEditingQuestionIndex > index) {
-    adminEditingQuestionIndex -= 1;
-  }
-
-  adminUpdateQuestionCount();
-  adminRefreshQuestionList();
 }
 
 function adminCreateQuizSet() {
@@ -3313,10 +2943,8 @@ function adminDeleteSelectedQuizSet() {
   touchLibrary();
 
   adminSelectedQuizSetId = '';
-  adminClearQuestionBuilder();
   adminRefreshQuizSetSelect();
   adminUpdateQuestionCount();
-  adminRefreshQuestionList();
 
   alert('Deleted.');
 }
@@ -3408,14 +3036,12 @@ async function adminImportQuestionsJson() {
     }
 
     set.questions = Array.isArray(set.questions) ? set.questions.concat(sanitized) : sanitized;
-    adminNormalizeQuestionIds(set);
     set.updatedAt = nowISO();
     touchLibrary();
 
     if (fileEl) fileEl.value = '';
 
     adminUpdateQuestionCount();
-    adminRefreshQuestionList();
     alert(`Imported ${sanitized.length} question(s).`);
   } catch (err) {
     console.error(err);
@@ -3431,9 +3057,6 @@ function adminClearQuestionBuilder() {
   });
   const correct = document.getElementById('admin-q-correct');
   if (correct) correct.value = 'a';
-
-  adminEditingQuestionIndex = -1;
-  adminSetQuestionBuilderMode(false);
 }
 
 function adminAddQuestion() {
@@ -3452,7 +3075,6 @@ function adminAddQuestion() {
   const soln = String(document.getElementById('admin-q-soln')?.value || '').trim();
   const caltech = String(document.getElementById('admin-q-caltech')?.value || '').trim();
   const key = String(document.getElementById('admin-q-correct')?.value || 'a').toLowerCase();
-  const resolvedKey = ['a', 'b', 'c', 'd'].includes(key) ? key : 'a';
 
   if (!text) {
     alert('Question text is required.');
@@ -3463,35 +3085,28 @@ function adminAddQuestion() {
     return;
   }
 
+  const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
+  const id = maxExistingId + 1;
+
   const q = {
-    id: adminEditingQuestionIndex >= 0 ? adminEditingQuestionIndex + 1 : ((set.questions || []).length + 1),
+    id,
     topic: topic || 'Custom',
     q: text,
     options: { a, b, c, d },
-    key: resolvedKey,
-    ans: { a, b, c, d }[resolvedKey] || a,
+    key: ['a', 'b', 'c', 'd'].includes(key) ? key : 'a',
+    ans: { a, b, c, d }[key] || a,
     soln,
     caltech: caltech || null,
   };
 
-  if (!Array.isArray(set.questions)) set.questions = [];
-  const wasEditing = adminEditingQuestionIndex >= 0 && !!set.questions[adminEditingQuestionIndex];
-
-  if (wasEditing) {
-    set.questions[adminEditingQuestionIndex] = q;
-  } else {
-    set.questions.push(q);
-  }
-
-  adminNormalizeQuestionIds(set);
+  set.questions = Array.isArray(set.questions) ? set.questions.concat([q]) : [q];
   set.updatedAt = nowISO();
   touchLibrary();
 
   adminUpdateQuestionCount();
-  adminRefreshQuestionList();
   adminClearQuestionBuilder();
 
-  alert(wasEditing ? 'Question updated.' : 'Question added.');
+  alert('Question added.');
 }
 
 function adminGetPdfKind() {
@@ -3502,67 +3117,46 @@ function adminGetPdfKind() {
 async function adminUploadPdf(kind = 'notes') {
   const fileEl = document.getElementById('admin-pdf-file');
   const file = fileEl?.files?.[0];
-  const urlEl = document.getElementById('admin-pdf-url');
-  const rawUrl = String(urlEl?.value || '').trim();
-
-  if (!file && !rawUrl) {
-    alert('Choose a PDF file or paste a PDF URL/path first.');
+  if (!file) {
+    alert('Choose a PDF file first.');
     return;
   }
 
   const titleEl = document.getElementById('admin-pdf-title');
-  const displayTitle = String(titleEl?.value || '').trim() || (file?.name || baseName(rawUrl) || 'PDF');
+  const displayTitle = String(titleEl?.value || '').trim() || file.name;
 
   const folder = getAdminTargetPath() || 'GLOBAL';
   ensureFolder(folder);
 
-  let safeSrc = encodeURI(rawUrl || '');
-  let usedBackendUpload = false;
+  try {
+    const dataUrl = await readFileAsDataURL(file);
 
-  if (!safeSrc && file) {
-    if (liveIsEnabled() && liveAuthToken && session?.role === 'admin') {
-      try {
-        const uploaded = await liveUploadPdfFile(file);
-        safeSrc = String(uploaded.url || uploaded.path || '').trim();
-        usedBackendUpload = true;
-      } catch (err) {
-        console.warn(err);
-        alert('Backend PDF upload failed: ' + String(err?.message || err));
-        return;
-      }
+    library.pdfs.push({
+      id: uid('pdf'),
+      title: displayTitle,
+      folder,
+      kind,
+      src: dataUrl,
+      createdAt: nowISO(),
+    });
+
+    const saved = touchLibrary();
+
+    if (fileEl) fileEl.value = '';
+    if (titleEl) titleEl.value = '';
+    const urlEl = document.getElementById('admin-pdf-url');
+    if (urlEl) urlEl.value = '';
+
+    adminRefreshPdfList();
+
+    if (!saved) {
+      alert('PDF attached, but browser storage is full (PDF embed can be very large).\n\n✅ It will still work right now.\n👉 To share/persist: use Backup → Export library.json, or attach by URL (recommended for GitHub).');
     } else {
-      safeSrc = 'assets/pdfs/' + encodeURIComponent(file.name);
+      alert('PDF attached. (Export library.json in Backup to share)');
     }
-  }
-
-  if (!safeSrc) {
-    alert('Could not determine PDF URL/path.');
-    return;
-  }
-
-  library.pdfs.push({
-    id: uid('pdf'),
-    title: displayTitle,
-    folder,
-    kind,
-    src: safeSrc,
-    createdAt: nowISO(),
-  });
-
-  touchLibrary();
-
-  if (fileEl) fileEl.value = '';
-  if (titleEl) titleEl.value = '';
-  if (urlEl) urlEl.value = '';
-
-  adminRefreshPdfList();
-
-  if (rawUrl) {
-    alert('PDF URL attached. Library stores only the URL/path.');
-  } else if (usedBackendUpload) {
-    alert('PDF uploaded to backend and attached successfully.');
-  } else {
-    alert(`PDF entry saved as URL only:\n${safeSrc}\n\nUpload the real PDF file to that same path in your repo or hosting.`);
+  } catch (err) {
+    console.error(err);
+    alert('Failed to read PDF file.');
   }
 }
 
@@ -3650,17 +3244,8 @@ function adminRefreshPdfList() {
       openPdfOverlay(p.id, 'admin-overlay');
     });
 
-    delBtn.addEventListener('click', async () => {
+    delBtn.addEventListener('click', () => {
       if (!confirm(`Delete PDF: "${p.title}"?`)) return;
-
-      const delResult = await liveDeleteManagedPdf(p.src);
-      if (delResult.reason === 'error') {
-        const proceed = confirm(
-          'The PDF entry will be removed from the library, but the backend file could not be deleted.\n\nContinue anyway?'
-        );
-        if (!proceed) return;
-      }
-
       library.pdfs = library.pdfs.filter(x => x.id !== p.id);
       touchLibrary();
       adminRefreshPdfList();
@@ -4104,7 +3689,6 @@ function initAdminUI() {
     adminRefreshFolderList();
     // only refresh if notes tab visible
     if (adminCreateType === 'notes') adminRefreshPdfList();
-    if (adminCreateType === 'quiz') adminRefreshQuestionList();
   });
 
   // Copy path
@@ -4216,3 +3800,1349 @@ try {
   };
   window.initLive = window.connectToBackend;
 } catch (_) {}
+// =========================
+// Phase 3 Enhancements
+// - Random exams
+// - Progress tracking
+// - Version history
+// - Editor role
+// - Backend PDF uploads
+// =========================
+const LIVE_MANAGED_UPLOAD_PREFIX = '/uploads/pdfs/';
+const ONLINE_USERS_COLLAPSED_KEY = 'padayon_online_users_collapsed_v1';
+const SCORE_HISTORY_COLLAPSED_KEY = 'padayon_score_history_collapsed_v1';
+const PROGRESS_COLLAPSED_KEY = 'padayon_progress_collapsed_v1';
+
+let onlineUsersCollapsed = true;
+let scoreHistoryCollapsed = true;
+let progressCollapsed = true;
+let liveMyScoreHistory = [];
+let liveMyProgress = [];
+let currentQuizMeta = { id: null, title: '', folder: '', source: 'built_in', randomized: false };
+let currentQuestionBank = [];
+let adminEditingQuestionIndex = -1;
+
+function sessionIsAdmin() {
+  return String(session?.role || '') === 'admin';
+}
+
+function sessionCanManageContent() {
+  return ['admin', 'editor'].includes(String(session?.role || ''));
+}
+
+function readCollapsedPref(key, fallback = true) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return raw === '1';
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function saveCollapsedPref(key, value) {
+  try {
+    localStorage.setItem(key, value ? '1' : '0');
+  } catch (_) {}
+}
+
+function setSectionVisible(id, visible) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('hidden', !visible);
+  el.style.display = visible ? '' : 'none';
+}
+
+function renderLandingCardToggles() {
+  const onlineBtn = document.getElementById('online-users-toggle');
+  const scoreBtn = document.getElementById('score-history-toggle');
+  const progressBtn = document.getElementById('progress-toggle');
+
+  setSectionVisible('online-users-body', !onlineUsersCollapsed);
+  setSectionVisible('score-history-body', !scoreHistoryCollapsed);
+  setSectionVisible('progress-body', !progressCollapsed);
+
+  if (onlineBtn) onlineBtn.textContent = onlineUsersCollapsed ? 'SHOW' : 'HIDE';
+  if (scoreBtn) scoreBtn.textContent = scoreHistoryCollapsed ? 'SHOW' : 'HIDE';
+  if (progressBtn) progressBtn.textContent = progressCollapsed ? 'SHOW' : 'HIDE';
+}
+
+function toggleOnlineUsersCard() {
+  onlineUsersCollapsed = !onlineUsersCollapsed;
+  saveCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, onlineUsersCollapsed);
+  renderLandingCardToggles();
+}
+
+function toggleScoreHistoryCard() {
+  scoreHistoryCollapsed = !scoreHistoryCollapsed;
+  saveCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, scoreHistoryCollapsed);
+  renderLandingCardToggles();
+}
+
+function toggleProgressCard() {
+  progressCollapsed = !progressCollapsed;
+  saveCollapsedPref(PROGRESS_COLLAPSED_KEY, progressCollapsed);
+  renderLandingCardToggles();
+}
+
+function initLandingCardToggles() {
+  onlineUsersCollapsed = readCollapsedPref(ONLINE_USERS_COLLAPSED_KEY, true);
+  scoreHistoryCollapsed = readCollapsedPref(SCORE_HISTORY_COLLAPSED_KEY, true);
+  progressCollapsed = readCollapsedPref(PROGRESS_COLLAPSED_KEY, true);
+  renderLandingCardToggles();
+}
+
+function normalizeScoreHistoryItem(item) {
+  const score = Number(item?.score || 0);
+  const total = Number(item?.total || 0);
+  const percent = Number.isFinite(Number(item?.percent))
+    ? Number(item.percent)
+    : (total > 0 ? Math.round((score / total) * 1000) / 10 : 0);
+
+  return {
+    id: String(item?.id || ''),
+    ts: Number(item?.ts || Date.now()),
+    recordedAt: String(item?.recordedAt || ''),
+    setId: String(item?.setId || ''),
+    setTitle: String(item?.setTitle || 'Untitled Quiz'),
+    folder: String(item?.folder || ''),
+    source: String(item?.source || 'custom'),
+    mode: String(item?.mode || 'exam'),
+    score,
+    total,
+    percent,
+  };
+}
+
+function normalizeProgressItem(item) {
+  const practiceAttempts = Number(item?.practiceAttempts || 0);
+  const practiceCorrect = Number(item?.practiceCorrect || 0);
+  const examAttempts = Number(item?.examAttempts || 0);
+  const completedExams = Number(item?.completedExams || 0);
+  const bestPercent = Number(item?.bestPercent || 0);
+  const lastPercent = Number(item?.lastPercent || 0);
+
+  return {
+    key: String(item?.key || ''),
+    setId: String(item?.setId || ''),
+    setTitle: String(item?.setTitle || 'Untitled Quiz'),
+    folder: String(item?.folder || ''),
+    source: String(item?.source || 'custom'),
+    practiceAttempts,
+    practiceCorrect,
+    examAttempts,
+    completedExams,
+    bestScore: Number(item?.bestScore || 0),
+    bestPercent,
+    lastScore: Number(item?.lastScore || 0),
+    lastPercent,
+    lastMode: String(item?.lastMode || 'study'),
+    lastAction: String(item?.lastAction || 'view'),
+    lastEventAt: String(item?.lastEventAt || item?.recordedAt || ''),
+    practiceAccuracy: practiceAttempts > 0 ? Math.round((practiceCorrect / practiceAttempts) * 1000) / 10 : 0,
+  };
+}
+
+async function liveApiFetchForm(path, { method = 'POST', body, headers = {} } = {}) {
+  if (!liveIsEnabled()) throw new Error('Backend URL not configured.');
+  const url = trimSlash(liveBackendUrl) + String(path || '');
+  const h = { ...headers };
+  if (liveAuthToken) h['Authorization'] = 'Bearer ' + liveAuthToken;
+
+  const res = await fetch(url, {
+    method,
+    headers: h,
+    body,
+  });
+
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = null; }
+  if (!res.ok) {
+    const msg = (json && (json.error || json.message)) ? (json.error || json.message) : (text || `HTTP ${res.status}`);
+    throw new Error(msg);
+  }
+  return json;
+}
+
+function getManagedUploadRelativePath(src) {
+  const value = String(src || '').trim();
+  if (!value) return '';
+  if (value.startsWith(LIVE_MANAGED_UPLOAD_PREFIX)) return value;
+
+  try {
+    if (liveBackendUrl && /^https?:\/\//i.test(value)) {
+      const base = new URL(trimSlash(liveBackendUrl));
+      const u = new URL(value, base.origin);
+      if (u.pathname.startsWith(LIVE_MANAGED_UPLOAD_PREFIX)) return u.pathname;
+    }
+  } catch (_) {}
+
+  return '';
+}
+
+async function liveUploadPdfFile(file) {
+  if (!liveIsEnabled() || !liveAuthToken) throw new Error('Backend login required for PDF upload.');
+  const fd = new FormData();
+  fd.append('file', file);
+  const json = await liveApiFetchForm('/api/uploads/pdf', { method: 'POST', body: fd });
+  return json?.file || null;
+}
+
+async function liveDeleteManagedPdf(src) {
+  const rel = getManagedUploadRelativePath(src);
+  if (!rel || !liveIsEnabled() || !liveAuthToken) return false;
+  try {
+    await liveApiFetch('/api/uploads/pdf', { method: 'DELETE', body: { path: rel } });
+    return true;
+  } catch (err) {
+    console.warn('Managed PDF delete failed:', err);
+    return false;
+  }
+}
+
+async function liveFetchMyScoreHistory() {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
+    liveMyScoreHistory = [];
+    renderMyScoreHistory();
+    return false;
+  }
+
+  try {
+    const json = await liveApiFetch('/api/scores', { method: 'GET' });
+    liveMyScoreHistory = Array.isArray(json?.items) ? json.items.map(normalizeScoreHistoryItem) : [];
+    renderMyScoreHistory();
+    return true;
+  } catch (err) {
+    console.warn('Score history fetch failed:', err);
+    renderMyScoreHistory();
+    return false;
+  }
+}
+
+async function liveSaveScoreHistory(entry) {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) return false;
+  try {
+    await liveApiFetch('/api/scores', { method: 'POST', body: entry });
+    await liveFetchMyScoreHistory();
+    return true;
+  } catch (err) {
+    console.warn('Score history save failed:', err);
+    return false;
+  }
+}
+
+async function liveFetchMyProgress() {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
+    liveMyProgress = [];
+    renderMyProgress();
+    return false;
+  }
+  try {
+    const json = await liveApiFetch('/api/progress', { method: 'GET' });
+    liveMyProgress = Array.isArray(json?.items) ? json.items.map(normalizeProgressItem) : [];
+    renderMyProgress();
+    return true;
+  } catch (err) {
+    console.warn('Progress fetch failed:', err);
+    renderMyProgress();
+    return false;
+  }
+}
+
+async function liveSaveProgress(entry) {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) return false;
+  try {
+    await liveApiFetch('/api/progress', { method: 'POST', body: entry });
+    await liveFetchMyProgress();
+    return true;
+  } catch (err) {
+    console.warn('Progress save failed:', err);
+    return false;
+  }
+}
+
+function renderMyScoreHistory() {
+  const sub = document.getElementById('score-history-sub');
+  const countEl = document.getElementById('score-history-count');
+  const listEl = document.getElementById('score-history-list');
+  if (!sub || !countEl || !listEl) return;
+
+  const items = Array.isArray(liveMyScoreHistory) ? liveMyScoreHistory : [];
+  countEl.textContent = String(items.length);
+
+  if (!session?.username) {
+    sub.textContent = 'Login to view your recent exam scores.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
+    return;
+  }
+  if (!liveIsEnabled()) {
+    sub.textContent = 'Backend URL not set.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(backend not configured)</div>';
+    return;
+  }
+  if (!liveAuthToken) {
+    sub.textContent = 'Login required.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(not authenticated)</div>';
+    return;
+  }
+  if (items.length === 0) {
+    sub.textContent = 'Your exam submissions will appear here.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">No saved exam history yet.</div>';
+    return;
+  }
+
+  sub.textContent = 'Stored on backend per account.';
+  listEl.innerHTML = items.slice(0, 6).map(item => {
+    const when = item.ts ? new Date(item.ts).toLocaleString() : '';
+    const title = escapeHTML(item.setTitle || 'Untitled Quiz');
+    const meta = escapeHTML((item.mode || 'exam').toUpperCase());
+    const scoreText = escapeHTML(String(item.score) + '/' + String(item.total));
+    const percentText = escapeHTML((Number(item.percent || 0)).toFixed(1) + '%');
+    const whenText = escapeHTML(when);
+    return `
+      <div class="border border-gray-800 rounded-lg px-3 py-2 bg-black/20">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-1">
+          <div class="text-sm text-white font-semibold">${title}</div>
+          <div class="text-xs font-mono text-[#00f3ff]">${scoreText} • ${percentText}</div>
+        </div>
+        <div class="text-[11px] font-mono text-gray-500 mt-1">${meta}${whenText ? ' • ' + whenText : ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderMyProgress() {
+  const sub = document.getElementById('progress-sub');
+  const countEl = document.getElementById('progress-count');
+  const listEl = document.getElementById('progress-list');
+  if (!sub || !countEl || !listEl) return;
+
+  const items = Array.isArray(liveMyProgress) ? liveMyProgress : [];
+  countEl.textContent = String(items.length);
+
+  if (!session?.username) {
+    sub.textContent = 'Login to sync your study progress.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
+    return;
+  }
+  if (!liveIsEnabled()) {
+    sub.textContent = 'Backend URL not set.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(backend not configured)</div>';
+    return;
+  }
+  if (!liveAuthToken) {
+    sub.textContent = 'Login required.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(not authenticated)</div>';
+    return;
+  }
+  if (items.length === 0) {
+    sub.textContent = 'Practice and exam activity will build your progress.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">No progress tracked yet.</div>';
+    return;
+  }
+
+  sub.textContent = 'Practice accuracy and exam best scores per quiz.';
+  listEl.innerHTML = items.slice(0, 6).map(item => {
+    const title = escapeHTML(item.setTitle || 'Untitled Quiz');
+    const practiceText = `${item.practiceCorrect}/${item.practiceAttempts}`;
+    const examText = item.completedExams > 0 ? `${item.bestScore} (${item.bestPercent.toFixed(1)}%)` : '--';
+    const when = item.lastEventAt ? escapeHTML(new Date(item.lastEventAt).toLocaleString()) : '';
+    return `
+      <div class="border border-gray-800 rounded-lg px-3 py-2 bg-black/20">
+        <div class="flex flex-col gap-1">
+          <div class="text-sm text-white font-semibold">${title}</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px] font-mono text-gray-400">
+            <div>Practice: <span class="text-[#00f3ff]">${escapeHTML(practiceText)}</span></div>
+            <div>Accuracy: <span class="text-[#00f3ff]">${escapeHTML(item.practiceAccuracy.toFixed(1) + '%')}</span></div>
+            <div>Best Exam: <span class="text-[#00f3ff]">${escapeHTML(String(examText))}</span></div>
+          </div>
+          <div class="text-[11px] font-mono text-gray-500">${when ? 'Updated • ' + when : 'Waiting for new activity'}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function cloneQuestion(q) {
+  return {
+    id: q.id,
+    key: q.key,
+    topic: q.topic || 'Custom',
+    q: q.q,
+    options: q.options ? { ...q.options } : { a: '', b: '', c: '', d: '' },
+    ans: q.ans || ((q.options && q.key) ? q.options[q.key] : ''),
+    soln: q.soln || '',
+    caltech: q.caltech || null,
+  };
+}
+
+function cloneQuestions(items) {
+  return Array.isArray(items) ? items.map(cloneQuestion) : [];
+}
+
+function updateRoleBasedUi() {
+  const adminCard = document.getElementById('admin-card');
+  const adminQuickImport = document.getElementById('admin-quick-import');
+  const navAccounts = document.getElementById('admin-nav-accounts');
+  const navLogs = document.getElementById('admin-nav-logs');
+
+  const canManage = sessionCanManageContent();
+  const isAdmin = sessionIsAdmin();
+
+  if (adminCard) adminCard.classList.toggle('hidden', !canManage);
+  if (adminQuickImport) adminQuickImport.classList.toggle('hidden', !canManage);
+  if (navAccounts) navAccounts.classList.toggle('hidden', !isAdmin);
+  if (navLogs) navLogs.classList.toggle('hidden', !isAdmin);
+}
+
+function updateQuizMetaBanner() {
+  const el = document.getElementById('quiz-meta-banner');
+  if (!el) return;
+  const title = currentQuizMeta?.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Quiz';
+  const folder = currentQuizMeta?.folder ? ` • ${currentQuizMeta.folder}` : '';
+  const source = currentQuizMeta?.source ? ` • ${String(currentQuizMeta.source).toUpperCase()}` : '';
+  const random = currentQuizMeta?.randomized ? ' • RANDOM EXAM' : '';
+  const count = Array.isArray(currentQuestions) ? currentQuestions.length : 0;
+  el.textContent = `${title}${folder}${source}${random} • ${count} QUESTION${count === 1 ? '' : 'S'}`;
+}
+
+function renumberQuestions(questions) {
+  if (!Array.isArray(questions)) return;
+  questions.forEach((q, i) => { q.id = i + 1; });
+}
+
+function adminSetQuestionBuilderMode(isEditing) {
+  const btn = document.getElementById('admin-q-add-btn');
+  const status = document.getElementById('admin-q-builder-status');
+  const set = adminGetSelectedSet();
+  if (btn) btn.textContent = isEditing ? 'UPDATE QUESTION' : 'SAVE QUESTION';
+  if (status) {
+    if (!set) status.textContent = 'Select a quiz set first.';
+    else if (isEditing && set.questions?.[adminEditingQuestionIndex]) status.textContent = `Editing question #${adminEditingQuestionIndex + 1}`;
+    else status.textContent = 'Create a new question.';
+  }
+}
+
+function adminLoadQuestionIntoBuilder(index) {
+  const set = adminGetSelectedSet();
+  const q = set?.questions?.[index];
+  if (!q) return;
+  adminEditingQuestionIndex = Number(index);
+  document.getElementById('admin-q-topic').value = q.topic || '';
+  document.getElementById('admin-q-correct').value = q.key || 'a';
+  document.getElementById('admin-q-text').value = q.q || '';
+  document.getElementById('admin-q-a').value = q.options?.a || '';
+  document.getElementById('admin-q-b').value = q.options?.b || '';
+  document.getElementById('admin-q-c').value = q.options?.c || '';
+  document.getElementById('admin-q-d').value = q.options?.d || '';
+  document.getElementById('admin-q-soln').value = q.soln || '';
+  document.getElementById('admin-q-caltech').value = q.caltech || '';
+  adminSetQuestionBuilderMode(true);
+  document.getElementById('admin-q-text')?.focus();
+}
+
+function adminRenderQuestionList() {
+  const box = document.getElementById('admin-question-list');
+  if (!box) return;
+  const set = adminGetSelectedSet();
+  if (!set) {
+    box.innerHTML = '<div class="admin-help">Select a quiz set to manage questions.</div>';
+    adminSetQuestionBuilderMode(false);
+    return;
+  }
+  const items = Array.isArray(set.questions) ? set.questions : [];
+  if (items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No questions yet.</div>';
+    adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
+    return;
+  }
+
+  box.innerHTML = items.map((q, index) => {
+    const title = escapeHTML(String(q.q || 'Untitled question').slice(0, 120));
+    const topic = escapeHTML(q.topic || 'Custom');
+    const correct = escapeHTML(String(q.key || 'a').toUpperCase());
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">#${index + 1} • ${title}</div>
+          <div class="admin-list-sub">${topic} • Correct: ${correct}</div>
+        </div>
+        <div class="admin-list-right" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="admin-mini-btn" type="button" onclick="adminLoadQuestionIntoBuilder(${index})">EDIT</button>
+          <button class="admin-mini-btn" type="button" onclick="adminDuplicateQuestion(${index})">DUPLICATE</button>
+          <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);" onclick="adminDeleteQuestion(${index})">DELETE</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
+}
+
+function adminDuplicateQuestion(index) {
+  const set = adminGetSelectedSet();
+  const q = set?.questions?.[index];
+  if (!q) return;
+  const copy = cloneQuestion(q);
+  copy.q = String(copy.q || '') + ' (Copy)';
+  set.questions.splice(index + 1, 0, copy);
+  renumberQuestions(set.questions);
+  set.updatedAt = nowISO();
+  touchLibrary();
+  adminUpdateQuestionCount();
+}
+
+function adminDeleteQuestion(index) {
+  const set = adminGetSelectedSet();
+  const q = set?.questions?.[index];
+  if (!q) return;
+  if (!confirm(`Delete question #${index + 1}?`)) return;
+  set.questions.splice(index, 1);
+  renumberQuestions(set.questions);
+  set.updatedAt = nowISO();
+  touchLibrary();
+  if (adminEditingQuestionIndex === index) {
+    adminClearQuestionBuilder();
+  } else if (adminEditingQuestionIndex > index) {
+    adminEditingQuestionIndex -= 1;
+  }
+  adminUpdateQuestionCount();
+}
+
+async function liveFetchLibraryVersions() {
+  if (!liveIsEnabled() || !liveAuthToken || !sessionCanManageContent()) {
+    renderAdminVersionHistory([]);
+    return [];
+  }
+  try {
+    const json = await liveApiFetch('/api/library/versions', { method: 'GET' });
+    const items = Array.isArray(json?.items) ? json.items : [];
+    renderAdminVersionHistory(items);
+    return items;
+  } catch (err) {
+    console.warn('Version history fetch failed:', err);
+    renderAdminVersionHistory([], String(err?.message || err));
+    return [];
+  }
+}
+
+function renderAdminVersionHistory(items, error = '') {
+  const box = document.getElementById('admin-version-history-list');
+  if (!box) return;
+  if (!sessionCanManageContent()) {
+    box.innerHTML = '<div class="admin-help">Admin or editor only.</div>';
+    return;
+  }
+  if (error) {
+    box.innerHTML = `<div class="admin-help">Failed to load version history. ${escapeHTML(error)}</div>`;
+    return;
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No backend versions yet.</div>';
+    return;
+  }
+  box.innerHTML = items.map(item => {
+    const when = item?.ts ? new Date(item.ts).toLocaleString() : '';
+    const by = escapeHTML(item?.updatedBy || 'system');
+    const summary = item?.summary || {};
+    const meta = `${Number(summary.quizSets || 0)} sets • ${Number(summary.pdfs || 0)} pdfs • ${Number(summary.folders || 0)} folders`;
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">${escapeHTML(when || 'Unknown time')}</div>
+          <div class="admin-list-sub">By ${by} • ${escapeHTML(meta)}</div>
+        </div>
+        <div class="admin-list-right" style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${sessionIsAdmin() ? `<button class="admin-mini-btn" type="button" onclick="adminRestoreLibraryVersion('${String(item.id || '').replace(/'/g, "\\'")}')">RESTORE</button>` : '<span class="admin-pill">VIEW ONLY</span>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function adminRestoreLibraryVersion(id) {
+  if (!sessionIsAdmin()) {
+    alert('Admin only.');
+    return;
+  }
+  if (!id) return;
+  if (!confirm('Restore this library version? This will replace the current library and notify connected users.')) return;
+  try {
+    await liveApiFetch('/api/library/restore/' + encodeURIComponent(id), { method: 'POST' });
+    await loadLibraryFromBackend();
+    await liveFetchLibraryVersions();
+    alert('Library version restored.');
+  } catch (err) {
+    console.warn(err);
+    alert('Restore failed: ' + String(err?.message || err));
+  }
+}
+
+function randomSample(items, count) {
+  const arr = cloneQuestions(items);
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, count).map((q, index) => ({ ...q, id: index + 1 }));
+}
+
+function startRandomExam() {
+  const bank = Array.isArray(currentQuestionBank) ? currentQuestionBank : [];
+  if (!bank.length) {
+    alert('Open a quiz set first.');
+    return;
+  }
+  const suggested = Math.min(bank.length, 20);
+  const raw = window.prompt(`How many questions for the random exam? (1-${bank.length})`, String(suggested));
+  if (raw === null) return;
+  const count = Math.max(1, Math.min(bank.length, Number(raw) || suggested));
+  currentQuestions = randomSample(bank, count);
+  currentQuizMeta = { ...currentQuizMeta, randomized: true };
+  currentMode = 'exam';
+  resetExam();
+  setMode('exam');
+  updateQuizMetaBanner();
+  try {
+    liveSetActivity('Start Random Exam', {
+      view: 'QUIZ_ENGINE',
+      details: `${currentQuizMeta.title || 'QUIZ'} • ${count} Q`,
+      path: currentQuizMeta.folder || '',
+    });
+  } catch (_) {}
+}
+
+function adminRefreshAll() {
+  adminRefreshQuickPickOptions();
+  adminUpdatePathHelpers();
+  adminRefreshFolderList();
+  adminRefreshQuizSetSelect();
+  adminRefreshPdfList();
+  adminUpdateQuestionCount();
+  if (adminTab === 'backup') {
+    liveFetchLibraryVersions();
+  }
+}
+
+function adminUpdateQuestionCount() {
+  const countEl = document.getElementById('admin-q-count');
+  if (countEl) {
+    const set = adminGetSelectedSet();
+    countEl.textContent = String(set?.questions?.length || 0);
+  }
+  adminRenderQuestionList();
+}
+
+function adminSelectQuizSet(setId) {
+  adminSelectedQuizSetId = setId || '';
+  const sel = document.getElementById('admin-quiz-select');
+  if (sel) sel.value = adminSelectedQuizSetId;
+  adminEditingQuestionIndex = -1;
+  adminUpdateQuestionCount();
+  adminSetQuestionBuilderMode(false);
+}
+
+function adminClearQuestionBuilder() {
+  const ids = ['admin-q-topic', 'admin-q-text', 'admin-q-a', 'admin-q-b', 'admin-q-c', 'admin-q-d', 'admin-q-soln', 'admin-q-caltech'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const correct = document.getElementById('admin-q-correct');
+  if (correct) correct.value = 'a';
+  adminEditingQuestionIndex = -1;
+  adminSetQuestionBuilderMode(false);
+}
+
+function adminAddQuestion() {
+  const set = adminGetSelectedSet();
+  if (!set) {
+    alert('Select a quiz set first.');
+    return;
+  }
+
+  const topic = String(document.getElementById('admin-q-topic')?.value || '').trim();
+  const text = String(document.getElementById('admin-q-text')?.value || '').trim();
+  const a = String(document.getElementById('admin-q-a')?.value || '').trim();
+  const b = String(document.getElementById('admin-q-b')?.value || '').trim();
+  const c = String(document.getElementById('admin-q-c')?.value || '').trim();
+  const d = String(document.getElementById('admin-q-d')?.value || '').trim();
+  const soln = String(document.getElementById('admin-q-soln')?.value || '').trim();
+  const caltech = String(document.getElementById('admin-q-caltech')?.value || '').trim();
+  const key = String(document.getElementById('admin-q-correct')?.value || 'a').toLowerCase();
+
+  if (!text) {
+    alert('Question text is required.');
+    return;
+  }
+  if (!a || !b || !c || !d) {
+    alert('Please fill Options A, B, C, and D.');
+    return;
+  }
+
+  const q = {
+    id: adminEditingQuestionIndex >= 0 ? adminEditingQuestionIndex + 1 : ((set.questions || []).length + 1),
+    topic: topic || 'Custom',
+    q: text,
+    options: { a, b, c, d },
+    key: ['a', 'b', 'c', 'd'].includes(key) ? key : 'a',
+    ans: { a, b, c, d }[key] || a,
+    soln,
+    caltech: caltech || null,
+  };
+
+  const wasEditing = adminEditingQuestionIndex >= 0 && !!set.questions?.[adminEditingQuestionIndex];
+  if (!Array.isArray(set.questions)) set.questions = [];
+  if (wasEditing) {
+    set.questions[adminEditingQuestionIndex] = q;
+  } else {
+    set.questions.push(q);
+  }
+
+  renumberQuestions(set.questions);
+  set.updatedAt = nowISO();
+  touchLibrary();
+  adminUpdateQuestionCount();
+  adminClearQuestionBuilder();
+  alert(wasEditing ? 'Question updated.' : 'Question added.');
+}
+
+async function adminUploadPdf(kind = 'notes') {
+  const fileEl = document.getElementById('admin-pdf-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a PDF file first.');
+    return;
+  }
+
+  const titleEl = document.getElementById('admin-pdf-title');
+  const displayTitle = String(titleEl?.value || '').trim() || file.name;
+  const folder = getAdminTargetPath() || 'GLOBAL';
+  ensureFolder(folder);
+
+  try {
+    let src = '';
+
+    if (liveIsEnabled() && liveAuthToken && sessionCanManageContent()) {
+      const uploaded = await liveUploadPdfFile(file);
+      src = String(uploaded?.url || uploaded?.path || '').trim();
+      if (!src) throw new Error('Backend upload did not return a file URL.');
+    } else {
+      const dataUrl = await readFileAsDataURL(file);
+      src = dataUrl;
+    }
+
+    library.pdfs.push({
+      id: uid('pdf'),
+      title: displayTitle,
+      folder,
+      kind,
+      src,
+      createdAt: nowISO(),
+    });
+
+    const saved = touchLibrary();
+    if (fileEl) fileEl.value = '';
+    if (titleEl) titleEl.value = '';
+    const urlEl = document.getElementById('admin-pdf-url');
+    if (urlEl) urlEl.value = '';
+    adminRefreshPdfList();
+
+    if (src.startsWith('data:')) {
+      alert(saved
+        ? 'PDF attached locally. For large files, backend upload is recommended.'
+        : 'PDF attached, but browser storage is full. Use backend upload or attach by URL.');
+    } else {
+      alert('PDF uploaded to backend and linked to the library.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to upload PDF. ' + String(err?.message || err));
+  }
+}
+
+function adminRefreshPdfList() {
+  const list = document.getElementById('admin-pdf-list');
+  if (!list) return;
+
+  const folder = getAdminTargetPath();
+  const items = (library.pdfs || [])
+    .filter(p => {
+      const pf = normalizePath(p.folder || '');
+      if (!folder) return isGlobalFolder(pf) || !pf;
+      return isUnderPath(pf, folder);
+    })
+    .slice()
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="admin-help">No PDFs attached.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  items.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'admin-list-item';
+    const managed = !!getManagedUploadRelativePath(p.src);
+    row.innerHTML = `
+      <div>
+        <div class="admin-list-title">${escapeHTML(p.title)}</div>
+        <div class="admin-list-sub">${escapeHTML(p.kind)} • ${escapeHTML(p.folder)}${managed ? ' • managed upload' : ''}</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="admin-mini-btn" type="button">VIEW</button>
+        <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);">DELETE</button>
+      </div>
+    `;
+
+    const [viewBtn, delBtn] = row.querySelectorAll('button');
+    viewBtn.addEventListener('click', () => openPdfOverlay(p.id, 'admin-overlay'));
+    delBtn.addEventListener('click', async () => {
+      if (!confirm(`Delete PDF: "${p.title}"?`)) return;
+      await liveDeleteManagedPdf(p.src);
+      library.pdfs = library.pdfs.filter(x => x.id !== p.id);
+      touchLibrary();
+      adminRefreshPdfList();
+    });
+    list.appendChild(row);
+  });
+}
+
+function handleLiveMessage(msg) {
+  const t = String(msg.type || '');
+
+  if (t === 'force_logout') {
+    alert(msg.reason || 'This account was logged in on another device.');
+    logoutToLogin();
+    return;
+  }
+
+  if (t === 'presence:public') {
+    liveOnlinePublic = Array.isArray(msg.users) ? msg.users : [];
+    renderOnlineUsersWidget();
+    return;
+  }
+
+  if (t === 'presence:admin') {
+    liveOnlineAdmin = Array.isArray(msg.users) ? msg.users : [];
+    liveOnlinePublic = liveOnlineAdmin.map(u => ({ username: u.username, role: u.role }));
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    return;
+  }
+
+  if (t === 'library:changed') {
+    const ms = Number(msg.ms || 0);
+    if (ms && ms > getLibraryUpdatedAtMs(library)) {
+      loadLibraryFromBackend();
+      if (sessionCanManageContent()) liveFetchLibraryVersions();
+    }
+    return;
+  }
+
+  if (t === 'log:batch') {
+    if (Array.isArray(msg.items)) {
+      liveAdminLog = msg.items.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'log:append') {
+    const item = msg.item;
+    if (item && typeof item === 'object') {
+      liveAdminLog.push(item);
+      if (liveAdminLog.length > 200) liveAdminLog = liveAdminLog.slice(-200);
+      renderAdminLog();
+    }
+    return;
+  }
+
+  if (t === 'hello:ack') {
+    updateLiveStatusUI(msg);
+    liveFetchMyScoreHistory();
+    liveFetchMyProgress();
+    if (sessionCanManageContent() && adminTab === 'backup') liveFetchLibraryVersions();
+    if (sessionIsAdmin()) {
+      safeLiveSend({ type: 'presence:request' });
+      safeLiveSend({ type: 'log:request' });
+    }
+  }
+}
+
+function updateLiveStatusUI(serverHello = null) {
+  const sub = document.getElementById('online-users-sub');
+  if (sub) {
+    if (!session?.username) sub.textContent = 'Login to see online users.';
+    else if (!liveIsEnabled()) sub.textContent = 'Backend URL not set.';
+    else if (liveWsConnected) sub.textContent = 'Live connected.';
+    else sub.textContent = 'Connecting…';
+  }
+
+  const adminStatus = document.getElementById('admin-live-status');
+  if (adminStatus) {
+    if (!liveIsEnabled()) adminStatus.textContent = 'Backend: URL not set.';
+    else if (liveWsConnected) adminStatus.textContent = 'Backend: connected (live).';
+    else adminStatus.textContent = 'Backend: connecting…';
+  }
+
+  const acctStatus = document.getElementById('admin-account-status');
+  if (acctStatus) {
+    if (!liveIsEnabled()) acctStatus.textContent = 'Backend: URL not set.';
+    else if (!liveAuthToken) acctStatus.textContent = 'Backend: not authenticated (login required).';
+    else acctStatus.textContent = liveWsConnected ? 'Backend: authenticated + live connected.' : 'Backend: authenticated (connecting live)…';
+  }
+
+  renderMyScoreHistory();
+  renderMyProgress();
+}
+
+function logoutToLogin() {
+  try { liveSetActivity('Logout', { view: 'LOGIN' }); } catch (_) {}
+  try { liveDisconnect(); } catch (_) {}
+  try { setLiveToken(''); } catch (_) {}
+
+  session = { username: null, role: null };
+  liveMyScoreHistory = [];
+  liveMyProgress = [];
+  currentQuizMeta = { id: null, title: '', folder: '', source: 'built_in', randomized: false };
+  currentQuestionBank = [];
+
+  try {
+    liveOnlinePublic = [];
+    liveOnlineAdmin = [];
+    renderOnlineUsersWidget();
+    renderAdminOnlineUsers();
+    renderMyScoreHistory();
+    renderMyProgress();
+    updateLiveStatusUI();
+  } catch (_) {}
+
+  updateRoleBasedUi();
+
+  document.getElementById('landing-page')?.classList.add('hidden');
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+  document.getElementById('admin-overlay')?.classList.add('hidden');
+
+  const loginPage = document.getElementById('login-page');
+  if (loginPage) {
+    loginPage.style.display = 'block';
+    loginPage.style.opacity = '1';
+  }
+}
+
+async function verifyLogin() {
+  const userIn = String(document.getElementById('username')?.value || '').trim();
+  const passIn = String(document.getElementById('password')?.value || '');
+  const loginPage = document.getElementById('login-page');
+  const landingPage = document.getElementById('landing-page');
+  const msg = document.getElementById('login-msg');
+
+  setLiveToken('');
+
+  if (!userIn || !passIn) {
+    if (msg) {
+      msg.textContent = 'PLEASE ENTER USERNAME AND PASSWORD';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const captchaToken = (window.grecaptcha && typeof grecaptcha.getResponse === 'function') ? grecaptcha.getResponse() : '';
+  if (!captchaToken) {
+    if (msg) {
+      msg.textContent = 'PLEASE CONFIRM YOU ARE NOT A ROBOT';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  let acct = null;
+  if (liveIsEnabled()) {
+    const res = await liveTryBackendLogin(userIn, passIn, captchaToken);
+    if (res?.ok) {
+      acct = {
+        username: res.user?.username || userIn,
+        role: res.user?.role || 'user',
+      };
+    } else {
+      if (msg) {
+        msg.textContent = (res?.error?.message || 'INVALID CREDENTIALS OR CAPTCHA FAILED').toUpperCase();
+        msg.classList.remove('hidden');
+      }
+      const pw = document.getElementById('password');
+      if (pw) pw.value = '';
+      if (window.grecaptcha && typeof grecaptcha.reset === 'function') grecaptcha.reset();
+      updateLiveStatusUI();
+      return;
+    }
+  } else {
+    if (msg) {
+      msg.textContent = 'BACKEND NOT AVAILABLE';
+      msg.classList.remove('hidden');
+    }
+    return;
+  }
+
+  if (msg) msg.classList.add('hidden');
+  hideLoginError();
+  session = { username: acct.username, role: acct.role };
+  setRememberMe(userIn, passIn);
+  updateRoleBasedUi();
+
+  try {
+    liveBackendUrl = getConfiguredBackendUrl();
+    liveAuthToken = getLiveToken();
+    updateLiveStatusUI();
+    liveConnect();
+  } catch (_) {}
+
+  if (loginPage) {
+    loginPage.style.opacity = '0';
+    loginPage.style.transition = 'opacity 0.5s';
+  }
+
+  setTimeout(() => {
+    if (loginPage) loginPage.style.display = 'none';
+    if (landingPage) landingPage.classList.remove('hidden');
+    try { liveSetActivity('Landing', { view: 'LANDING' }); } catch (_) {}
+    renderLandingCardToggles();
+    renderMyScoreHistory();
+    renderMyProgress();
+  }, 500);
+}
+
+function loadQuiz(type) {
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+  let liveTitle = '';
+
+  if (type === 'math') {
+    currentQuestionBank = typeof mathData !== 'undefined' ? cloneQuestions(mathData) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'MATHEMATICS';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'MATHEMATICS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'esas') {
+    currentQuestionBank = typeof esasData !== 'undefined' ? cloneQuestions(esasData) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'ESAS';
+      title.className = 'text-[#ff00ff]';
+    }
+    liveTitle = 'ESAS';
+    activeMenu = 'submenu-taypi';
+  } else if (type === 'ug1') {
+    currentQuestionBank = typeof esasUG1Data !== 'undefined' ? cloneQuestions(esasUG1Data) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'PAST BOARD 1';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 1';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug2') {
+    currentQuestionBank = typeof esasUG2Data !== 'undefined' ? cloneQuestions(esasUG2Data) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'PAST BOARD 2';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 2';
+    activeMenu = 'submenu-past-board-list';
+  } else if (type === 'ug3') {
+    currentQuestionBank = typeof esasUG3Data !== 'undefined' ? cloneQuestions(esasUG3Data) : [];
+    currentQuestions = cloneQuestions(currentQuestionBank);
+    if (title) {
+      title.innerHTML = 'PAST BOARD 3';
+      title.className = 'text-[#00f3ff]';
+    }
+    liveTitle = 'PAST BOARD 3';
+    activeMenu = 'submenu-past-board-list';
+  } else {
+    alert('Module Under Construction');
+    return;
+  }
+
+  currentQuizMeta = {
+    id: String(type || ''),
+    title: liveTitle || String(type || '').toUpperCase(),
+    folder: (type === 'math' || type === 'esas') ? 'T-AY-PI' : 'UNDERGROUNDS/TERMS & OBJECTIVES/ESAS PAST BOARD',
+    source: 'built_in',
+    randomized: false,
+  };
+
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+  updateQuizMetaBanner();
+
+  try {
+    liveSetActivity('Start Built-in Quiz', { view: 'QUIZ_ENGINE', details: liveTitle || String(type || '').toUpperCase() });
+    liveSaveProgress({
+      setId: currentQuizMeta.id,
+      setTitle: currentQuizMeta.title,
+      folder: currentQuizMeta.folder,
+      source: currentQuizMeta.source,
+      mode: 'review',
+      action: 'view',
+    });
+  } catch (_) {}
+
+  setTimeout(() => { if (app) app.style.opacity = '1'; }, 100);
+}
+
+function loadQuizCustom(setId, backMenuId) {
+  const set = library.quizSets.find(s => s.id === setId);
+  if (!set) {
+    alert('Quiz set not found in library.');
+    return;
+  }
+
+  const app = document.getElementById('main-app');
+  const title = document.getElementById('active-module-title');
+  currentQuestionBank = cloneQuestions(set.questions);
+  currentQuestions = cloneQuestions(set.questions);
+
+  if (title) {
+    title.innerHTML = escapeHTML(set.title || 'CUSTOM SET');
+    title.className = 'text-[#00f3ff]';
+  }
+
+  activeMenu = backMenuId || quizBrowserBackMenuId || 'level-1-menu';
+  currentQuizMeta = {
+    id: set.id,
+    title: set.title || 'CUSTOM SET',
+    folder: set.folder || '',
+    source: 'custom',
+    randomized: false,
+  };
+
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  if (app) app.classList.remove('hidden');
+
+  currentMode = 'review';
+  resetExam();
+  resetPractice();
+  setMode('review');
+  updateQuizMetaBanner();
+
+  try {
+    liveSetActivity('Start Custom Quiz', { view: 'QUIZ_ENGINE', path: set.folder || '', details: set.title || 'CUSTOM SET' });
+    liveSaveProgress({
+      setId: currentQuizMeta.id,
+      setTitle: currentQuizMeta.title,
+      folder: currentQuizMeta.folder,
+      source: currentQuizMeta.source,
+      mode: 'review',
+      action: 'view',
+    });
+  } catch (_) {}
+
+  setTimeout(() => { if (app) app.style.opacity = '1'; }, 100);
+}
+
+function selectPracticeOption(qId, option) {
+  if (practiceAttempts[qId]) return;
+  const q = currentQuestions.find(item => item.id === qId);
+  if (!q) return;
+  practiceAttempts[qId] = { selected: option, isCorrect: option === q.key };
+  renderQuestions();
+
+  try {
+    liveSaveProgress({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode: 'practice',
+      action: 'practice_answer',
+      correct: option === q.key,
+    });
+  } catch (_) {}
+}
+
+function submitExam() {
+  if (examSubmitted) return;
+  examSubmitted = true;
+
+  let score = 0;
+  currentQuestions.forEach(q => {
+    if (userAnswers[q.id] === q.key) score++;
+  });
+
+  if (scoreDisplay) scoreDisplay.innerText = String(score);
+  const totalDisplay = document.getElementById('total-score');
+  if (totalDisplay) totalDisplay.innerText = '/ ' + currentQuestions.length;
+
+  try {
+    liveSetActivity('Submit Exam', {
+      view: 'QUIZ_ENGINE',
+      details: `Score: ${score}/${currentQuestions.length}`,
+    });
+  } catch (_) {}
+
+  if (examStatus) {
+    examStatus.innerText = 'COMPLETED';
+    examStatus.classList.remove('text-yellow-500');
+    examStatus.classList.add('text-[#00ff9d]');
+  }
+
+  if (submitBtn) {
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    submitBtn.disabled = true;
+  }
+
+  try {
+    const mode = currentQuizMeta.randomized ? 'random_exam' : 'exam';
+    liveSaveScoreHistory({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode,
+      score,
+      total: currentQuestions.length,
+    });
+    liveSaveProgress({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode,
+      action: currentQuizMeta.randomized ? 'random_exam_submit' : 'exam_submit',
+      score,
+      total: currentQuestions.length,
+    });
+  } catch (_) {}
+
+  renderQuestions();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function adminSaveLibrary() {
+  if (!sessionCanManageContent()) {
+    alert('Admin or editor only.');
+    return;
+  }
+  touchLibrary();
+  try { scheduleLiveLibraryPush(true); } catch (_) {}
+  if (liveIsEnabled() && liveAuthToken) {
+    liveFetchLibraryVersions();
+  }
+  adminExportLibrary();
+}
+
+async function adminQuickImportLibrary() {
+  if (!sessionCanManageContent()) {
+    alert('Admin or editor only.');
+    return;
+  }
+  const fileEl = document.getElementById('admin-quick-import-file');
+  const file = fileEl?.files?.[0];
+  if (!file) {
+    alert('Choose a library.json file first.');
+    return;
+  }
+  try {
+    const persisted = await importLibraryFromFile(file);
+    alert(persisted ? 'Library imported and saved to cache.' : 'Library imported, but could not save to cache (storage might be full).');
+  } catch (err) {
+    console.error(err);
+    alert('Invalid library.json');
+  } finally {
+    if (fileEl) fileEl.value = '';
+  }
+}
+
+function openAdminPanel() {
+  if (!sessionCanManageContent()) {
+    alert('Admin or editor access only.');
+    return;
+  }
+
+  document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
+  const app = document.getElementById('main-app');
+  if (app) {
+    app.classList.add('hidden');
+    app.style.opacity = '0';
+  }
+
+  document.getElementById('admin-overlay')?.classList.remove('hidden');
+  setAdminTab('content');
+  updateRoleBasedUi();
+
+  try { liveSetActivity('Open Admin Panel', { view: 'ADMIN' }); } catch (_) {}
+  try { if (sessionIsAdmin()) liveRequestAdminRefresh(); } catch (_) {}
+
+  updateAdminLibraryStatus();
+  showLibraryHintIfNeeded();
+  adminRefreshAll();
+}
+
+function setAdminTab(tab) {
+  if (!sessionCanManageContent()) return;
+  if (!sessionIsAdmin() && (tab === 'accounts' || tab === 'logs')) {
+    tab = 'content';
+  }
+
+  adminTab = tab;
+  const tabs = {
+    content: 'admin-tab-content',
+    accounts: 'admin-tab-accounts',
+    logs: 'admin-tab-logs',
+    backup: 'admin-tab-backup',
+  };
+
+  Object.entries(tabs).forEach(([k, id]) => {
+    document.getElementById(id)?.classList.toggle('hidden', k !== tab);
+  });
+
+  const navMap = {
+    content: 'admin-nav-content',
+    accounts: 'admin-nav-accounts',
+    logs: 'admin-nav-logs',
+    backup: 'admin-nav-backup',
+  };
+  Object.values(navMap).forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(navMap[tab])?.classList.add('active');
+
+  updateRoleBasedUi();
+
+  try {
+    if (tab === 'logs' && sessionIsAdmin()) {
+      adminRefreshBackendUrlUI();
+      renderAdminOnlineUsers();
+      renderAdminLog();
+      liveRequestAdminRefresh();
+    }
+    if (tab === 'accounts' && sessionIsAdmin()) {
+      adminRefreshServerAccounts();
+    }
+    if (tab === 'backup') {
+      liveFetchLibraryVersions();
+    }
+  } catch (_) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initLandingCardToggles();
+  renderMyScoreHistory();
+  renderMyProgress();
+  updateRoleBasedUi();
+  document.getElementById('admin-version-refresh-btn')?.addEventListener('click', liveFetchLibraryVersions);
+});
