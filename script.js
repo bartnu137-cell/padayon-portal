@@ -69,6 +69,9 @@ let liveAdminLog = [];     // [{ ts, username, message }]
 let liveLastPresenceHash = '';
 let liveLibraryPushTimer = null;
 let liveLastLibraryPushedAtMs = 0;
+let liveMyScoreHistory = [];
+let currentQuizMeta = { id: null, title: '', folder: '', source: 'built_in' };
+let adminEditingQuestionIndex = -1;
 
 function trimSlash(url) {
   return String(url || '').trim().replace(/\/+$/, '');
@@ -257,6 +260,117 @@ async function liveApiFetch(path, { method = 'GET', body = null, headers = {} } 
   }
 
   return json;
+}
+
+function normalizeScoreHistoryItem(item) {
+  const score = Number(item?.score || 0);
+  const total = Number(item?.total || 0);
+  const percent = total > 0 ? Math.round((score / total) * 1000) / 10 : 0;
+
+  return {
+    id: String(item?.id || ''),
+    ts: Number(item?.ts || Date.now()),
+    recordedAt: String(item?.recordedAt || ''),
+    setId: String(item?.setId || ''),
+    setTitle: String(item?.setTitle || 'Untitled Quiz'),
+    folder: String(item?.folder || ''),
+    source: String(item?.source || 'custom'),
+    mode: String(item?.mode || 'exam'),
+    score,
+    total,
+    percent,
+  };
+}
+
+async function liveFetchMyScoreHistory() {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) {
+    liveMyScoreHistory = [];
+    renderMyScoreHistory();
+    return false;
+  }
+
+  try {
+    const json = await liveApiFetch('/api/scores', { method: 'GET' });
+    liveMyScoreHistory = Array.isArray(json?.items)
+      ? json.items.map(normalizeScoreHistoryItem)
+      : [];
+    renderMyScoreHistory();
+    return true;
+  } catch (err) {
+    console.warn('Score history fetch failed:', err);
+    renderMyScoreHistory();
+    return false;
+  }
+}
+
+async function liveSaveScoreHistory(entry) {
+  if (!liveIsEnabled() || !liveAuthToken || !session?.username) return false;
+
+  try {
+    await liveApiFetch('/api/scores', {
+      method: 'POST',
+      body: entry,
+    });
+    await liveFetchMyScoreHistory();
+    return true;
+  } catch (err) {
+    console.warn('Score history save failed:', err);
+    return false;
+  }
+}
+
+function renderMyScoreHistory() {
+  const sub = document.getElementById('score-history-sub');
+  const countEl = document.getElementById('score-history-count');
+  const listEl = document.getElementById('score-history-list');
+  if (!sub || !countEl || !listEl) return;
+
+  const items = Array.isArray(liveMyScoreHistory) ? liveMyScoreHistory : [];
+  countEl.textContent = String(items.length);
+
+  if (!session?.username) {
+    sub.textContent = 'Login to view your recent exam scores.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(login required)</div>';
+    return;
+  }
+
+  if (!liveIsEnabled()) {
+    sub.textContent = 'Backend URL not set.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(backend not configured)</div>';
+    return;
+  }
+
+  if (!liveAuthToken) {
+    sub.textContent = 'Login required.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">(not authenticated)</div>';
+    return;
+  }
+
+  if (items.length === 0) {
+    sub.textContent = 'Your exam submissions will appear here.';
+    listEl.innerHTML = '<div class="text-gray-500 text-xs font-mono">No saved exam history yet.</div>';
+    return;
+  }
+
+  sub.textContent = 'Stored on backend per account.';
+  listEl.innerHTML = items.slice(0, 6).map(item => {
+    const when = item.ts ? new Date(item.ts).toLocaleString() : '';
+    const title = escapeHTML(item.setTitle || 'Untitled Quiz');
+    const meta = escapeHTML((item.mode || 'exam').toUpperCase());
+    const scoreText = escapeHTML(String(item.score) + '/' + String(item.total));
+    const percentText = Number.isFinite(item.percent) ? escapeHTML(item.percent.toFixed(1) + '%') : '0.0%';
+    const whenText = escapeHTML(when);
+
+    return `
+      <div class="border border-gray-800 rounded-lg px-3 py-2 bg-black/20">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-1">
+          <div class="text-sm text-white font-semibold">${title}</div>
+          <div class="text-xs font-mono text-[#00f3ff]">${scoreText} • ${percentText}</div>
+        </div>
+        <div class="text-[11px] font-mono text-gray-500 mt-1">${meta}${whenText ? ' • ' + whenText : ''}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function liveTryBackendLogin(username, password, captchaToken) {
@@ -492,6 +606,7 @@ function handleLiveMessage(msg) {
   if (t === 'hello:ack') {
     // Server acknowledged connection.
     updateLiveStatusUI(msg);
+    liveFetchMyScoreHistory();
     // Ask for snapshots when admin.
     if (session?.role === 'admin') {
       safeLiveSend({ type: 'presence:request' });
@@ -525,6 +640,8 @@ function updateLiveStatusUI(serverHello = null) {
     else if (!liveAuthToken) acctStatus.textContent = 'Backend: not authenticated (login required).';
     else acctStatus.textContent = liveWsConnected ? 'Backend: authenticated + live connected.' : 'Backend: authenticated (connecting live)…';
   }
+
+  renderMyScoreHistory();
 }
 
 function renderOnlineUsersWidget() {
@@ -1328,6 +1445,8 @@ const captchaToken =
 
   hideLoginError();
   session = { username: acct.username, role: acct.role };
+  liveMyScoreHistory = [];
+  renderMyScoreHistory();
   setRememberMe(userIn, passIn);
 
   try {
@@ -1367,6 +1486,8 @@ function logoutToLogin() {
   try { setLiveToken(''); } catch (_) {}
 
   session = { username: null, role: null };
+  liveMyScoreHistory = [];
+  renderMyScoreHistory();
 
   // Reset online UI
   try {
@@ -1438,6 +1559,7 @@ document.addEventListener('DOMContentLoaded', () => {
   liveBackendUrl = getConfiguredBackendUrl();
   liveAuthToken = getLiveToken();
   updateLiveStatusUI();
+  renderMyScoreHistory();
 
   // If backend is configured, try loading library from there too.
   // (This enables true live updates without importing/exporting.)
@@ -1982,6 +2104,13 @@ function loadQuiz(type) {
     return;
   }
 
+  currentQuizMeta = {
+    id: String(type || ''),
+    title: liveTitle || String(type || '').toUpperCase(),
+    folder: (type === 'math' || type === 'esas') ? 'T-AY-PI' : 'UNDERGROUNDS/TERMS & OBJECTIVES/ESAS PAST BOARD',
+    source: 'built_in',
+  };
+
   // Hide all overlays (including notes/quiz browser)
   document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
 
@@ -2033,6 +2162,12 @@ function loadQuizCustom(setId, backMenuId) {
 
   // Set active menu back location
   activeMenu = backMenuId || quizBrowserBackMenuId || 'level-1-menu';
+  currentQuizMeta = {
+    id: String(set.id || ''),
+    title: String(set.title || 'CUSTOM SET'),
+    folder: String(set.folder || ''),
+    source: 'custom',
+  };
 
   // Hide all overlays
   document.querySelectorAll('.menu-overlay').forEach(el => el.classList.add('hidden'));
@@ -2162,6 +2297,18 @@ function submitExam() {
     submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
     submitBtn.disabled = true;
   }
+
+  try {
+    liveSaveScoreHistory({
+      setId: currentQuizMeta.id || null,
+      setTitle: currentQuizMeta.title || String(document.getElementById('active-module-title')?.innerText || '').trim() || 'Untitled Quiz',
+      folder: currentQuizMeta.folder || '',
+      source: currentQuizMeta.source || 'custom',
+      mode: 'exam',
+      score,
+      total: currentQuestions.length,
+    });
+  } catch (_) {}
 
   renderQuestions();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2788,6 +2935,7 @@ function adminRefreshAll() {
   adminRefreshQuizSetSelect();
   adminRefreshPdfList();
   adminUpdateQuestionCount();
+  adminRefreshQuestionList();
 }
 
 function adminRefreshFolderList() {
@@ -2857,7 +3005,157 @@ function adminSelectQuizSet(setId) {
   adminSelectedQuizSetId = setId || '';
   const sel = document.getElementById('admin-quiz-select');
   if (sel) sel.value = adminSelectedQuizSetId;
+  adminClearQuestionBuilder();
   adminUpdateQuestionCount();
+  adminRefreshQuestionList();
+}
+
+function adminSetQuestionBuilderMode(isEditing) {
+  const addBtn = document.getElementById('admin-q-add-btn');
+  const clearBtn = document.getElementById('admin-q-clear-btn');
+  const status = document.getElementById('admin-q-edit-status');
+  const set = adminGetSelectedSet();
+
+  if (addBtn) addBtn.textContent = isEditing ? 'SAVE QUESTION' : 'ADD QUESTION';
+  if (clearBtn) clearBtn.textContent = isEditing ? 'CANCEL EDIT' : 'CLEAR';
+
+  if (status) {
+    if (!set) status.textContent = 'Select a quiz set first.';
+    else if (isEditing && set.questions?.[adminEditingQuestionIndex]) status.textContent = `Editing question #${adminEditingQuestionIndex + 1}`;
+    else status.textContent = 'Add a new question to the selected set.';
+  }
+}
+
+function adminNormalizeQuestionIds(set) {
+  if (!set || !Array.isArray(set.questions)) return;
+  set.questions = set.questions.map((q, index) => ({
+    ...q,
+    id: index + 1,
+    ans: String(q?.options?.[q?.key] || q?.ans || ''),
+  }));
+}
+
+function adminQuestionSummary(q) {
+  const text = String(q?.q || '').replace(/\s+/g, ' ').trim();
+  if (!text) return '(empty question)';
+  return text.length > 120 ? text.slice(0, 117) + '...' : text;
+}
+
+function adminFillQuestionBuilder(question, index) {
+  const q = question || {};
+  const opts = q.options || {};
+
+  const setValue = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value == null ? '' : String(value);
+  };
+
+  setValue('admin-q-topic', q.topic || '');
+  setValue('admin-q-text', q.q || '');
+  setValue('admin-q-a', opts.a || '');
+  setValue('admin-q-b', opts.b || '');
+  setValue('admin-q-c', opts.c || '');
+  setValue('admin-q-d', opts.d || '');
+  setValue('admin-q-soln', q.soln || '');
+  setValue('admin-q-caltech', q.caltech || '');
+  setValue('admin-q-correct', q.key || 'a');
+
+  adminEditingQuestionIndex = Number(index);
+  adminSetQuestionBuilderMode(true);
+}
+
+function adminRefreshQuestionList() {
+  const box = document.getElementById('admin-question-list');
+  if (!box) return;
+
+  const set = adminGetSelectedSet();
+  if (!set) {
+    box.innerHTML = '<div class="admin-help">Select a quiz set to manage questions.</div>';
+    adminSetQuestionBuilderMode(false);
+    return;
+  }
+
+  const items = Array.isArray(set.questions) ? set.questions : [];
+  if (items.length === 0) {
+    box.innerHTML = '<div class="admin-help">No questions in this set yet.</div>';
+    adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
+    return;
+  }
+
+  box.innerHTML = items.map((q, index) => {
+    const topic = q?.topic ? `<span class="admin-pill">${escapeHTML(q.topic)}</span>` : '';
+    const correct = escapeHTML(String(q?.key || '').toUpperCase());
+    const summary = escapeHTML(adminQuestionSummary(q));
+
+    return `
+      <div class="admin-list-item">
+        <div class="admin-list-left">
+          <div class="admin-list-title">#${index + 1} ${summary}</div>
+          <div class="admin-list-sub flex flex-wrap gap-2 items-center">
+            ${topic}
+            <span class="admin-mono">Correct: ${correct || '-'}</span>
+          </div>
+        </div>
+        <div class="admin-list-right" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="admin-mini-btn" type="button" onclick="adminEditQuestion(${index})">EDIT</button>
+          <button class="admin-mini-btn" type="button" onclick="adminDuplicateQuestion(${index})">DUPLICATE</button>
+          <button class="admin-mini-btn" type="button" style="border-color: rgba(255, 0, 85, 0.55);" onclick="adminDeleteQuestion(${index})">DELETE</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  adminSetQuestionBuilderMode(adminEditingQuestionIndex >= 0);
+}
+
+function adminEditQuestion(index) {
+  const set = adminGetSelectedSet();
+  const question = set?.questions?.[index];
+  if (!question) return;
+  adminFillQuestionBuilder(question, index);
+}
+
+function adminDuplicateQuestion(index) {
+  const set = adminGetSelectedSet();
+  const question = set?.questions?.[index];
+  if (!question) return;
+
+  const copy = {
+    ...question,
+    options: { ...(question.options || {}) },
+  };
+
+  const items = Array.isArray(set.questions) ? set.questions.slice() : [];
+  items.splice(index + 1, 0, copy);
+  set.questions = items;
+  adminNormalizeQuestionIds(set);
+  set.updatedAt = nowISO();
+  touchLibrary();
+
+  adminUpdateQuestionCount();
+  adminRefreshQuestionList();
+}
+
+function adminDeleteQuestion(index) {
+  const set = adminGetSelectedSet();
+  const question = set?.questions?.[index];
+  if (!question) return;
+
+  if (!confirm(`Delete question #${index + 1}?`)) return;
+
+  set.questions = (set.questions || []).filter((_, i) => i !== index);
+  adminNormalizeQuestionIds(set);
+  set.updatedAt = nowISO();
+  touchLibrary();
+
+  if (adminEditingQuestionIndex === index) {
+    adminClearQuestionBuilder();
+  } else if (adminEditingQuestionIndex > index) {
+    adminEditingQuestionIndex -= 1;
+  }
+
+  adminUpdateQuestionCount();
+  adminRefreshQuestionList();
 }
 
 function adminCreateQuizSet() {
@@ -2943,8 +3241,10 @@ function adminDeleteSelectedQuizSet() {
   touchLibrary();
 
   adminSelectedQuizSetId = '';
+  adminClearQuestionBuilder();
   adminRefreshQuizSetSelect();
   adminUpdateQuestionCount();
+  adminRefreshQuestionList();
 
   alert('Deleted.');
 }
@@ -3036,12 +3336,14 @@ async function adminImportQuestionsJson() {
     }
 
     set.questions = Array.isArray(set.questions) ? set.questions.concat(sanitized) : sanitized;
+    adminNormalizeQuestionIds(set);
     set.updatedAt = nowISO();
     touchLibrary();
 
     if (fileEl) fileEl.value = '';
 
     adminUpdateQuestionCount();
+    adminRefreshQuestionList();
     alert(`Imported ${sanitized.length} question(s).`);
   } catch (err) {
     console.error(err);
@@ -3057,6 +3359,9 @@ function adminClearQuestionBuilder() {
   });
   const correct = document.getElementById('admin-q-correct');
   if (correct) correct.value = 'a';
+
+  adminEditingQuestionIndex = -1;
+  adminSetQuestionBuilderMode(false);
 }
 
 function adminAddQuestion() {
@@ -3075,6 +3380,7 @@ function adminAddQuestion() {
   const soln = String(document.getElementById('admin-q-soln')?.value || '').trim();
   const caltech = String(document.getElementById('admin-q-caltech')?.value || '').trim();
   const key = String(document.getElementById('admin-q-correct')?.value || 'a').toLowerCase();
+  const resolvedKey = ['a', 'b', 'c', 'd'].includes(key) ? key : 'a';
 
   if (!text) {
     alert('Question text is required.');
@@ -3085,28 +3391,35 @@ function adminAddQuestion() {
     return;
   }
 
-  const maxExistingId = (set.questions || []).reduce((m, q) => Math.max(m, Number(q.id) || 0), 0);
-  const id = maxExistingId + 1;
-
   const q = {
-    id,
+    id: adminEditingQuestionIndex >= 0 ? adminEditingQuestionIndex + 1 : ((set.questions || []).length + 1),
     topic: topic || 'Custom',
     q: text,
     options: { a, b, c, d },
-    key: ['a', 'b', 'c', 'd'].includes(key) ? key : 'a',
-    ans: { a, b, c, d }[key] || a,
+    key: resolvedKey,
+    ans: { a, b, c, d }[resolvedKey] || a,
     soln,
     caltech: caltech || null,
   };
 
-  set.questions = Array.isArray(set.questions) ? set.questions.concat([q]) : [q];
+  if (!Array.isArray(set.questions)) set.questions = [];
+  const wasEditing = adminEditingQuestionIndex >= 0 && !!set.questions[adminEditingQuestionIndex];
+
+  if (wasEditing) {
+    set.questions[adminEditingQuestionIndex] = q;
+  } else {
+    set.questions.push(q);
+  }
+
+  adminNormalizeQuestionIds(set);
   set.updatedAt = nowISO();
   touchLibrary();
 
   adminUpdateQuestionCount();
+  adminRefreshQuestionList();
   adminClearQuestionBuilder();
 
-  alert('Question added.');
+  alert(wasEditing ? 'Question updated.' : 'Question added.');
 }
 
 function adminGetPdfKind() {
@@ -3117,46 +3430,44 @@ function adminGetPdfKind() {
 async function adminUploadPdf(kind = 'notes') {
   const fileEl = document.getElementById('admin-pdf-file');
   const file = fileEl?.files?.[0];
-  if (!file) {
-    alert('Choose a PDF file first.');
+  const urlEl = document.getElementById('admin-pdf-url');
+  const rawUrl = String(urlEl?.value || '').trim();
+
+  if (!file && !rawUrl) {
+    alert('Choose a PDF file or paste a PDF URL/path first.');
     return;
   }
 
   const titleEl = document.getElementById('admin-pdf-title');
-  const displayTitle = String(titleEl?.value || '').trim() || file.name;
+  const displayTitle = String(titleEl?.value || '').trim() || (file?.name || baseName(rawUrl) || 'PDF');
 
   const folder = getAdminTargetPath() || 'GLOBAL';
   ensureFolder(folder);
 
-  try {
-    const dataUrl = await readFileAsDataURL(file);
+  const autoUrl = file ? ('assets/pdfs/' + encodeURIComponent(file.name)) : '';
+  const safeSrc = encodeURI(rawUrl || autoUrl);
 
-    library.pdfs.push({
-      id: uid('pdf'),
-      title: displayTitle,
-      folder,
-      kind,
-      src: dataUrl,
-      createdAt: nowISO(),
-    });
+  library.pdfs.push({
+    id: uid('pdf'),
+    title: displayTitle,
+    folder,
+    kind,
+    src: safeSrc,
+    createdAt: nowISO(),
+  });
 
-    const saved = touchLibrary();
+  touchLibrary();
 
-    if (fileEl) fileEl.value = '';
-    if (titleEl) titleEl.value = '';
-    const urlEl = document.getElementById('admin-pdf-url');
-    if (urlEl) urlEl.value = '';
+  if (fileEl) fileEl.value = '';
+  if (titleEl) titleEl.value = '';
+  if (urlEl) urlEl.value = '';
 
-    adminRefreshPdfList();
+  adminRefreshPdfList();
 
-    if (!saved) {
-      alert('PDF attached, but browser storage is full (PDF embed can be very large).\n\n✅ It will still work right now.\n👉 To share/persist: use Backup → Export library.json, or attach by URL (recommended for GitHub).');
-    } else {
-      alert('PDF attached. (Export library.json in Backup to share)');
-    }
-  } catch (err) {
-    console.error(err);
-    alert('Failed to read PDF file.');
+  if (rawUrl) {
+    alert('PDF URL attached. Library now stores only the URL/path.');
+  } else {
+    alert(`PDF entry saved as URL only:\n${safeSrc}\n\nUpload the real PDF file to that same path in your repo or hosting.`);
   }
 }
 
@@ -3689,6 +4000,7 @@ function initAdminUI() {
     adminRefreshFolderList();
     // only refresh if notes tab visible
     if (adminCreateType === 'notes') adminRefreshPdfList();
+    if (adminCreateType === 'quiz') adminRefreshQuestionList();
   });
 
   // Copy path
